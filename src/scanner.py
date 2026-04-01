@@ -1,21 +1,19 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 
-from src.dependency_parser import ParserFactory
+from src.dependency_parser import ParserFactory, ParsedDependency
 from src.vulnerability_manager import VulnerabilityManager
 from src.report_generator import ReportGenerator
 
 
 class DependencyScanner:
-    def __init__(self) -> None:
-        self.vuln_manager = VulnerabilityManager()
+    def __init__(self, db_path: Optional[str] = None) -> None:
+        self.vuln_manager = VulnerabilityManager(db_path)
 
-    def scan_file(self, manifest_path: Path) -> Dict:
-        parser = ParserFactory.get_parser(manifest_path.name)
-        content = manifest_path.read_text(encoding='utf-8')
-        dependencies = parser.parse(content)
-
+    def scan_file(self, manifest_path: Path, lock_path: Optional[Path] = None) -> Dict:
+        dependencies = self._load_dependencies(manifest_path, lock_path)
         findings: List[Dict] = []
+
         for dep in dependencies:
             vulns = self.vuln_manager.find_vulnerabilities(
                 name=dep.name,
@@ -27,6 +25,8 @@ class DependencyScanner:
                     'package': dep.name,
                     'version': dep.version,
                     'ecosystem': dep.ecosystem,
+                    'source': dep.source,
+                    'transitive': dep.is_transitive,
                     'cve': vuln['cve_id'],
                     'severity': vuln['severity'],
                     'description': vuln['description'],
@@ -37,28 +37,74 @@ class DependencyScanner:
                     'recommended_version': vuln['fixed_version'],
                 })
 
+        total_direct, total_transitive = self._dependency_counts(dependencies)
         return {
             'project_name': manifest_path.stem,
             'scan_time': '',
             'total_dependencies': len(dependencies),
+            'direct_dependencies': total_direct,
+            'transitive_dependencies': total_transitive,
             'findings': findings,
             'risk_score': self._calculate_overall_risk_score(findings),
         }
+
+    def _load_dependencies(self, manifest_path: Path, lock_path: Optional[Path] = None) -> List[ParsedDependency]:
+        root_parser = ParserFactory.get_parser(manifest_path.name)
+        root_deps = root_parser.parse(manifest_path.read_text(encoding='utf-8'))
+
+        if lock_path and lock_path.exists():
+            lock_parser = ParserFactory.get_parser(lock_path.name)
+            lock_deps = lock_parser.parse(lock_path.read_text(encoding='utf-8'))
+            return self._merge_dependencies(root_deps, lock_deps)
+
+        return root_deps
+
+    def _merge_dependencies(
+        self,
+        root_deps: List[ParsedDependency],
+        lock_deps: List[ParsedDependency],
+    ) -> List[ParsedDependency]:
+        merged: Dict[Tuple[str, str, str], ParsedDependency] = {}
+        root_names = {dep.name.lower() for dep in root_deps}
+
+        for dep in root_deps:
+            key = (dep.name.lower(), dep.version, dep.ecosystem)
+            merged[key] = dep
+
+        for dep in lock_deps:
+            key = (dep.name.lower(), dep.version, dep.ecosystem)
+            if key in merged:
+                continue
+            dep.is_transitive = dep.is_transitive or (dep.name.lower() not in root_names)
+            merged[key] = dep
+
+        return list(merged.values())
+
+    def _dependency_counts(self, dependencies: List[ParsedDependency]) -> Tuple[int, int]:
+        direct = sum(1 for dep in dependencies if not dep.is_transitive)
+        transitive = sum(1 for dep in dependencies if dep.is_transitive)
+        return direct, transitive
 
     def format_report(self, scan_result: Dict, manifest_path: Path) -> str:
         lines = [
             f'Scan report for: {manifest_path}',
             '=' * 60,
+            f"Total dependencies: {scan_result['total_dependencies']}",
+            f"  direct: {scan_result['direct_dependencies']}",
+            f"  transitive: {scan_result['transitive_dependencies']}",
+            '',
         ]
 
         if not scan_result['findings']:
-            lines.append('No known vulnerabilities found for direct dependencies.')
+            lines.append('No known vulnerabilities found for analyzed dependencies.')
             return '\n'.join(lines)
 
         for finding in scan_result['findings']:
             lines.extend([
                 f"Package: {finding['package']} ({finding['ecosystem']})",
-                f"  Declared version: {finding['version']}",
+                f"  Version: {finding['version']}",
+                f"  Source: {finding['source']}",
+                f"  Transitive: {finding['transitive']}",
                 f"  CVE: {finding['cve']} ({finding['severity']})",
                 f"  Description: {finding['description']}",
                 f"  Reference: {finding['reference']}",
@@ -98,3 +144,4 @@ class DependencyScanner:
         score_map = {'critical': 90, 'high': 70, 'medium': 50, 'low': 20}
         scores = [score_map.get(f['severity'], 0) for f in findings]
         return int(sum(scores) / len(scores))
+

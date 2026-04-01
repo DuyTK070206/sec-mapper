@@ -6,12 +6,24 @@ from src.scanner import DependencyScanner
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description='Simple Dependency Vulnerability Mapper'
+        description='Dependency Vulnerability Mapper',
     )
     parser.add_argument(
         'manifest',
         type=Path,
         help='Path to package.json or requirements.txt',
+    )
+    parser.add_argument(
+        '--lock',
+        type=Path,
+        default=None,
+        help='Optional path to package-lock.json for transitive dependency analysis',
+    )
+    parser.add_argument(
+        '--vuln-db',
+        type=Path,
+        default=None,
+        help='Optional path to a vulnerability database JSON file',
     )
     parser.add_argument(
         '--format',
@@ -29,8 +41,11 @@ def main() -> None:
     if not manifest_path.exists():
         raise SystemExit(f'File not found: {manifest_path}')
 
-    scanner = DependencyScanner()
-    result = scanner.scan_file(manifest_path)
+    if args.lock and not args.lock.exists():
+        raise SystemExit(f'Lockfile not found: {args.lock}')
+
+    scanner = DependencyScanner(db_path=str(args.vuln_db) if args.vuln_db else None)
+    result = scanner.scan_file(manifest_path, lock_path=args.lock)
 
     if args.format == 'json':
         print(scanner.generate_json_report(result))

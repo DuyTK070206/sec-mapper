@@ -2,47 +2,74 @@
 
 Phiên bản mẫu của tool `Dependency Vulnerability Mapper` cho bài tập.
 
-## Chạy thử
+## Mục đích
+- Quét dependency từ `package.json` và `requirements.txt`.
+- Hỗ trợ đọc `package-lock.json` để quét các dependency transitive.
+- So khớp package/version với database lỗ hổng mẫu.
+- Xuất báo cáo dạng text, JSON hoặc HTML.
 
-1. Mở PowerShell và vào thư mục dự án:
+## Cài đặt nhanh
 
 ```powershell
 cd c:\RAISE\sec-mapper\sec-mapper
-```
-
-2. Tạo môi trường ảo và cài dependencies:
-
-```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-3. Chạy scanner với file mẫu:
+## Chạy công cụ
+
+### Quét `package.json`
 
 ```powershell
 python main.py samples\package.json
+```
+
+### Quét `requirements.txt`
+
+```powershell
 python main.py samples\requirements.txt
 ```
 
-4. Xuất báo cáo JSON hoặc HTML:
+### Quét cùng `package-lock.json` để phát hiện transitive dependencies
+
+```powershell
+python main.py samples\package.json --lock samples\package-lock.json
+```
+
+### Dùng database lỗ hổng riêng
+
+```powershell
+python main.py samples\package.json --vuln-db src\vuln_db.json
+```
+
+### Xuất báo cáo JSON
 
 ```powershell
 python main.py samples\package.json --format json
+```
+
+### Xuất báo cáo HTML
+
+```powershell
 python main.py samples\package.json --format html
 ```
 
-## Nội dung repository
+## File và thư mục quan trọng
 
-- `Sec_Mapper.md`: báo cáo đề tài / cách làm
-- `main.py`: entrypoint CLI
-- `src/`: code chính của tool
-- `samples/`: ví dụ manifest để test
-- `tests/`: bộ test mẫu
+- `main.py` - CLI chạy scan.
+- `src/dependency_parser.py` - parser cho manifest.
+- `src/vulnerability_manager.py` - đọc database CVE và match phiên bản.
+- `src/scanner.py` - logic quét dependency và tạo kết quả.
+- `src/report_generator.py` - xuất báo cáo JSON/HTML.
+- `src/vuln_db.json` - database lỗ hổng mẫu có thể mở rộng.
+- `samples/` - file ví dụ gồm `package.json`, `requirements.txt`, `package-lock.json`.
+- `tests/` - test chức năng.
 
 ## Ghi chú
 
-- `src/vulnerability_manager.py` chứa dữ liệu lỗ hổng mẫu.
-- `src/scanner.py` thực hiện quét và tạo báo cáo.
-- `src/report_generator.py` có thể xuất `json` và `html`.
+- `--lock` giúp quét dependency gián tiếp từ `package-lock.json`.
+- `--vuln-db` cho phép dùng database JSON khác.
+- Tool hiện tại phù hợp để demo ý tưởng và kiểm tra dependency có CVE mẫu.
+- Muốn mở rộng thực tế hơn, có thể thêm parser cho `pom.xml`, `go.mod`, `Pipfile.lock`, và kết nối NVD/GitHub Advisory API.
