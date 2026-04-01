@@ -1,7 +1,7 @@
 # tests/test_dependency_parser.py
 
 import pytest
-from dependency_parser import NpmPackageJsonParser
+from src.dependency_parser import NpmPackageJsonParser
 
 def test_parse_package_json():
     content = '''

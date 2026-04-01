@@ -1,0 +1,40 @@
+Sec Mapper - Hướng dẫn chạy test
+====================================
+
+Mục tiêu:
+- Cài đặt môi trường Python
+- Chạy bộ test với pytest
+
+Yêu cầu:
+- Python 3.10+
+- pytest
+
+Cài đặt nhanh (PowerShell):
+
+```powershell
+cd c:\RAISE\sec-mapper
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r sec-mapper\requirements.txt
+python -m pip install pytest
+```
+
+Chạy test:
+
+```powershell
+cd c:\RAISE\sec-mapper
+python -m pytest tests
+```
+
+Nếu bạn đang ở trong thư mục `sec-mapper\sec-mapper`:
+
+```powershell
+cd c:\RAISE\sec-mapper\sec-mapper
+..\.venv\Scripts\Activate.ps1
+pytest tests
+```
+
+Ghi chú:
+- Các test hiện tại là mẫu (`pass`) và có thể cần viết thêm logic cụ thể.
+- Nếu cần chạy nhanh, chỉ cần `pytest sec-mapper\tests` từ root.
