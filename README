@@ -1,40 +1,48 @@
-Sec Mapper - Hướng dẫn chạy test
-====================================
+﻿# Sec Mapper
 
-Mục tiêu:
-- Cài đặt môi trường Python
-- Chạy bộ test với pytest
+Phiên bản mẫu của tool `Dependency Vulnerability Mapper` cho bài tập.
 
-Yêu cầu:
-- Python 3.10+
-- pytest
+## Chạy thử
 
-Cài đặt nhanh (PowerShell):
-
-```powershell
-cd c:\RAISE\sec-mapper
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r sec-mapper\requirements.txt
-python -m pip install pytest
-```
-
-Chạy test:
-
-```powershell
-cd c:\RAISE\sec-mapper
-python -m pytest tests
-```
-
-Nếu bạn đang ở trong thư mục `sec-mapper\sec-mapper`:
+1. Mở PowerShell và vào thư mục dự án:
 
 ```powershell
 cd c:\RAISE\sec-mapper\sec-mapper
-..\.venv\Scripts\Activate.ps1
-pytest tests
 ```
 
-Ghi chú:
-- Các test hiện tại là mẫu (`pass`) và có thể cần viết thêm logic cụ thể.
-- Nếu cần chạy nhanh, chỉ cần `pytest sec-mapper\tests` từ root.
+2. Tạo môi trường ảo và cài dependencies:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+3. Chạy scanner với file mẫu:
+
+```powershell
+python main.py samples\package.json
+python main.py samples\requirements.txt
+```
+
+4. Xuất báo cáo JSON hoặc HTML:
+
+```powershell
+python main.py samples\package.json --format json
+python main.py samples\package.json --format html
+```
+
+## Nội dung repository
+
+- `Sec_Mapper.md`: báo cáo đề tài / cách làm
+- `main.py`: entrypoint CLI
+- `src/`: code chính của tool
+- `samples/`: ví dụ manifest để test
+- `tests/`: bộ test mẫu
+
+## Ghi chú
+
+- `src/vulnerability_manager.py` chứa dữ liệu lỗ hổng mẫu.
+- `src/scanner.py` thực hiện quét và tạo báo cáo.
+- `src/report_generator.py` có thể xuất `json` và `html`.

@@ -1,7 +1,7 @@
 # version_resolver.py
 
 from packaging import version
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 class VersionResolver:
     """
