@@ -4,12 +4,13 @@ from typing import Dict, List, Optional, Tuple
 from src.dependency_parser import ParserFactory, ParsedDependency
 from src.vulnerability_manager import VulnerabilityManager
 from src.report_generator import ReportGenerator
+from src.exploit_generator import ExploitGeneratorFactory
 
 
 class DependencyScanner:
     def __init__(self, db_path: Optional[str] = None) -> None:
         self.vuln_manager = VulnerabilityManager(db_path)
-
+        self.exploit_generator = ExploitGeneratorFactory()
     def scan_file(self, manifest_path: Path, lock_path: Optional[Path] = None) -> Dict:
         dependencies = self._load_dependencies(manifest_path, lock_path)
         findings: List[Dict] = []
@@ -21,6 +22,14 @@ class DependencyScanner:
                 ecosystem=dep.ecosystem,
             )
             for vuln in vulns:
+                poc = None
+                generator = ExploitGeneratorFactory.get_generator(vuln)
+                if generator is not None:
+                    try:
+                        poc = generator.generate_poc(vuln)
+                    except Exception:
+                        poc = None
+
                 findings.append({
                     'package': dep.name,
                     'version': dep.version,
@@ -35,6 +44,7 @@ class DependencyScanner:
                     'has_patch': vuln['has_patch'],
                     'effort': self._estimate_effort(dep.version, vuln['fixed_version'], vuln['has_patch']),
                     'recommended_version': vuln['fixed_version'],
+                    'poc': poc,
                 })
 
         total_direct, total_transitive = self._dependency_counts(dependencies)
@@ -109,6 +119,7 @@ class DependencyScanner:
                 f"  Description: {finding['description']}",
                 f"  Reference: {finding['reference']}",
                 f"  Recommended update: {finding['recommended_version']}",
+                f"  PoC snippet: {finding.get('poc', 'N/A')[:120] if finding.get('poc') else 'N/A'}",
                 '',
             ])
 

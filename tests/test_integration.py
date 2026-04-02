@@ -20,3 +20,11 @@ def test_scan_package_with_lock_transitive():
 
     assert result['transitive_dependencies'] >= 1
     assert any(f['package'] == 'follow-redirects' for f in result['findings'])
+
+
+def test_poc_generation_in_findings():
+    scanner = DependencyScanner()
+    manifest_path = Path(__file__).resolve().parent.parent / 'samples' / 'package.json'
+    result = scanner.scan_file(manifest_path)
+
+    assert any('poc' in f and f['poc'] for f in result['findings'])

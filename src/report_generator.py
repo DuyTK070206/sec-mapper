@@ -154,6 +154,7 @@ class ReportGenerator:
                             <th>Severity</th>
                             <th>Patch Available</th>
                             <th>Effort</th>
+                            <th>PoC</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -163,6 +164,10 @@ class ReportGenerator:
             patch = "✓ Yes" if finding.get('has_patch') else "✗ No"
             severity_class = finding['severity'].lower()
             
+            poc_preview = ''
+            if finding.get('poc'):
+                poc_preview = finding['poc'].strip().replace('\n', ' ')[:120] + '...'
+
             html += f"""
                         <tr>
                             <td>{finding['package']}</td>
@@ -176,6 +181,7 @@ class ReportGenerator:
                             <td><span class="{severity_class}">{finding['severity'].upper()}</span></td>
                             <td>{patch}</td>
                             <td>{finding['effort']}</td>
+                            <td title="PoC snippet">{poc_preview}</td>
                         </tr>
             """
         
