@@ -37,7 +37,7 @@
         }
       ],
       "properties": {
-        "scan_date": "2026-04-02T08:15:09.722017",
+        "scan_date": "2026-04-02T08:24:43.485747",
         "project_name": "package",
         "total_dependencies": 4,
         "overall_risk_score": 70
