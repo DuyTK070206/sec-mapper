@@ -130,6 +130,9 @@ class DependencyScanner:
 
     def generate_html_report(self, scan_result: Dict) -> str:
         return ReportGenerator(scan_result).generate_html_report()
+    
+    def generate_sarif_report(self, scan_result: Dict) -> str:
+        return ReportGenerator(scan_result).generate_sarif_report()
 
     def _estimate_effort(self, current_version: str, fixed_version: str, has_patch: bool) -> str:
         if not has_patch:

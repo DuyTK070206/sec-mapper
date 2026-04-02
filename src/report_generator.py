@@ -213,6 +213,74 @@ class ReportGenerator:
         
         return html
     
+    def generate_sarif_report(self) -> str:
+        """Generate SARIF (Static Analysis Results Format) for GitHub integration"""
+        
+        runs = []
+        results = []
+        
+        for finding in self.scan_result.get('findings', []):
+            result = {
+                'ruleId': finding['cve'],
+                'level': self._map_severity_to_sarif_level(finding['severity']),
+                'message': {
+                    'text': f"{finding['package']}@{finding['version']}: {finding['description']}"
+                },
+                'locations': [
+                    {
+                        'physicalLocation': {
+                            'artifactLocation': {
+                                'uri': f"{finding['ecosystem']}/{finding['package']}/package.json"
+                            }
+                        }
+                    }
+                ],
+                'properties': {
+                    'package': finding['package'],
+                    'installed_version': finding['version'],
+                    'fixed_version': finding['recommended_version'],
+                    'has_patch': finding['has_patch'],
+                    'source': finding.get('source', 'unknown'),
+                    'remediation_effort': finding['effort'],
+                }
+            }
+            results.append(result)
+        
+        sarif = {
+            'version': '2.1.0',
+            'runs': [
+                {
+                    'tool': {
+                        'driver': {
+                            'name': 'Dependency Vulnerability Mapper',
+                            'version': '1.0.0',
+                            'informationUri': 'https://github.com/sec-mapper',
+                            'rules': []
+                        }
+                    },
+                    'results': results,
+                    'properties': {
+                        'scan_date': self.timestamp,
+                        'project_name': self.scan_result.get('project_name'),
+                        'total_dependencies': self.scan_result.get('total_dependencies'),
+                        'overall_risk_score': self.scan_result.get('risk_score'),
+                    }
+                }
+            ]
+        }
+        
+        return json.dumps(sarif, indent=2)
+    
+    def _map_severity_to_sarif_level(self, severity: str) -> str:
+        """Map our severity to SARIF level"""
+        mapping = {
+            'critical': 'error',
+            'high': 'error',
+            'medium': 'warning',
+            'low': 'note',
+        }
+        return mapping.get(severity, 'note')
+
     def _generate_remediation_plan(self) -> List[Dict]:
         """Generate prioritized remediation steps"""
         

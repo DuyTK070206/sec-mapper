@@ -73,3 +73,16 @@ python main.py samples\package.json --format html
 - `--vuln-db` cho phép dùng database JSON khác.
 - Tool hiện tại phù hợp để demo ý tưởng và kiểm tra dependency có CVE mẫu.
 - Muốn mở rộng thực tế hơn, có thể thêm parser cho `pom.xml`, `go.mod`, `Pipfile.lock`, và kết nối NVD/GitHub Advisory API.
+
+## Chạy tests
+
+```powershell
+# Chạy tất cả tests (đúng cách)
+python -m pytest tests -v
+
+# Hoặc chạy ngắn gọn
+python -m pytest tests -q
+
+# Chạy test cụ thể
+python -m pytest tests/test_comprehensive_samples.py -v
+```

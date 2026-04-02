@@ -27,9 +27,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         '--format',
-        choices=['text', 'json', 'html'],
+        choices=['text', 'json', 'html', 'sarif'],
         default='text',
         help='Output format for the scan report',
+    )
+    parser.add_argument(
+        '--sync',
+        action='store_true',
+        help='Sync latest CVE data from NVD before scanning',
     )
     return parser
 
@@ -44,9 +49,19 @@ def main() -> None:
     if args.lock and not args.lock.exists():
         raise SystemExit(f'Lockfile not found: {args.lock}')
 
+    # Initialize scanner with optional custom DB
     scanner = DependencyScanner(db_path=str(args.vuln_db) if args.vuln_db else None)
+    
+    # Optionally sync NVD data
+    if args.sync:
+        from src.nvd_database import NVDDatabase
+        nvd = NVDDatabase()
+        nvd.sync_recent(days=7)
+    
+    # Perform scan
     result = scanner.scan_file(manifest_path, lock_path=args.lock)
 
+    # Output in requested format
     if args.format == 'json':
         print(scanner.generate_json_report(result))
         return
@@ -56,6 +71,13 @@ def main() -> None:
         output = manifest_path.with_suffix('.report.html')
         output.write_text(html, encoding='utf-8')
         print(f'HTML report written to: {output}')
+        return
+    
+    if args.format == 'sarif':
+        sarif = scanner.generate_sarif_report(result)
+        output = manifest_path.parent / f"{manifest_path.stem}.sarif.json"
+        output.write_text(sarif, encoding='utf-8')
+        print(f'SARIF report written to: {output}')
         return
 
     print(scanner.format_report(result, manifest_path))

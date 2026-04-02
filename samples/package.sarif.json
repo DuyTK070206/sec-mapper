@@ -1,0 +1,47 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Dependency Vulnerability Mapper",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/sec-mapper",
+          "rules": []
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CVE-2021-23337",
+          "level": "error",
+          "message": {
+            "text": "lodash@4.17.20: Prototype pollution in lodash before 4.17.21."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "npm/lodash/package.json"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "lodash",
+            "installed_version": "4.17.20",
+            "fixed_version": "4.17.21",
+            "has_patch": true,
+            "source": "package.json",
+            "remediation_effort": "low"
+          }
+        }
+      ],
+      "properties": {
+        "scan_date": "2026-04-02T08:15:09.722017",
+        "project_name": "package",
+        "total_dependencies": 4,
+        "overall_risk_score": 70
+      }
+    }
+  ]
+}
