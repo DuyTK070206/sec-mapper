@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from datetime import datetime
 
 from src.dependency_parser import ParserFactory, ParsedDependency
 from src.vulnerability_manager import VulnerabilityManager
@@ -50,7 +51,7 @@ class DependencyScanner:
         total_direct, total_transitive = self._dependency_counts(dependencies)
         return {
             'project_name': manifest_path.stem,
-            'scan_time': '',
+            'scan_time': datetime.now().isoformat(),
             'total_dependencies': len(dependencies),
             'direct_dependencies': total_direct,
             'transitive_dependencies': total_transitive,
@@ -97,33 +98,111 @@ class DependencyScanner:
 
     def format_report(self, scan_result: Dict, manifest_path: Path) -> str:
         lines = [
-            f'Scan report for: {manifest_path}',
             '=' * 60,
-            f"Total dependencies: {scan_result['total_dependencies']}",
-            f"  direct: {scan_result['direct_dependencies']}",
-            f"  transitive: {scan_result['transitive_dependencies']}",
+            'DEPENDENCY VULNERABILITY SCAN REPORT',
+            '=' * 60,
+            '',
+            '[SCAN SUMMARY]',
+            f'{"─" * 60}',
+            f'File: {manifest_path}',
+            f'Scan Time: {scan_result["scan_time"]}',
+            f'Overall Risk Score: {scan_result["risk_score"]}/100',
+            f'Total Dependencies: {scan_result["total_dependencies"]}',
+            f'  - Direct: {scan_result["direct_dependencies"]}',
+            f'  - Transitive: {scan_result["transitive_dependencies"]}',
+            f'Vulnerabilities Found: {len(scan_result["findings"])}',
+            f'  - Critical: {sum(1 for f in scan_result["findings"] if f["severity"] == "critical")}',
+            f'  - High: {sum(1 for f in scan_result["findings"] if f["severity"] == "high")}',
+            f'  - Medium: {sum(1 for f in scan_result["findings"] if f["severity"] == "medium")}',
+            f'  - Low: {sum(1 for f in scan_result["findings"] if f["severity"] == "low")}',
             '',
         ]
 
         if not scan_result['findings']:
-            lines.append('No known vulnerabilities found for analyzed dependencies.')
+            lines.append('[OK] No known vulnerabilities found for analyzed dependencies.')
             return '\n'.join(lines)
 
-        for finding in scan_result['findings']:
+        lines.extend([
+            '[DETAILED FINDINGS]',
+            f'{"─" * 60}',
+            ''
+        ])
+
+        for idx, finding in enumerate(scan_result['findings'], 1):
+            severity_marker = {'critical': '[CRITICAL]', 'high': '[HIGH]', 'medium': '[MEDIUM]', 'low': '[LOW]'}.get(finding['severity'], '[UNKNOWN]')
+            
             lines.extend([
-                f"Package: {finding['package']} ({finding['ecosystem']})",
-                f"  Version: {finding['version']}",
-                f"  Source: {finding['source']}",
-                f"  Transitive: {finding['transitive']}",
-                f"  CVE: {finding['cve']} ({finding['severity']})",
-                f"  Description: {finding['description']}",
-                f"  Reference: {finding['reference']}",
-                f"  Recommended update: {finding['recommended_version']}",
-                f"  PoC snippet: {finding.get('poc', 'N/A')[:120] if finding.get('poc') else 'N/A'}",
+                f'{idx}. {severity_marker} {finding["package"]} ({finding["ecosystem"]})',
+                f'   Current Version: {finding["version"]}',
+                f'   Severity: {finding["severity"].upper()}',
+                f'   Type: {"Transitive" if finding["transitive"] else "Direct"}',
+                f'   CVE ID: {finding["cve"]}',
+                f'   Description: {finding["description"]}',
+                f'   Reference: {finding["reference"]}',
+                f'   Patched Version: {finding["recommended_version"]}',
+                f'   Patch Available: {"Yes" if finding["has_patch"] else "No"}',
+                f'   Fix Effort: {finding["effort"].upper()}',
+                f'   Breaking Changes: {"Possible" if self._check_breaking_changes(finding["version"], finding["recommended_version"]) else "None expected"}',
                 '',
             ])
 
+            if finding.get('poc'):
+                lines.extend([
+                    f'   [PROOF OF CONCEPT]:',
+                    f'   {"-" * 55}',
+                ])
+                poc_lines = finding['poc'].split('\n')
+                for poc_line in poc_lines[:30]:  # Show first 30 lines
+                    lines.append(f'   {poc_line}')
+                if len(poc_lines) > 30:
+                    lines.append(f'   ... (and {len(poc_lines) - 30} more lines)')
+                lines.append('')
+
+        lines.extend([
+            '[REMEDIATION PLAN]',
+            f'{"─" * 60}',
+        ])
+        
+        sorted_findings = sorted(scan_result['findings'], 
+                                key=lambda x: {'critical': 0, 'high': 1, 'medium': 2, 'low': 3}.get(x['severity'], 4))
+        
+        for idx, finding in enumerate(sorted_findings, 1):
+            effort_map = {"low": "< 5 min", "medium": "5-30 min", "high": "> 30 min"}
+            effort_time = effort_map.get(finding["effort"], "Unknown")
+            priority_map = {'critical': 'CRITICAL', 'high': 'HIGH', 'medium': 'MEDIUM', 'low': 'LOW'}
+            priority = priority_map.get(finding['severity'], 'UNKNOWN')
+            
+            lines.extend([
+                f'{idx}. PRIORITY: {priority}',
+                f'   Package: {finding["package"]}@{finding["version"]} -> {finding["recommended_version"]}',
+                f'   Estimated Time: {effort_time}',
+                f'   Testing: Unit tests, Integration tests, Regression tests',
+                '',
+            ])
+
+        lines.extend([
+            '[RECOMMENDATIONS]',
+            f'{"─" * 60}',
+            f'1. Review and prioritize vulnerabilities based on severity',
+            f'2. Start with CRITICAL and HIGH severity vulnerabilities',
+            f'3. Update dependencies to recommended versions',
+            f'4. Run full test suite after updates',
+            f'5. Monitor for any breaking changes',
+            f'6. Consider using lock files (package-lock.json) for consistency',
+            '',
+        ])
+
         return '\n'.join(lines)
+    
+    def _check_breaking_changes(self, current_version: str, fixed_version: str) -> bool:
+        """Check if update would cause breaking changes"""
+        try:
+            from packaging import version
+            current = version.parse(current_version.lstrip('^~'))
+            fixed = version.parse(fixed_version)
+            return fixed.major > current.major
+        except Exception:
+            return False
 
     def generate_json_report(self, scan_result: Dict) -> str:
         return ReportGenerator(scan_result).generate_json_report()

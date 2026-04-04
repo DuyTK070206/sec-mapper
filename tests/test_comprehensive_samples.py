@@ -148,7 +148,10 @@ class TestAllReportFormats:
         assert '</html>' in html_report
         # Check for key sections
         assert 'Dependency Vulnerability Report' in html_report
-        assert '<table>' in html_report
+        # Check for card-based layout (instead of table)
+        assert 'finding-card' in html_report
+        assert 'finding-header' in html_report
+        assert 'finding-details' in html_report
 
     def test_sarif_report_generation(self):
         """Test SARIF report generation"""
