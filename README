@@ -56,23 +56,141 @@ python main.py samples\package.json --format json
 python main.py samples\package.json --format html
 ```
 
+## Báo cáo đầy đủ (Sorted by Severity)
+
+Để tạo báo cáo đầy đủ với tất cả vulnerabilities được sắp xếp theo mức độ cấp bách:
+
+```powershell
+python generate_full_reports.py
+```
+
+### Kết quả
+
+Lệnh trên sẽ tạo **2 file báo cáo**:
+
+#### 1. **JSON Report** (`samples/package.report.json`)
+- Format: JSON machine-readable
+- Dùng cho: CI/CD pipelines, lập trình tự động (automation)
+- Chứa: Tất cả CVE được sắp xếp theo severity (Critical → High → Medium → Low)
+- Mở file để xem chi tiết:
+  ```powershell
+  cat samples\package.report.json | python -m json.tool
+  ```
+
+#### 2. **HTML Report** (`samples/package.report.html`)
+- Format: Interactive dashboard
+- Dùng cho: Xem trực quan, báo cáo quản lý
+- Chứa:
+  - 📊 Summary statistics (Total dependencies, Risk Score)
+  - 🔴 Vulnerabilities sắp xếp theo severity (màu sắc tương ứng)
+  - 🔗 Links tới NVD và CVE Mitre
+  - 💻 PoC exploit code cho mỗi CVE
+  - 🔧 Remediation plan (cách sửa chữa)
+  - ⏱️ Effort estimation (Low/Medium/High)
+- Mở trong browser:
+  ```powershell
+  start samples\package.report.json
+  ```
+
+### Ví dụ Output
+
+Scan kết quả:
+```
+Total dependencies: 6
+Overall Risk Score: 60.0/100
+
+VULNERABILITIES (Sorted by Severity):
+─────────────────────────────────────
+1. [HIGH] follow-redirects v1.10.0 → 1.14.0 (TRANSITIVE)
+   CVE: CVE-2021-33901, Effort: medium
+
+2. [HIGH] lodash v4.17.20 → 4.17.21 (DIRECT)
+   CVE: CVE-2021-23337, Effort: low
+
+3. [MEDIUM] axios v0.20.0 → 0.21.1 (DIRECT)
+   CVE: GHSA-95c9-f9f2-q643, Effort: medium
+```
+
+## Tính năng nâng cao
+
+### NVD/GitHub Advisories Integration
+
+Để fetch real-time vulnerability data từ NVD hoặc GitHub:
+
+```powershell
+# Sync latest CVEs từ NVD (7 ngày gần nhất)
+python main.py samples\package.json --sync
+
+# Với NVD API Key (rate limit cao hơn)
+python main.py samples\package.json --sync --nvd-api-key YOUR_API_KEY
+
+# Với GitHub Token
+python main.py samples\package.json --github-token YOUR_GITHUB_TOKEN
+```
+
+**Fallback chain:**
+1. Local JSON database (`vuln_db.json`)
+2. GitHub Security Advisories (nhanh hơn NVD, cập nhật thường xuyên)
+3. NVD API (comprehensive, chính thức)
+
+### Risk Scoring Algorithm
+
+Tool tính risk score dựa trên:
+- **CVSS Score** (40%) - Điểm từ NVD
+- **Exploitability** (30%) - Có exploit sẵn không
+- **Patch Availability** (20%) - Có patch khả dụng không
+- **Dependency Type** (10%) - Direct (10 điểm) hay Transitive (5 điểm)
+
+Kết quả: **0-100 score**, được phân loại:
+- **80-100**: Critical
+- **60-79**: High
+- **40-59**: Medium
+- **<40**: Low
+
+### PoC Exploit Generation
+
+Tool tự động sinh Proof-of-Concept exploit code cho các lỗ hổng:
+- SQL Injection (CWE-89)
+- OS Command Injection (CWE-78)
+- XXE - XML External Entity (CWE-611)
+- Prototype Pollution (lodash, etc.)
+- Remote Code Execution (Log4Shell, etc.)
+
+PoC code được hiển thị trong HTML report.
+
+### SARIF Report Output
+
+Cho GitHub Actions integration:
+```powershell
+python main.py samples\package.json --format sarif
+```
+
+Tạo file `.sarif.json` có thể:
+- Upload lên GitHub Security tab
+- Parse trong VS Code
+- Dùng trong IDE khác
+
 ## File và thư mục quan trọng
 
 - `main.py` - CLI chạy scan.
-- `src/dependency_parser.py` - parser cho manifest.
-- `src/vulnerability_manager.py` - đọc database CVE và match phiên bản.
+- `src/dependency_parser.py` - parser cho manifest (npm, Python, Maven).
+- `src/vulnerability_manager.py` - match phiên bản với CVE database.
 - `src/scanner.py` - logic quét dependency và tạo kết quả.
-- `src/report_generator.py` - xuất báo cáo JSON/HTML.
-- `src/vuln_db.json` - database lỗ hổng mẫu có thể mở rộng.
-- `samples/` - file ví dụ gồm `package.json`, `requirements.txt`, `package-lock.json`.
+- `src/report_generator.py` - xuất báo cáo (JSON/HTML/SARIF/Text).
+- `src/nvd_database.py` - kết nối NVD API và SQLite cache.
+- `src/github_advisories.py` - kết nối GitHub Security Advisories.
+- `src/exploit_generator.py` - tạo PoC exploit code.
+- `src/vuln_db.json` - database lỗ hổng mẫu (có thể mở rộng).
+- `samples/` - file ví dụ (package.json, requirements.txt, package-lock.json).
 - `tests/` - test chức năng.
 
 ## Ghi chú
 
 - `--lock` giúp quét dependency gián tiếp từ `package-lock.json`.
 - `--vuln-db` cho phép dùng database JSON khác.
-- Tool hiện tại phù hợp để demo ý tưởng và kiểm tra dependency có CVE mẫu.
-- Muốn mở rộng thực tế hơn, có thể thêm parser cho `pom.xml`, `go.mod`, `Pipfile.lock`, và kết nối NVD/GitHub Advisory API.
+- `--sync` fetch dữ liệu mới từ NVD hoặc GitHub Advisories.
+- Tool hỗ trợ đầy đủ 5 giai đoạn assignment (parsers, databases, risk scoring, PoC generation, reports).
+- Có thể mở rộng thêm parser cho `pom.xml`, `go.mod`, `Pipfile.lock`, `Cargo.toml`, v.v.
 
 ## Chạy tests
 

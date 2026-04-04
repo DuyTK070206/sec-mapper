@@ -555,10 +555,20 @@ class ReportGenerator:
         # Simplified: compare major versions
         from packaging import version
         
-        current = version.parse(finding.get('version', '0'))
-        fixed = version.parse(finding.get('fixed_version', '0'))
+        current_spec = finding.get('version', '0').strip()
+        fixed_spec = finding.get('fixed_version', '0').strip()
         
-        return current.major != fixed.major
+        # Strip npm version markers (^, ~, >, <, =)
+        import re
+        current_clean = re.sub(r'^[\^~>=<]+', '', current_spec)
+        fixed_clean = re.sub(r'^[\^~>=<]+', '', fixed_spec)
+        
+        try:
+            current = version.parse(current_clean)
+            fixed = version.parse(fixed_clean)
+            return current.major != fixed.major
+        except Exception:
+            return False
     
     def _get_testing_requirements(self, finding: Dict) -> List[str]:
         """Get list of testing recommendations"""

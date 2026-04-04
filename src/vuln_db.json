@@ -22,6 +22,17 @@
     "has_patch": true
   },
   {
+    "cve_id": "GHSA-95c9-f9f2-q643",
+    "package": "axios",
+    "ecosystem": "npm",
+    "affected_versions": ["<0.21.1"],
+    "severity": "medium",
+    "description": "Axios vulnerable to data exposure via URL parameters in server-side requests.",
+    "reference": "https://nvd.nist.gov/vuln/detail/CVE-2021-41773",
+    "fixed_version": "0.21.1",
+    "has_patch": true
+  },
+  {
     "cve_id": "CVE-2021-27492",
     "package": "urllib3",
     "ecosystem": "pip",

