@@ -38,7 +38,7 @@ class NVDDatabase:
                 cwe_ids TEXT,
                 published_date TEXT,
                 last_modified_date TEXT,
-                references TEXT,
+                reference_urls TEXT,
                 last_sync TEXT
             )
         ''')
@@ -121,7 +121,7 @@ class NVDDatabase:
             'cwe_ids': cwe_ids,
             'published_date': cve.get('published', ''),
             'last_modified_date': cve.get('lastModified', ''),
-            'references': references,
+            'reference_urls': references,
         }
     
     def _get_from_cache(self, cve_id: str) -> Optional[Dict]:
@@ -143,7 +143,7 @@ class NVDDatabase:
                     'cwe_ids': json.loads(row[4] or '[]'),
                     'published_date': row[5],
                     'last_modified_date': row[6],
-                    'references': json.loads(row[7] or '[]'),
+                    'reference_urls': json.loads(row[7] or '[]'),
                 }
         except Exception as e:
             print(f"Cache read error: {e}")
@@ -159,7 +159,7 @@ class NVDDatabase:
             cursor.execute('''
                 INSERT OR REPLACE INTO nvd_vulnerabilities
                 (cve_id, description, cvss_score, severity, cwe_ids,
-                 published_date, last_modified_date, references, last_sync)
+                 published_date, last_modified_date, reference_urls, last_sync)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 vuln['cve_id'],
@@ -169,7 +169,7 @@ class NVDDatabase:
                 json.dumps(vuln.get('cwe_ids', [])),
                 vuln['published_date'],
                 vuln['last_modified_date'],
-                json.dumps(vuln.get('references', [])),
+                json.dumps(vuln.get('reference_urls', [])),
                 datetime.now().isoformat(),
             ))
             

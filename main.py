@@ -36,6 +36,18 @@ def build_parser() -> argparse.ArgumentParser:
         action='store_true',
         help='Sync latest CVE data from NVD before scanning',
     )
+    parser.add_argument(
+        '--nvd-api-key',
+        type=str,
+        default=None,
+        help='NVD API key for higher rate limits',
+    )
+    parser.add_argument(
+        '--github-token',
+        type=str,
+        default=None,
+        help='GitHub token for accessing advisories',
+    )
     return parser
 
 
@@ -50,7 +62,11 @@ def main() -> None:
         raise SystemExit(f'Lockfile not found: {args.lock}')
 
     # Initialize scanner with optional custom DB
-    scanner = DependencyScanner(db_path=str(args.vuln_db) if args.vuln_db else None)
+    scanner = DependencyScanner(
+        db_path=str(args.vuln_db) if args.vuln_db else None,
+        nvd_api_key=args.nvd_api_key,
+        github_token=args.github_token,
+    )
     
     # Optionally sync NVD data
     if args.sync:

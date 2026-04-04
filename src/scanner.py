@@ -9,8 +9,8 @@ from src.exploit_generator import ExploitGeneratorFactory
 
 
 class DependencyScanner:
-    def __init__(self, db_path: Optional[str] = None) -> None:
-        self.vuln_manager = VulnerabilityManager(db_path)
+    def __init__(self, db_path: Optional[str] = None, nvd_api_key: Optional[str] = None, github_token: Optional[str] = None) -> None:
+        self.vuln_manager = VulnerabilityManager(db_path, nvd_api_key, github_token)
         self.exploit_generator = ExploitGeneratorFactory()
     def scan_file(self, manifest_path: Path, lock_path: Optional[Path] = None) -> Dict:
         dependencies = self._load_dependencies(manifest_path, lock_path)
