@@ -152,6 +152,16 @@ class TestAllReportFormats:
         assert 'finding-card' in html_report
         assert 'finding-header' in html_report
         assert 'finding-details' in html_report
+        assert 'https://nvd.nist.gov/vuln/detail/CVE-2021-23337' in html_report
+        assert 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-23337' in html_report
+
+    def test_html_report_cve_links_are_valid(self):
+        """Test that HTML report builds valid CVE reference links"""
+        html_report = self.scanner.generate_html_report(self.result)
+
+        assert 'https://nvd.nist.gov/vuln/detail/CVE-2021-23337' in html_report
+        assert 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-23337' in html_report
+        assert 'Additional Reference' in html_report
 
     def test_sarif_report_generation(self):
         """Test SARIF report generation"""

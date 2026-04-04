@@ -1,50 +1,50 @@
-# Dependency Vulnerability Mapper - Project Documentation
+# Dependency Vulnerability Mapper - Tài liệu Dự án
 
-**Version:** 1.0.0  
-**Language:** Python 3.8+  
-**Status:** Production Ready ✅
-
----
-
-## 📋 Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [Architecture & Data Flow](#architecture--data-flow)
-3. [Project Structure](#project-structure)
-4. [Core Components](#core-components)
-5. [Execution Workflow](#execution-workflow)
-6. [API Reference](#api-reference)
-7. [Examples](#examples)
-8. [Testing](#testing)
-9. [Future Enhancements](#future-enhancements)
+**Phiên bản:** 1.0.0  
+**Ngôn ngữ:** Python 3.8+  
+**Trạng thái:** Sẵn sàng sử dụng ✅
 
 ---
 
-## 🎯 Project Overview
+## 📋 Mục lục
 
-### Purpose
-**Dependency Vulnerability Mapper** is a production-ready security scanning tool that:
-- Automatically detects vulnerable dependencies in software projects
-- Analyzes multiple package management ecosystems (npm, pip, Maven, etc.)
-- Generates actionable remediation recommendations with severity scoring
-- Produces detailed reports in multiple formats (text, JSON, HTML, SARIF)
-- Provides proof-of-concept (PoC) exploits for vulnerability validation
-
-### Key Features
-- ✅ **Multi-Ecosystem Support**: npm, Python pip, Maven, Gradle (planned), Go modules (planned), Ruby Gems (planned)
-- ✅ **Transitive Dependency Analysis**: Detects vulnerabilities in nested dependencies
-- ✅ **Intelligent Risk Scoring**: 0-100 risk score based on severity, difficulty, and exploitability
-- ✅ **NVD Integration**: Real-time synchronization with National Vulnerability Database v2.0
-- ✅ **Proof-of-Concept Generation**: 5 exploit types (SQLi, Command Injection, XXE, Prototype Pollution, RCE)
-- ✅ **Multi-Format Reporting**: Text (ASCII-safe), JSON (machine-readable), HTML (interactive), SARIF (GitHub integration)
-- ✅ **Offline Fallback**: Works without internet using cached vulnerability database
-- ✅ **High Test Coverage**: 33+ automated tests covering all major workflows
+1. [Tổng quan dự án](#tổng-quan-dự-án)
+2. [Kiến trúc & Luồng dữ liệu](#kiến-trúc--luồng-dữ-liệu)
+3. [Cấu trúc dự án](#cấu-trúc-dự-án)
+4. [Các thành phần chính](#các-thành-phần-chính)
+5. [Quy trình thực thi](#quy-trình-thực-thi)
+6. [Tham chiếu API](#tham-chiếu-api)
+7. [Ví dụ](#ví-dụ)
+8. [Kiểm thử](#kiểm-thử)
+9. [Nâng cấp tương lai](#nâng-cấp-tương-lai)
 
 ---
 
-## 🏗️ Architecture & Data Flow
+## 🎯 Tổng quan dự án
 
-### High-Level Architecture
+### Mục đích
+**Dependency Vulnerability Mapper** là một công cụ quét bảo mật sẵn sàng sản xuất, có khả năng:
+- Tự động phát hiện dependency dễ bị tấn công trong dự án phần mềm
+- Phân tích nhiều hệ sinh thái quản lý gói (npm, pip, Maven, v.v.)
+- Tạo đề xuất khắc phục cụ thể với đánh giá mức độ nghiêm trọng
+- Xuất báo cáo chi tiết ở nhiều định dạng (text, JSON, HTML, SARIF)
+- Cung cấp PoC (proof-of-concept) để xác thực lỗ hổng
+
+### Tính năng chính
+- ✅ **Hỗ trợ đa hệ sinh thái**: npm, Python pip, Maven, Gradle (dự kiến), Go modules (dự kiến), Ruby Gems (dự kiến)
+- ✅ **Phân tích dependency truyền thẳng**: Phát hiện lỗ hổng trong dependency lồng nhau
+- ✅ **Đánh giá rủi ro thông minh**: Điểm rủi ro 0-100 dựa trên mức độ nghiêm trọng, độ khó và khả năng khai thác
+- ✅ **Tích hợp NVD**: Đồng bộ thời gian thực với National Vulnerability Database v2.0
+- ✅ **Sinh PoC tự động**: 5 loại khai thác (SQLi, Command Injection, XXE, Prototype Pollution, RCE)
+- ✅ **Báo cáo đa định dạng**: Text (ASCII-safe), JSON (máy đọc được), HTML (tương tác), SARIF (tích hợp GitHub)
+- ✅ **Hỗ trợ ngoại tuyến**: Hoạt động khi không có Internet bằng cơ sở dữ liệu cache
+- ✅ **Độ phủ kiểm thử cao**: 33+ bài kiểm thử tự động cho các luồng chính
+
+---
+
+## 🏗️ Kiến trúc & Luồng dữ liệu
+
+### Kiến trúc tổng quan
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -56,8 +56,8 @@
 ┌─────────────────────────────────────────────────────────┐
 │              Dependency Scanner                         │
 │           (src/scanner.py)                              │
-│  - Orchestrates entire scanning workflow                │
-│  - Manages report generation                            │
+│  - Điều phối toàn bộ quy trình quét                    │
+│  - Quản lý tạo báo cáo                                  │
 └────────────────────┬────────────────────────────────────┘
                      │
         ┌────────────┼────────────┬──────────────┐
@@ -78,281 +78,280 @@
             └─────────────────┘
 ```
 
-### Data Flow Steps
+### Luồng dữ liệu
 
-**Step 1: Input Parsing**
-- `ParserFactory` identifies manifest file type (package.json, requirements.txt, pom.xml)
-- `DependencyParser` (implementation-specific) extracts dependencies and versions
-- Lock file (optional) provides transitive dependency information
-- Result: List of `ParsedDependency` objects
+**Bước 1: Phân tích đầu vào**
+- `ParserFactory` xác định loại manifest (package.json, requirements.txt, pom.xml)
+- `DependencyParser` (cụ thể theo triển khai) trích xuất dependency và phiên bản
+- Lock file (tùy chọn) cung cấp thông tin dependency truyền thẳng
+- Kết quả: danh sách các đối tượng `ParsedDependency`
 
-**Step 2: Vulnerability Detection**
-- For each dependency: name, version, ecosystem
-- `VulnerabilityManager` queries three sources (priority order):
-  1. Local cache (`vuln_db.json`)
-  2. NVD API (if `--sync` flag enabled)
-  3. GitHub Security Advisories (if enabled)
-- Version matching: Resolves version specifiers (^, ~, ranges) to actual affected versions
-- Result: List of matching CVEs with metadata
+**Bước 2: Phát hiện lỗ hổng**
+- Với mỗi dependency: tên, phiên bản, ecosystem
+- `VulnerabilityManager` truy vấn ba nguồn theo ưu tiên:
+  1. Cache cục bộ (`vuln_db.json`)
+  2. NVD API (nếu bật `--sync`)
+  3. GitHub Security Advisories (nếu bật)
+- So khớp phiên bản: giải quyết spec (^, ~, range) thành các phiên bản thực tế
+- Kết quả: danh sách CVE phù hợp với metadata
 
-**Step 3: Risk Assessment**
-- Calculate risk score (0-100) per finding:
-  - Severity weight: Critical(40) + High(20) + Medium(10) + Low(5)
-  - Exploitability: PoC available (+20), Known exploit (+15), Theoretical (+5)
-  - Remediation difficulty: Low(-5), Medium(0), High(+10)
-- Estimate fix effort: LOW/MEDIUM/HIGH
-- Check for breaking changes in suggested patches
+**Bước 3: Đánh giá rủi ro**
+- Tính điểm rủi ro (0-100) cho mỗi phát hiện:
+  - Trọng số severity: Critical(40) + High(20) + Medium(10) + Low(5)
+  - Khả năng khai thác: PoC có sẵn (+20), exploit known (+15), lý thuyết (+5)
+  - Độ khó vá: Low(-5), Medium(0), High(+10)
+- Ước lượng effort vá: LOW/MEDIUM/HIGH
+- Kiểm tra thay đổi phá vỡ khi gợi ý patch
 
-**Step 4: Exploit Generation** (Optional)
-- `ExploitGeneratorFactory` determines exploitation type from CVE metadata
-- Generates realistic proof-of-concept code (Python/JavaScript)
-- Supports: SQLi, Command Injection, XXE, Prototype Pollution, RCE
+**Bước 4: Sinh PoC** (Tùy chọn)
+- `ExploitGeneratorFactory` xác định loại khai thác dựa trên metadata CVE
+- Sinh mã PoC thực tế (Python/JavaScript)
+- Hỗ trợ: SQLi, Command Injection, XXE, Prototype Pollution, RCE
 
-**Step 5: Report Generation**
-- Format selected via `--format` flag
-- Text: Human-readable with ASCII-safe formatting
-- JSON: Machine-readable with full metadata
-- HTML: Interactive dashboard with expandable CVE cards
-- SARIF: GitHub-compatible JSON for CI/CD integration
+**Bước 5: Tạo báo cáo**
+- Định dạng theo flag `--format`
+- Text: Dễ đọc với định dạng ASCII-safe
+- JSON: Máy đọc được với metadata đầy đủ
+- HTML: Dashboard tương tác với CVE có thể mở rộng
+- SARIF: JSON tương thích GitHub CI/CD
 
 ---
 
-## 📁 Project Structure
+## 📁 Cấu trúc dự án
 
 ```
 d:\ASSIGNMENT_RAISE\
 ├── main.py                         # CLI entry point
 ├── requirements.txt                # Python dependencies
-├── PROJECT_DOCUMENTATION.md        # This file
-├── README                          # Quick start guide
+├── PROJECT_DOCUMENTATION.md        # Tài liệu này
+├── README                          # Hướng dẫn nhanh
 ├── Sec_Mapper.md                   # Specification (5 phases)
 │
 ├── src/
 │   ├── __init__.py
-│   ├── scanner.py                  # Main orchestration
-│   ├── dependency_parser.py        # Parse manifests
-│   ├── dependency_tree_builder.py  # Build trees (npm/pip/maven CLI)
-│   ├── version_resolver.py         # Version spec resolution
-│   ├── vulnerability_manager.py    # Load & match vulns
-│   ├── vulnerability_matcher.py    # Risk scoring (placeholder)
-│   ├── nvd_database.py             # NVD API integration
-│   ├── github_advisories.py        # GitHub API integration
-│   ├── exploit_generator.py        # PoC code generation
-│   ├── report_generator.py         # Multi-format reporting
-│   └── vuln_db.json                # Sample vuln database
+│   ├── scanner.py                  # Điều phối chính
+│   ├── dependency_parser.py        # Parse manifest
+│   ├── dependency_tree_builder.py  # Xây cây dependency (npm/pip/maven CLI)
+│   ├── version_resolver.py         # Giải quyết phiên bản
+│   ├── vulnerability_manager.py    # Nạp & so khớp lỗ hổng
+│   ├── vulnerability_matcher.py    # Đánh giá rủi ro (placeholder)
+│   ├── nvd_database.py             # Tích hợp NVD API
+│   ├── github_advisories.py        # Tích hợp GitHub Advisories
+│   ├── exploit_generator.py        # Sinh PoC khai thác
+│   ├── report_generator.py         # Tạo báo cáo đa định dạng
+│   └── vuln_db.json                # Database lỗ hổng mẫu
 │
 ├── samples/
-│   ├── package.json                # npm manifest (sample)
+│   ├── package.json                # npm manifest (mẫu)
 │   ├── package-lock.json           # npm lock file
-│   ├── requirements.txt            # Python manifest (sample)
-│   ├── package.report.html         # Generated HTML report
-│   └── package.sarif.json          # Generated SARIF report
+│   ├── requirements.txt            # Python manifest (mẫu)
+│   ├── package.report.html         # Báo cáo HTML sinh ra
+│   └── package.sarif.json          # Báo cáo SARIF sinh ra
 │
 └── tests/
-    ├── test_dependency_parser.py   # Parser unit tests
-    ├── test_integration.py         # End-to-end integration tests
-    ├── test_performance.py         # Performance benchmarks
-    └── test_comprehensive_samples.py  # Full coverage tests
+    ├── test_dependency_parser.py   # Unit test parser
+    ├── test_integration.py         # Kiểm thử end-to-end
+    ├── test_performance.py         # Benchmark hiệu năng
+    └── test_comprehensive_samples.py  # Kiểm thử toàn diện
 ```
 
 ---
 
-## 🔧 Core Components
+## 🔧 Các thành phần chính
 
-### 1. **main.py** - CLI Entry Point
+### 1. **main.py** - Điểm khởi chạy CLI
 
-**Purpose:** Command-line interface for the vulnerability scanner
+**Mục đích:** Giao diện dòng lệnh cho công cụ quét
 
-**Functions:**
+**Hàm:**
 - `build_parser()` → `ArgumentParser`
-  - Builds argument parser with all CLI options
-  - Returns configured argparse instance
+  - Xây dựng parser với các tùy chọn CLI
+  - Trả về đối tượng argparse đã cấu hình
   
 - `main()` → `None`
-  - Entry point executed when script runs
-  - Validates inputs, initializes scanner, runs scan, outputs results
+  - Điểm vào khi script chạy
+  - Kiểm tra đầu vào, khởi tạo scanner, chạy quét, xuất kết quả
 
-**CLI Arguments:**
+**Tham số CLI:**
 ```
 positional:
-  manifest              path to package.json, requirements.txt, pom.xml, etc.
+  manifest              đường dẫn tới package.json, requirements.txt, pom.xml, v.v.
 
 optional:
-  --lock               path to lock file (package-lock.json, poetry.lock, etc.)
-  --vuln-db           custom vulnerability database JSON path
-  --format            output format: text (default), json, html, sarif
-  --sync              sync latest CVE data from NVD before scanning
+  --lock               đường dẫn lock file (package-lock.json, poetry.lock, v.v.)
+  --vuln-db           đường dẫn database lỗ hổng JSON tùy chỉnh
+  --format            định dạng đầu ra: text (mặc định), json, html, sarif
+  --sync              đồng bộ dữ liệu CVE mới nhất từ NVD trước khi quét
 ```
 
-**Example Usage:**
+**Ví dụ:**
 ```bash
-# Basic scan with text output
+# Quét cơ bản với đầu ra text
 python main.py samples/package.json
 
-# Scan with lock file for transitive deps
+# Quét với lock file để tìm transitive deps
 python main.py samples/package.json --lock samples/package-lock.json
 
-# Generate HTML report
+# Tạo báo cáo HTML
 python main.py samples/package.json --format html
 
-# Sync latest NVD data first
+# Đồng bộ NVD trước khi quét và xuất JSON
 python main.py samples/requirements.txt --sync --format json
 ```
 
 ---
 
-### 2. **src/scanner.py** - Main Orchestrator
+### 2. **src/scanner.py** - Điều phối chính
 
-**Purpose:** Coordinates entire scanning workflow
+**Mục đích:** Điều phối toàn bộ quy trình quét
 
-**Core Class: `DependencyScanner`**
+**Lớp chính: `DependencyScanner`**
 
-**Methods:**
+**Phương thức:**
 
-| Method | Input | Output | Purpose |
-|--------|-------|--------|---------|
-| `__init__(db_path)` | Optional custom DB path | None | Initialize scanner with vulnerability manager |
-| `scan_file(manifest, lock_path)` | Manifest Path, Optional lock Path | Dict | Main scanning function, returns complete scan result |
-| `_load_dependencies()` | Paths | List[ParsedDependency] | Load deps from manifest and lock file |
-| `_merge_dependencies()` | Root deps, lock deps | List[ParsedDependency] | Merge transitive dependencies, avoid duplicates |
-| `_dependency_counts()` | Dependencies | Tuple[int, int] | Count direct and transitive deps |
-| `format_report()` | Scan result, manifest path | str | Generate human-readable text report |
-| `generate_json_report()` | Scan result | str | Generate machine-readable JSON |
-| `generate_html_report()` | Scan result | str | Generate interactive HTML dashboard |
-| `generate_sarif_report()` | Scan result | str | Generate GitHub-compatible SARIF format |
-| `_estimate_effort()` | Current vers, fixed vers, has_patch | str | Classify fix difficulty |
-| `_calculate_overall_risk_score()` | Scan findings | int | Compute 0-100 project risk score |
+| Phương thức | Đầu vào | Kết quả | Mục đích |
+|------------|---------|---------|----------|
+| `__init__(db_path)` | Đường dẫn DB tùy chọn | None | Khởi tạo scanner với vulnerability manager |
+| `scan_file(manifest, lock_path)` | Path manifest, Path lock tùy chọn | Dict | Hàm quét chính, trả kết quả scan |
+| `_load_dependencies()` | Paths | List[ParsedDependency] | Nạp deps từ manifest và lock file |
+| `_merge_dependencies()` | Root deps, lock deps | List[ParsedDependency] | Gộp dependency truyền thẳng, tránh trùng |
+| `_dependency_counts()` | Dependencies | Tuple[int, int] | Đếm direct và transitive deps |
+| `format_report()` | Kết quả scan, path manifest | str | Tạo báo cáo text dễ đọc |
+| `generate_json_report()` | Kết quả scan | str | Tạo báo cáo JSON |
+| `generate_html_report()` | Kết quả scan | str | Tạo báo cáo HTML tương tác |
+| `generate_sarif_report()` | Kết quả scan | str | Tạo báo cáo SARIF tương thích GitHub |
+| `_estimate_effort()` | Phiên bản hiện tại, fixed version, has_patch | str | Phân loại độ khó vá |
+| `_calculate_overall_risk_score()` | Danh sách findings | int | Tính điểm rủi ro 0-100 |
 
-**Key Data Structures:**
+**Cấu trúc dữ liệu quan trọng:**
 
 ```python
-# ParsedDependency returned by parsers
+# ParsedDependency trả về bởi parser
 {
-    'name': str,               # Package name
-    'version': str,            # Version/version spec
-    'ecosystem': str,          # 'npm', 'pip', 'maven', etc.
-    'is_transitive': bool,     # True if nested dependency
+    'name': str,               # Tên package
+    'version': str,            # Phiên bản hoặc version spec
+    'ecosystem': str,          # 'npm', 'pip', 'maven', v.v.
+    'is_transitive': bool,     # True nếu dependency lồng nhau
     'source': str,             # 'package.json', 'package-lock.json'
-    'dev_only': bool,          # Development dependency
+    'dev_only': bool,          # Có phải dev dependency?
 }
 
-# Scan result returned by scan_file()
+# Kết quả scan trả về từ scan_file()
 {
-    'project_name': str,       # Project name
+    'project_name': str,       # Tên dự án
     'scan_time': str,          # ISO 8601 datetime
-    'total_dependencies': int, # Total unique deps found
+    'total_dependencies': int, # Tổng số dependency tìm được
     'direct_dependencies': int,
     'transitive_dependencies': int,
-    'findings': List[Dict],    # See below
+    'findings': List[Dict],    # Xem mô tả bên dưới
     'risk_score': int,         # 0-100
 }
 
-# Finding object in findings list
+# Đối tượng Finding trong danh sách findings
 {
-    'package': str,            # Package name
-    'version': str,            # Installed version
-    'ecosystem': str,          # 'npm', 'pip', etc.
+    'package': str,            # Tên package
+    'version': str,            # Phiên bản đang cài
+    'ecosystem': str,          # 'npm', 'pip', v.v.
     'cve': str,                # CVE-YYYY-NNNN
     'severity': str,           # 'critical', 'high', 'medium', 'low'
-    'description': str,        # Vulnerability description
-    'reference': str,          # Link to NVD/source
-    'fixed_version': str,      # Patched version
-    'has_patch': bool,         # Patch available?
+    'description': str,        # Mô tả lỗ hổng
+    'reference': str,          # Link tham chiếu
+    'fixed_version': str,      # Phiên bản đã vá
+    'has_patch': bool,         # Có patch không?
     'effort': str,             # 'low', 'medium', 'high'
-    'recommended_version': str,# Suggested upgrade version
-    'poc': str,                # Python code for exploitation
-    'transitive': bool,        # Is this a nested dependency?
+    'recommended_version': str,# Phiên bản khuyến nghị
+    'poc': str,                # Mã PoC khai thác
+    'transitive': bool,        # Có phải dependency lồng nhau?
 }
 ```
 
 ---
 
-### 3. **src/dependency_parser.py** - Manifest Parsing
+### 3. **src/dependency_parser.py** - Phân tích manifest
 
-**Purpose:** Extract dependencies from different manifest formats
+**Mục đích:** Trích xuất dependency từ các định dạng manifest khác nhau
 
-**Core Classes:**
+**Lớp chính:**
 
-| Class | Parses | Format | Features |
-|-------|--------|--------|----------|
-| `ParsedDependency` | N/A | Data model | Represents single dependency |
-| `DependencyParser` (ABC) | N/A | Abstract | Base interface for all parsers |
-| `NpmPackageJsonParser` | package.json | JSON | Extracts dependencies & devDependencies |
-| `PackageLockParser` | package-lock.json / package-lock.json v3 | JSON | Extracts transitive deps with nesting |
-| `PythonRequirementsParser` | requirements.txt | Text | Parses pip requirements with pinned/range versions |
-| `MavenPomXmlParser` | pom.xml | XML | Extracts Maven dependencies with scope |
-| `ParserFactory` | Any manifest | Factory | Selects correct parser by filename |
+| Lớp | Phân tích | Định dạng | Tính năng |
+|-----|----------|----------|----------|
+| `ParsedDependency` | N/A | Data model | Đại diện một dependency |
+| `DependencyParser` (ABC) | N/A | Abstract | Giao diện cơ sở cho parser |
+| `NpmPackageJsonParser` | package.json | JSON | Trích dependencies & devDependencies |
+| `PackageLockParser` | package-lock.json / package-lock.json v3 | JSON | Trích transitive deps có lồng nhau |
+| `PythonRequirementsParser` | requirements.txt | Text | Parse pip requirements với pinned/range versions |
+| `MavenPomXmlParser` | pom.xml | XML | Trích dependency Maven theo scope |
+| `ParserFactory` | Mọi manifest | Factory | Chọn parser theo tên file |
 
-**Method Reference:**
+**Tham chiếu phương thức:**
 
 ```python
 class ParsedDependency:
     def __init__(name, version, ecosystem, is_transitive=False, 
                  source='manifest', parent=None)
-    # Properties:
-    # - children: List[ParsedDependency]  # Child dependencies
-    # - dev_only: bool                     # Is dev dependency
+    # Thuộc tính:
+    # - children: List[ParsedDependency]  # Dependency con
+    # - dev_only: bool                     # Có phải dev dependency?
 
 class DependencyParser(ABC):
     @abstractmethod
     def parse(manifest_content: str) -> List[ParsedDependency]
-        """Parse manifest file, return list of dependencies"""
+        """Phân tích manifest và trả về danh sách dependency"""
 
 class ParserFactory:
     @staticmethod
     def get_parser(manifest_filename: str) -> DependencyParser
-        """Select appropriate parser based on filename"""
+        """Chọn parser phù hợp theo tên file"""
         # package.json → NpmPackageJsonParser
         # package-lock.json → PackageLockParser
         # requirements.txt → PythonRequirementsParser
         # pom.xml → MavenPomXmlParser
 ```
 
-**Supported Manifest Files:**
+**Manifest được hỗ trợ:**
 - `package.json` (npm dependencies)
 - `package-lock.json` (npm transitive)
 - `requirements.txt` (Python pip)
 - `pom.xml` (Maven Java)
 
-**Version Specifier Support:**
+**Hỗ trợ phiên bản:**
 - **npm**: `^1.2.3`, `~1.2.3`, `1.2.3`, `>=1.0 <2.0`, `*`, `latest`
 - **Python**: `==1.2.3`, `>=1.0,<2.0`, `~=1.2.3`
-- **Maven**: Exact versions, ranges `[1.0,2.0)`, `(,2.0)`
+- **Maven**: Phiên bản chính xác, range `[1.0,2.0)`, `(,2.0)`
 
 ---
 
-### 4. **src/vulnerability_manager.py** - Vulnerability Detection
+### 4. **src/vulnerability_manager.py** - Phát hiện lỗ hổng
 
-**Purpose:** Load vulnerabilities and match against dependencies
+**Mục đích:** Nạp lỗ hổng và so khớp với dependency
 
-**Core Class: `VulnerabilityManager`**
+**Lớp chính: `VulnerabilityManager`**
 
-**Methods:**
+**Phương thức:**
 
 ```python
 class VulnerabilityManager:
     def __init__(db_path: Optional[str] = None)
-        """Initialize with default or custom vuln database"""
+        """Khởi tạo với database lỗ hổng mặc định hoặc tùy chỉnh"""
     
     def find_vulnerabilities(name: str, version_spec: str, 
                             ecosystem: str) -> List[Dict]
-        """Find CVEs matching package name, version, ecosystem"""
-        # Returns list of matching vulnerability dictionaries
+        """Tìm CVE phù hợp với package"""
+        # Trả về list dict lỗ hổng phù hợp
     
     def _hits(affected_ranges: List[str], dependency_spec: str,
                 ecosystem: str) -> bool
-        """Check if dependency version falls within affected range"""
-        # Handles version range matching for all ecosystems
+        """Kiểm tra nếu phiên bản dependency nằm trong range bị ảnh hưởng"""
+        # Hỗ trợ so khớp range cho tất cả ecosystem
     
     def _normalize_npm_spec(version_spec: str) -> str
-        """Convert npm ^ and ~ specs to comparable ranges"""
+        """Chuyển spec npm ^ và ~ thành range so sánh được"""
         # ^1.2.3 → >=1.2.3,<2.0.0
         # ~1.2.3 → >=1.2.3,<1.3.0
 ```
 
-**Vulnerability Database Format:**
+**Định dạng database lỗ hổng:**
 
-Each vuln_db.json entry:
 ```json
 {
   "cve_id": "CVE-2021-23337",
@@ -368,92 +367,92 @@ Each vuln_db.json entry:
 }
 ```
 
-**Version Matching Logic:**
-1. Normalize version specs (npm ^/~ → ranges)
-2. Parse dependency spec as `SpecifierSet`
-3. Check if dependency fits affected range
-4. Return if overlap detected
+**Luật so khớp phiên bản:**
+1. Chuẩn hóa spec phiên bản (npm ^/~ → range)
+2. Parse dependency spec thành `SpecifierSet`
+3. Kiểm tra dependency có phù hợp với range bị ảnh hưởng
+4. Trả về nếu có chồng lắp
 
 ---
 
-### 5. **src/nvd_database.py** - NVD API Integration
+### 5. **src/nvd_database.py** - Tích hợp NVD API
 
-**Purpose:** Fetch real-time vulnerability data from National Vulnerability Database
+**Mục đích:** Lấy dữ liệu lỗ hổng thời gian thực từ NVD
 
-**Core Class: `NVDDatabase`**
+**Lớp chính: `NVDDatabase`**
 
 ```python
 class NVDDatabase:
     def __init__(api_key: Optional[str] = None, 
                  db_path: Optional[str] = None)
-        """Initialize NVD client with optional API key"""
-        # Creates SQLite cache at nvd_cache.db
+        """Khởi tạo client NVD với API key tùy chọn"""
+        # Tạo cache SQLite tại nvd_cache.db
     
     def fetch_vulnerability(cve_id: str) -> Optional[Dict]
-        """Fetch single CVE from NVD API or cache"""
-        # Handles caching, API calls, error handling
-        # Returns parsed vulnerability dict or None
+        """Lấy một CVE từ NVD API hoặc cache"""
+        # Xử lý cache, gọi API, xử lý lỗi
+        # Trả về dict lỗ hổng hoặc None
     
     def sync_recent(days: int = 7) -> int
-        """Sync recent CVEs modified in last N days"""
-        # Fetches from NVD 2.0 API
-        # Caches locally in SQLite
-        # Returns count of newly synced CVEs
+        """Đồng bộ CVE đã chỉnh sửa trong N ngày gần nhất"""
+        # Lấy từ NVD 2.0 API
+        # Lưu cache cục bộ trong SQLite
+        # Trả về số CVE mới được đồng bộ
 ```
 
-**Features:**
-- ✅ SQLite local cache (`nvd_cache.db`) for offline use
-- ✅ API pagination handling (NVD returns max 2000 per request)
-- ✅ Automatic cache invalidation (7+ days old)
-- ✅ Rate limiting compliance (120 req/min without key, unlimited with key)
-- ✅ Graceful fallback to cached data if API unavailable
+**Tính năng:**
+- ✅ Cache SQLite cục bộ (`nvd_cache.db`) để sử dụng ngoại tuyến
+- ✅ Xử lý phân trang API (NVD trả tối đa 2000 bản ghi mỗi lần)
+- ✅ Tự động làm mới cache (7+ ngày cũ)
+- ✅ Tuân thủ giới hạn tần suất (120 req/phút nếu không có key, không giới hạn nếu có key)
+- ✅ Fallback mềm dẻo về cache khi API không hoạt động
 
-**NVD Data Parsing:**
-- Extracts CVE ID, severity (CVSS score), description, CWE codes
-- Maps to unified vulnerability format
-- Caches parsed results for next 7 days
+**Phân tích dữ liệu NVD:**
+- Trích xuất CVE ID, mức độ nghiêm trọng (điểm CVSS), mô tả, mã CWE
+- Ánh xạ sang định dạng lỗ hổng chung
+- Cache kết quả phân tích trong 7 ngày tiếp theo
 
 ---
 
-### 6. **src/exploit_generator.py** - Proof-of-Concept Generation
+### 6. **src/exploit_generator.py** - Sinh PoC
 
-**Purpose:** Generate working PoC code for vulnerability validation
+**Mục đích:** Sinh mã PoC để xác thực lỗ hổng
 
-**Core Classes:**
+**Các lớp chính:**
 
-| Class | Exploit Type | CWE | Example |
-|-------|--------------|-----|---------|
-| `SQLInjectionExploit` | SQL Injection | CWE-89 | Detects vulnerable query patterns |
-| `CommandInjectionExploit` | OS Command Injection | CWE-78 | Shell command execution |
-| `XXEExploit` | XML External Entity | CWE-611 | DTD-based XXE payload |
-| `PrototypePollutionExploit` | Prototype Pollution | CWE-1321 | lodash/JavaScript prototype modification |
-| `RCEExploit` | Remote Code Execution | CWE-94 | Log4j JNDI exploitation |
+| Lớp | Loại khai thác | CWE | Ví dụ |
+|-----|----------------|-----|-------|
+| `SQLInjectionExploit` | SQL Injection | CWE-89 | Phát hiện truy vấn dễ bị tấn công |
+| `CommandInjectionExploit` | OS Command Injection | CWE-78 | Thực thi lệnh shell |
+| `XXEExploit` | XML External Entity | CWE-611 | Payload XXE với DTD |
+| `PrototypePollutionExploit` | Prototype Pollution | CWE-1321 | Thao tác prototype JavaScript |
+| `RCEExploit` | Remote Code Execution | CWE-94 | Khai thác Log4j JNDI |
 
-**Method Reference:**
+**Tham chiếu phương thức:**
 
 ```python
 class ExploitGenerator(ABC):
     @abstractmethod
     def generate_poc(vulnerability: Dict) -> Optional[str]
-        """Generate proof-of-concept code for this vulnerability type"""
-        # Returns Python/JavaScript code or None
+        """Sinh mã PoC cho loại lỗ hổng này"""
+        # Trả về mã Python/JavaScript hoặc None
 
 class ExploitGeneratorFactory:
     @staticmethod
     def get_generator(vulnerability: Dict) -> Optional[ExploitGenerator]
-        """Auto-select generator based on CVE metadata"""
-        # Analyzes CWE codes and description
-        # Returns appropriate exploit generator
+        """Tự động chọn generator dựa trên metadata CVE"""
+        # Phân tích CWE và mô tả
+        # Trả về generator phù hợp
 ```
 
-**Generated PoC Characteristics:**
-- ✅ Working, testable code (not theoretical)
-- ✅ Clear vulnerability trigger with comments
-- ✅ Target URL/payload configurable
-- ✅ Verification logic included
-- ✅ Safe to run in sandboxed environments
+**Đặc điểm PoC:**
+- ✅ Mã hoạt động, có thể kiểm thử
+- ✅ Trigger lỗ hổng rõ ràng kèm chú thích
+- ✅ Target/payload dễ cấu hình
+- ✅ Có logic xác minh
+- ✅ An toàn chạy trong môi trường sandbox
 
-**Example PoC Output:**
+**Ví dụ PoC:**
 ```python
 # Prototype Pollution PoC - CVE-2021-23337 (lodash)
 import requests
@@ -474,7 +473,6 @@ response = requests.post(
     headers={"Content-Type": "application/json"}
 )
 
-# If vulnerable, subsequent requests have isAdmin=true
 verify_response = requests.get(target)
 if verify_response.json().get("isAdmin"):
     print("[+] Prototype Pollution successful!")
@@ -482,136 +480,136 @@ if verify_response.json().get("isAdmin"):
 
 ---
 
-### 7. **src/report_generator.py** - Multi-Format Reporting
+### 7. **src/report_generator.py** - Báo cáo đa định dạng
 
-**Purpose:** Generate reports in various formats for different audiences
+**Mục đích:** Tạo báo cáo cho nhiều đối tượng khác nhau
 
-**Core Class: `ReportGenerator`**
+**Lớp chính: `ReportGenerator`**
 
-**Methods:**
+**Phương thức:**
 
 ```python
 class ReportGenerator:
     def __init__(scan_result: Dict)
-        """Initialize report generator with scan data"""
+        """Khởi tạo generator báo cáo với dữ liệu scan"""
     
     def generate_json_report() -> str
-        """Machine-readable report with full metadata"""
-        # Includes scan time, project info, all findings
+        """Tạo báo cáo JSON máy đọc được"""
+        # Bao gồm thời gian scan, thông tin dự án, tất cả findings
     
     def generate_html_report() -> str
-        """Interactive dashboard with expandable CVE cards"""
-        # Click to expand, multiple reference links
-        # PoC in syntax-highlighted code blocks
+        """Tạo dashboard tương tác với CVE có thể mở rộng"""
+        # Click để mở rộng, nhiều liên kết tham chiếu
+        # PoC trong khối mã có tô màu
     
     def generate_sarif_report() -> str
-        """GitHub-compatible SARIF 2.1.0 format"""
-        # Integrates with GitHub Security tab
+        """Tạo định dạng SARIF 2.1.0 tương thích GitHub"""
+        # Tích hợp với tab GitHub Security
 ```
 
-**Output Formats:**
+**Định dạng đầu ra:**
 
-| Format | Audience | Use Case | Features |
-|--------|----------|----------|----------|
-| **text** | Developers | Terminal output | ASCII-safe, colored, detailed |
-| **json** | Tools/CI | Programmatic processing | Full metadata, arrays of findings |
-| **html** | Management | Web browser | Interactive, visual, expandable |
-| **sarif** | GitHub Actions | CI/CD integration | GitHub native format |
+| Định dạng | Đối tượng | Mục đích | Tính năng |
+|----------|-----------|----------|----------|
+| **text** | Developer | Terminal | ASCII-safe, chi tiết |
+| **json** | Công cụ/CI | Xử lý máy | Metadata đầy đủ |
+| **html** | Quản lý | Duyệt web | Tương tác, trực quan |
+| **sarif** | GitHub Actions | CI/CD | Chuẩn GitHub |
 
 ---
 
-## 🔄 Execution Workflow
+## 🔄 Quy trình thực thi
 
-### Complete Execution Flow
+### Luồng thực thi đầy đủ
 
 ```
 1. USER INPUT
    └─> python main.py samples/package.json --format html --sync
 
 2. ARGUMENT PARSING (main.py)
-   └─> Validate paths, parse CLI arguments
+   └─> Xác thực đường dẫn, parse CLI arguments
 
 3. SCANNER INITIALIZATION (scanner.py)
-   └─> Create DependencyScanner, load vulnerability manager
+   └─> Tạo DependencyScanner, nạp vulnerability manager
    
 4. NVD SYNC (optional --sync flag)
    └─> NVDDatabase.sync_recent(days=7)
-   └─> Fetch latest CVEs, update cache
+   └─> Lấy CVE mới nhất, cập nhật cache
 
 5. DEPENDENCY LOADING (scanner._load_dependencies)
-   ├─> ParserFactory identifies manifest type
+   ├─> ParserFactory xác định loại manifest
    ├─> NpmPackageJsonParser.parse(package.json)
-   │   └─> Returns List[ParsedDependency]
-   ├─> PackageLockParser.parse(package-lock.json) [if provided]
-   │   └─> Returns transitive dependencies
-   └─> scanner._merge_dependencies() combines both
+   │   └─> Trả về List[ParsedDependency]
+   ├─> PackageLockParser.parse(package-lock.json) [nếu có]
+   │   └─> Trả về dependency truyền thẳng
+   └─> scanner._merge_dependencies() gộp cả hai
 
 6. VULNERABILITY MATCHING (scanner.scan_file loop)
-   For each ParsedDependency:
+   Với mỗi ParsedDependency:
    ├─> VulnerabilityManager.find_vulnerabilities(name, version, ecosystem)
-   │   ├─> Query local vuln_db.json
-   │   ├─> Query NVD API cache (if synced)
-   │   └─> Return matching CVEs
+   │   ├─> Query vuln_db.json cục bộ
+   │   ├─> Query cache NVD nếu đã sync
+   │   └─> Trả về CVE phù hợp
    │
-   ├─> For each CVE found:
+   ├─> Với mỗi CVE tìm được:
    │   ├─> ExploitGeneratorFactory.get_generator(cve)
-   │   ├─> Generate PoC code (or None)
-   │   ├─> Estimate fix effort (LOW/MEDIUM/HIGH)
-   │   └─> Create Finding dict
+   │   ├─> Sinh mã PoC (hoặc None)
+   │   ├─> Ước lượng effort vá (LOW/MEDIUM/HIGH)
+   │   └─> Tạo dict Finding
    │
-   └─> Append Finding to results
+   └─> Thêm Finding vào kết quả
 
 7. RISK SCORING (scanner._calculate_overall_risk_score)
-   ├─> Weight each finding by severity
-   ├─> Add exploitability bonus
-   └─> Compute 0-100 project risk score
+   ├─> Trọng số mỗi finding theo severity
+   ├─> Thêm bonus exploitability
+   └─> Tính điểm rủi ro 0-100
 
 8. REPORT GENERATION (scanner.generate_*_report)
-   └─> Format findings according to --format flag
-       ├─> text: Human-readable, ASCII-safe
-       ├─> json: Machine-readable, full metadata
-       ├─> html: Interactive dashboard
-       └─> sarif: GitHub integration
+   └─> Định dạng findings theo flag --format
+       ├─> text: Dễ đọc, ASCII-safe
+       ├─> json: Máy đọc được, metadata đầy đủ
+       ├─> html: Dashboard tương tác
+       └─> sarif: Tích hợp GitHub
 
 9. OUTPUT
-   ├─> text/text: Print to stdout
-   ├─> json: Print to stdout
-   ├─> html: Write to package.report.html file
-   └─> sarif: Write to package.sarif.json file
+   ├─> text: In ra stdout
+   ├─> json: In ra stdout
+   ├─> html: Ghi file package.report.html
+   └─> sarif: Ghi file package.sarif.json
 ```
 
-### Quick Execution Examples
+### Ví dụ chạy nhanh
 
-**Example 1: Basic npm scan**
+**Ví dụ 1: Quét npm cơ bản**
 ```bash
 $ python main.py samples/package.json
 # Output: Text report to stdout
 ```
 
-**Example 2: Scan with transitive deps**
+**Ví dụ 2: Quét với transitive deps**
 ```bash
 $ python main.py samples/package.json --lock samples/package-lock.json
 # Output: Text report including transitive vulnerabilities
 ```
 
-**Example 3: Generate HTML dashboard**
+**Ví dụ 3: Tạo dashboard HTML**
 ```bash
 $ python main.py samples/package.json --format html
 # Output: samples/package.report.html
-# → Open in browser, click CVEs to expand details
+# → Mở trong trình duyệt, click CVE để xem chi tiết
 ```
 
-**Example 4: Sync NVD and generate JSON**
+**Ví dụ 4: Đồng bộ NVD và xuất JSON**
 ```bash
 $ python main.py samples/requirements.txt --sync --format json
-# Output: JSON with latest NVD data
+# Output: JSON với dữ liệu NVD mới nhất
 ```
 
 ---
 
-## 📚 API Reference
+## 📚 Tham chiếu API
 
-### Complete Function Signatures & Parameters
+### Chữ ký hàm đầy đủ & tham số
 
 #### DependencyScanner
 
@@ -623,11 +621,11 @@ class DependencyScanner:
         lock_path: Optional[Path] = None
     ) -> Dict:
         """
-        Main scanning function. Execute full workflow.
+        Hàm quét chính. Thực hiện toàn bộ workflow.
         
         Args:
-            manifest_path: Path to package manifest (package.json, etc.)
-            lock_path: Optional path to lock file
+            manifest_path: Đường dẫn đến manifest (package.json, ...)
+            lock_path: Đường dẫn lock file tùy chọn
         
         Returns:
             dict: {
@@ -641,8 +639,8 @@ class DependencyScanner:
             }
         
         Raises:
-            FileNotFoundError: If manifest/lock not found
-            json.JSONDecodeError: If manifest is invalid JSON
+            FileNotFoundError: Nếu manifest/lock không tồn tại
+            json.JSONDecodeError: Nếu manifest không hợp lệ
         """
 ```
 
@@ -657,19 +655,19 @@ class VulnerabilityManager:
         ecosystem: str
     ) -> List[Dict]:
         """
-        Find CVEs matching package.
+        Tìm CVE phù hợp với package.
         
         Args:
-            name: Package name (e.g., 'lodash', 'requests')
-            version_spec: Version or range (e.g., '4.17.20', '^1.0', '>=1.0,<2.0')
+            name: Tên package (ví dụ: 'lodash', 'requests')
+            version_spec: Phiên bản hoặc range (ví dụ: '4.17.20', '^1.0', '>=1.0,<2.0')
             ecosystem: 'npm' | 'pip' | 'maven' | 'gradle' | 'gems'
         
         Returns:
-            list: Vulnerability dicts matching criteria
+            list: Dict lỗ hổng phù hợp
         
         Example:
             vulns = mgr.find_vulnerabilities('lodash', '4.17.20', 'npm')
-            # Returns: [{cve_id: CVE-2021-23337, severity: high, ...}]
+            # Trả về: [{cve_id: CVE-2021-23337, severity: high, ...}]
         """
 ```
 
@@ -682,17 +680,17 @@ class NVDDatabase:
         days: int = 7
     ) -> int:
         """
-        Sync CVEs modified in last N days.
+        Đồng bộ CVE đã chỉnh sửa trong N ngày gần nhất.
         
         Args:
-            days: Number of days back to sync (default: 7)
+            days: Số ngày để đồng bộ (mặc định: 7)
         
         Returns:
-            int: Count of newly synced CVEs
+            int: Số CVE mới được đồng bộ
         
         Raises:
-            requests.RequestException: If API unavailable
-            sqlite3.Error: If cache write fails
+            requests.RequestException: Nếu API không khả dụng
+            sqlite3.Error: Nếu ghi cache thất bại
         """
     
     def fetch_vulnerability(
@@ -700,24 +698,24 @@ class NVDDatabase:
         cve_id: str
     ) -> Optional[Dict]:
         """
-        Fetch single CVE from cache or API.
+        Lấy một CVE từ cache hoặc API.
         
         Args:
-            cve_id: CVE identifier (e.g., 'CVE-2021-23337')
+            cve_id: Mã CVE (ví dụ: 'CVE-2021-23337')
         
         Returns:
-            dict or None: Vulnerability data if found
+            dict hoặc None: Dữ liệu lỗ hổng nếu tìm thấy
         """
 ```
 
 ---
 
-## 💡 Examples
+## 💡 Ví dụ
 
-### Example 1: Analyzing npm Project
+### Ví dụ 1: Phân tích dự án npm
 
 ```bash
-# 1. Scan package.json
+# 1. Quét package.json
 $ python main.py samples/package.json --lock samples/package-lock.json
 
 # Output:
@@ -730,20 +728,20 @@ $ python main.py samples/package.json --lock samples/package-lock.json
 # ...
 ```
 
-### Example 2: Python Project with NVD Sync
+### Ví dụ 2: Dự án Python với NVD Sync
 
 ```bash
-# 1. Sync latest CVEs from NVD
+# 1. Đồng bộ CVE mới nhất từ NVD
 $ python main.py samples/requirements.txt --sync
 
-# 2. Generate JSON report
+# 2. Tạo báo cáo JSON
 $ python main.py samples/requirements.txt --format json > report.json
 
-# 3. Parse JSON with tools
+# 3. Phân tích JSON bằng công cụ
 $ cat report.json | jq '.findings[] | select(.severity == "critical")'
 ```
 
-### Example 3: CI/CD Integration (GitHub Actions)
+### Ví dụ 3: Tích hợp CI/CD GitHub Actions
 
 ```yaml
 # .github/workflows/security-scan.yml
@@ -772,20 +770,20 @@ jobs:
           sarif_file: package.sarif.json
 ```
 
-### Example 4: Custom Vulnerability Database
+### Ví dụ 4: Database lỗ hổng tùy chỉnh
 
 ```bash
-# Use custom vulnerability database
+# Dùng database lỗ hổng tùy chỉnh
 $ python main.py samples/package.json --vuln-db custom_vulns.json
 ```
 
 ---
 
-## 🧪 Testing
+## 🧪 Kiểm thử
 
-### Test Coverage
+### Độ phủ kiểm thử
 
-**Total: 33+ automated tests**
+**Tổng cộng: 33+ bài kiểm thử tự động**
 
 ```
 tests/
@@ -797,7 +795,6 @@ tests/
 │
 ├── test_performance.py              (2 tests)
 │   └─ Scan time benchmarks
-│
 └── test_comprehensive_samples.py   (20 tests)
     ├─ All 4 report formats
     ├─ PoC generation verification
@@ -806,23 +803,24 @@ tests/
     └─ NVD caching behavior
 ```
 
-### Running Tests
+### Chạy kiểm thử
 
 ```bash
-# Run all tests
+# Chạy tất cả kiểm thử
 python -m pytest tests -q
 
-# Run specific test file
+# Chạy file kiểm thử cụ thể
 python -m pytest tests/test_dependency_parser.py -v
 
-# Run with coverage report
+# Chạy với báo cáo coverage
 python -m pytest tests --cov=src --cov-report=html
 
-# Run specific test
+# Chạy kiểm thử cụ thể
 python -m pytest tests/test_comprehensive_samples.py::TestAllReportFormats::test_html_report_generation -v
 ```
 
-### Test Results (Current)
+### Kết quả hiện tại
+
 ```
 ✅ 33/33 tests passing
 ✅ All report formats validated
@@ -833,9 +831,9 @@ python -m pytest tests/test_comprehensive_samples.py::TestAllReportFormats::test
 
 ---
 
-## 🚀 Future Enhancements
+## 🚀 Nâng cấp tương lai
 
-### Phase 1: Additional Package Managers (In Progress)
+### Giai đoạn 1: Thêm package manager
 
 **Gradle** (Java)
 ```gradle
@@ -843,58 +841,58 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web:2.5.0'
 }
 ```
-- [ ] Parser: Extract Gradle dependencies
-- [ ] Test: 3+ test cases
-- [ ] Integration: Full workflow validation
+- [ ] Parser: Trích dependencies Gradle
+- [ ] Test: 3+ trường hợp kiểm thử
+- [ ] Integration: Xác thực toàn bộ workflow
 
 **Go modules** (Go)
 ```go
 require github.com/pkg/errors v0.9.1
 ```
-- [ ] Parser: Read go.mod files
-- [ ] Version resolution: Semantic versioning
-- [ ] Test coverage
+- [ ] Parser: Đọc go.mod
+- [ ] Giải quyết phiên bản semantic
+- [ ] Phủ kiểm thử
 
 **Ruby Gems** (Ruby)
 ```ruby
 gem 'rails', '~> 6.0.0'
 ```
-- [ ] Parser: Gemfile and Gemfile.lock
-- [ ] Bundler integration
-- [ ] Version specifier support
+- [ ] Parser: Gemfile và Gemfile.lock
+- [ ] Tích hợp Bundler
+- [ ] Hỗ trợ định nghĩa phiên bản
 
-### Phase 2: Advanced Features
+### Giai đoạn 2: Tính năng nâng cao
 
 **Auto-Fix CLI (`--autofix` flag)**
 ```bash
 python main.py package.json --autofix
-# Automatically update dependencies to patched versions
-# Validates with npm install before commit
+# Tự động cập nhật dependency lên phiên bản đã vá
+# Xác thực bằng npm install trước khi commit
 ```
-- [ ] Version constraint detection
-- [ ] Breaking change analysis
-- [ ] Automated testing
-- [ ] Git integration (optional)
+- [ ] Phát hiện ràng buộc phiên bản
+- [ ] Phân tích breaking change
+- [ ] Tự động kiểm thử
+- [ ] Tích hợp Git (tuỳ chọn)
 
-**Performance Optimization**
-- [ ] Parallel vulnerability matching (multi-threaded)
-- [ ] Result caching per manifest
-- [ ] Incremental scanning (only changed deps)
-- [ ] Streaming large reports
+**Tối ưu hiệu năng**
+- [ ] Song song hóa việc so khớp lỗ hổng (đa luồng)
+- [ ] Cache kết quả theo manifest
+- [ ] Quét tăng dần (chỉ phần thay đổi)
+- [ ] Xuất báo cáo dạng streaming
 
-**Enhanced Reporting**
-- [ ] PDF export with charts/graphs
-- [ ] Email integration (send reports via SMTP)
-- [ ] Trend analysis (scan history)
-- [ ] Compliance report generation (CIS/PCI/HIPAA)
+**Báo cáo nâng cao**
+- [ ] Xuất PDF với biểu đồ
+- [ ] Tích hợp email (gửi báo cáo qua SMTP)
+- [ ] Phân tích xu hướng (lịch sử scan)
+- [ ] Tạo báo cáo tuân thủ (CIS/PCI/HIPAA)
 
-### Phase 3: Enterprise Features
+### Giai đoạn 3: Tính năng doanh nghiệp
 
-**GitHub/GitLab Integration**
-- [ ] Auto-create security issues
-- [ ] Pull request comments with findings
-- [ ] Branch protection rules
-- [ ] Webhook integration
+**Tích hợp GitHub/GitLab**
+- [ ] Tự động tạo issue bảo mật
+- [ ] Comment PR với findings
+- [ ] Quy tắc bảo vệ nhánh
+- [ ] Tích hợp webhook
 
 **CI/CD Integration**
 - [ ] Jenkins plugin
@@ -902,84 +900,84 @@ python main.py package.json --autofix
 - [ ] AWS CodePipeline
 - [ ] Azure Pipelines
 
-**Cloud Storage**
+**Lưu trữ đám mây**
 - [ ] AWS S3 report storage
 - [ ] Azure Blob Storage
 - [ ] GCP Cloud Storage
-- [ ] Report versioning/history
+- [ ] Lịch sử và phiên bản báo cáo
 
-### Phase 4: Machine Learning (ML-Powered)
+### Giai đoạn 4: Machine Learning (ML-Powered)
 
-**Smart Risk Scoring**
-- [ ] ML model for exploitability prediction
-- [ ] CVE impact assessment
-- [ ] False positive filtering
+**Đánh giá rủi ro thông minh**
+- [ ] Mô hình ML dự đoán mức độ khai thác
+- [ ] Đánh giá tác động CVE
+- [ ] Lọc false positive
 
 **Threat Intelligence**
-- [ ] Active exploit detection
-- [ ] Ransomware correlation
-- [ ] Zero-day prediction
+- [ ] Phát hiện exploit đang hoạt động
+- [ ] Liên kết ransomware
+- [ ] Dự đoán zero-day
 
 ---
 
-## 📊 File Responsibilities Matrix
+## 📊 Ma trận trách nhiệm file
 
-| File | Responsibility | Status | Future Work |
-|------|-----------------|--------|-------------|
-| main.py | CLI interface | ✅ Complete | Add verbose/logging options |
-| scanner.py | Orchestration | ✅ Complete | Add progress indicators |
-| dependency_parser.py | Parse manifests | ✅ 4 parsers | Add gradle, go.mod, Gemfile |
-| vulnerability_manager.py | Match vulns | ✅ Complete | Support more effect matching |
-| nvd_database.py | NVD integration | ✅ Complete | Add rate limiting |
-| exploit_generator.py | PoC generation | ✅ 5 types | Add 3+ more exploit types |
-| report_generator.py | Multi-format reports | ✅ Complete | Add PDF, email export |
-| vuln_db.json | Sample database | ✅ 5 CVEs | Auto-update mechanism |
-
----
-
-## 🔐 Security Guarantees
-
-This tool is designed for **security analysis only**:
-
-- ✅ No data exfiltration: Only reads local manifest files
-- ✅ No automatic execution: PoC code printed, not executed
-- ✅ Offline capable: Works without internet (cached DB)
-- ✅ Reproducible: Deterministic scanning results
-- ✅ Auditable: Full log of findings and decisions
-
-**Usage:**
-- ✅ Security assessment
-- ✅ Vulnerability management
-- ✅ Compliance reporting
-- ✅ Risk mitigation
-
-**NOT for:**
-- ❌ Unauthorized network testing
-- ❌ Production exploitation
-- ❌ Circumventing security controls
+| File | Trách nhiệm | Trạng thái | Việc cần nâng cấp |
+|------|------------|-----------|-------------------|
+| main.py | Giao diện CLI | ✅ Hoàn chỉnh | Thêm verbose/logging |
+| scanner.py | Điều phối | ✅ Hoàn chỉnh | Thêm progress indicator |
+| dependency_parser.py | Parse manifests | ✅ 4 parser | Thêm gradle, go.mod, Gemfile |
+| vulnerability_manager.py | So khớp lỗ hổng | ✅ Hoàn chỉnh | Hỗ trợ thêm kiểu so khớp |
+| nvd_database.py | Tích hợp NVD | ✅ Hoàn chỉnh | Thêm rate limiting |
+| exploit_generator.py | Sinh PoC | ✅ 5 loại | Thêm 3+ loại PoC |
+| report_generator.py | Báo cáo đa định dạng | ✅ Hoàn chỉnh | Thêm PDF, email export |
+| vuln_db.json | Database mẫu | ✅ 5 CVEs | Cơ chế tự động cập nhật |
 
 ---
 
-## 📝 Contributing
+## 🔐 Bảo mật
 
-To contribute improvements:
+Công cụ này được thiết kế chỉ dành cho **phân tích bảo mật**:
 
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/name`
-3. Add tests for new functionality
-4. Ensure all 33 tests pass: `pytest tests -q`
-5. Submit pull request with clear description
+- ✅ Không rò rỉ dữ liệu: Chỉ đọc file manifest cục bộ
+- ✅ Không tự động thực thi PoC
+- ✅ Hỗ trợ ngoại tuyến: Dùng cache khi không có mạng
+- ✅ Kết quả có thể tái lập
+- ✅ Có thể audit: Ghi lại đầy đủ findings và quyết định
+
+**Dùng cho:**
+- ✅ Đánh giá bảo mật
+- ✅ Quản lý lỗ hổng
+- ✅ Báo cáo tuân thủ
+- ✅ Giảm thiểu rủi ro
+
+**Không dùng cho:**
+- ❌ Kiểm thử mạng trái phép
+- ❌ Khai thác production
+- [ ] Vượt qua cơ chế bảo mật
 
 ---
 
-## 📞 Support & Documentation
+## 📝 Cộng tác
 
-- **Bug Reports**: Create issue with [BUG] prefix
-- **Feature Requests**: Create issue with [FEATURE] prefix  
-- **Questions**: Create discussion or issue with [QUESTION] prefix
+Để đóng góp cải tiến:
+
+1. Fork repository
+2. Tạo branch tính năng: `git checkout -b feature/name`
+3. Thêm kiểm thử cho tính năng mới
+4. Đảm bảo 33 tests chạy qua: `pytest tests -q`
+5. Mở pull request với mô tả rõ ràng
 
 ---
 
-**Last Updated:** April 4, 2026  
-**Version:** 1.0.0  
-**Maintainer:** Security Team
+## 📞 Hỗ trợ & Tài liệu
+
+- **Báo lỗi**: Tạo issue với tiền tố [BUG]
+- **Yêu cầu tính năng**: Tạo issue với tiền tố [FEATURE]
+- **Câu hỏi**: Tạo discussion hoặc issue với tiền tố [QUESTION]
+
+---
+
+**Cập nhật lần cuối:** April 4, 2026  
+**Phiên bản:** 1.0.0  
+**Người quản lý:** Security Team

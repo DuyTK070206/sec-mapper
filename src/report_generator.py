@@ -1,8 +1,10 @@
 # report_generator.py
 
 import json
+import html as html_module
 from datetime import datetime
 from typing import List, Dict
+from urllib.parse import quote_plus
 
 class ReportGenerator:
     """
@@ -48,7 +50,88 @@ class ReportGenerator:
     
     def generate_html_report(self) -> str:
         """Interactive HTML dashboard with detailed CVE information"""
-        
+
+        findings_html_parts = []
+        remediation_items = []
+
+        for finding in self.scan_result.get('findings', []):
+            cve_id = finding.get('cve', '')
+            nvd_link = f'https://nvd.nist.gov/vuln/detail/{quote_plus(cve_id)}' if cve_id else '#'
+            mitre_link = f'https://cve.mitre.org/cgi-bin/cvename.cgi?name={quote_plus(cve_id)}' if cve_id else '#'
+            additional_reference = finding.get('reference', '') or ''
+            additional_reference_html = (
+                f'<a href="{html_module.escape(additional_reference)}" target="_blank" rel="noopener noreferrer" class="ref-link">Additional Reference</a>'
+                if additional_reference else '<span class="ref-link disabled">No additional reference</span>'
+            )
+            poc_text = finding.get('poc', '') or ''
+            poc_html = (
+                f"""
+                            <div class=\"poc-section\">
+                                <div class=\"poc-header\">Proof of Concept (PoC)</div>
+                                <div class=\"poc-code\"><code>{html_module.escape(poc_text)}</code></div>
+                            </div>
+                        """ if poc_text else ''
+            )
+            finding_html = f"""
+                        <div class=\"finding-card\">
+                            <div class=\"finding-header {(finding.get('severity') or 'unknown').lower()}\">
+                                <div>
+                                    <div class=\"finding-title\">{html_module.escape(finding.get('package', 'Unknown'))} @ {html_module.escape(finding.get('version', 'Unknown'))}</div>
+                                    <div class=\"finding-meta\">
+                                        <div class=\"meta-item\"><strong>CVE:</strong> {html_module.escape(cve_id or 'Unknown')}</div>
+                                        <div class=\"meta-item\"><span class=\"severity-badge {(finding.get('severity') or 'unknown').lower()}\">{html_module.escape((finding.get('severity') or 'unknown').upper())}</span></div>
+                                        <div class=\"meta-item\"><strong>Type:</strong> {'Transitive' if finding.get('transitive') else 'Direct'}</div>
+                                        <div class=\"meta-item\"><strong>Effort:</strong> {html_module.escape(finding.get('effort', 'Unknown') or 'Unknown')}</div>
+                                    </div>
+                                </div>
+                                <button class=\"finding-toggle\" onclick=\"toggleDetails(this, event)\">▲</button>
+                            </div>
+                            <div class=\"finding-details\">
+                                <div class=\"description-section\">
+                                    <div class=\"label\">Description</div>
+                                    <div class=\"detail-value\">{html_module.escape(finding.get('description', 'No description available') or 'No description available')}</div>
+                                </div>
+                                <div class=\"detail-grid\">
+                                    <div class=\"detail-item\">
+                                        <div class=\"detail-label\">Current Version</div>
+                                        <div class=\"detail-value code\">{html_module.escape(finding.get('version', 'Unknown'))}</div>
+                                    </div>
+                                    <div class=\"detail-item\">
+                                        <div class=\"detail-label\">Patched Version</div>
+                                        <div class=\"detail-value code\">{html_module.escape(finding.get('fixed_version', 'Unknown') or 'Unknown')}</div>
+                                    </div>
+                                    <div class=\"detail-item\">
+                                        <div class=\"detail-label\">Patch Status</div>
+                                        <div class=\"detail-value\">{'[OK] Available' if finding.get('has_patch') else '[NOT AVAILABLE]'}</div>
+                                    </div>
+                                    <div class=\"detail-item\">
+                                        <div class=\"detail-label\">Fix Effort</div>
+                                        <div class=\"detail-value\">{html_module.escape(finding.get('effort', 'Unknown') or 'Unknown')}</div>
+                                    </div>
+                                    <div class=\"detail-item\">
+                                        <div class=\"detail-label\">Ecosystem</div>
+                                        <div class=\"detail-value\">{html_module.escape(finding.get('ecosystem', 'Unknown') or 'Unknown')}</div>
+                                    </div>
+                                    <div class=\"detail-item\">
+                                        <div class=\"detail-label\">Recommended Version</div>
+                                        <div class=\"detail-value code\">{html_module.escape(finding.get('recommended_version', finding.get('fixed_version', 'N/A')) or 'N/A')}</div>
+                                    </div>
+                                </div>
+                                <div class=\"reference-links\">
+                                    <a href=\"{nvd_link}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ref-link\">NVD Details</a>
+                                    <a href=\"{mitre_link}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ref-link\">CVE Mitre</a>
+                                    {additional_reference_html}
+                                </div>
+                                {poc_html}
+                            </div>
+                        </div>
+                    """
+            findings_html_parts.append(finding_html)
+            remediation_items.append(f"<li><strong>[{html_module.escape((finding.get('severity') or 'unknown').upper())}] {html_module.escape(finding.get('package', 'Unknown'))}</strong>: Update from {html_module.escape(finding.get('version', 'Unknown'))} to {html_module.escape(finding.get('recommended_version', finding.get('fixed_version', 'Unknown')) or 'Unknown')} (Effort: {html_module.escape(finding.get('effort', 'Unknown') or 'Unknown')})</li>")
+
+        findings_html = '\n'.join(findings_html_parts)
+        remediation_html = '\n'.join(remediation_items)
+
         html = f"""
         <!DOCTYPE html>
         <html>
@@ -275,6 +358,13 @@ class ReportGenerator:
                 .ref-link:hover {{
                     background: #d4e9ff;
                 }}
+                .ref-link.disabled {{
+                    background: #f0f0f0;
+                    border-left-color: #999;
+                    color: #666;
+                    pointer-events: none;
+                    cursor: default;
+                }}
                 
                 .remediation {{
                     background: #e7f3ff;
@@ -327,115 +417,34 @@ class ReportGenerator:
                 <h2>Overall Risk Score: {self.scan_result.get('risk_score')}/100</h2>
                 
                 <h3>Detailed Vulnerability Findings</h3>
-                <div id="findings-container"></div>
+                <div id="findings-container">
+                    {findings_html}
+                </div>
                 
                 <div class="remediation">
                     <h3>Remediation Plan</h3>
                     <p>Prioritize fixes based on severity and exploitability:</p>
-                    <ol id="remediation-list"></ol>
+                    <ol id="remediation-list">
+                        {remediation_html}
+                    </ol>
                 </div>
                 
                 <script>
-                    const findings = """ + json.dumps(self.scan_result.get('findings', [])) + """;
-                    const container = document.getElementById('findings-container');
-                    
-                    findings.forEach((f, idx) => {
-                        const div = document.createElement('div');
-                        div.className = 'finding-card';
-                        
-                        const severity = f.severity.toLowerCase();
-                        const cveLink = `https://nvd.nist.gov/vuln/detail/${f.cve}`;
-                        const cveMitreLink = `https://cve.mitre.org/cgi-bin/cvename.cgi?name=${f.cve}`;
-                        
-                        const pocHtml = f.poc ? `
-                            <div class="poc-section">
-                                <div class="poc-header">Proof of Concept (PoC)</div>
-                                <div class="poc-code"><code>${f.poc.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></div>
-                            </div>
-                        ` : '';
-                        
-                        div.innerHTML = `
-                            <div class="finding-header ${severity}">
-                                <div>
-                                    <div class="finding-title">${f.package} @ ${f.version}</div>
-                                    <div class="finding-meta">
-                                        <div class="meta-item"><strong>CVE:</strong> ${f.cve}</div>
-                                        <div class="meta-item"><span class="severity-badge ${severity}">${f.severity.toUpperCase()}</span></div>
-                                        <div class="meta-item"><strong>Type:</strong> ${f.transitive ? 'Transitive' : 'Direct'}</div>
-                                        <div class="meta-item"><strong>Effort:</strong> ${f.effort || 'Unknown'}</div>
-                                    </div>
-                                </div>
-                                <button class="finding-toggle" onclick="toggleDetails(this, event)">▲</button>
-                            </div>
-                            <div class="finding-details">
-                                <div class="description-section">
-                                    <div class="label">Description</div>
-                                    <div class="detail-value">${f.description || 'No description available'}</div>
-                                </div>
-                                
-                                <div class="detail-grid">
-                                    <div class="detail-item">
-                                        <div class="detail-label">Current Version</div>
-                                        <div class="detail-value code">${f.version}</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Patched Version</div>
-                                        <div class="detail-value code">${f.fixed_version || 'Unknown'}</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Patch Status</div>
-                                        <div class="detail-value">${f.has_patch ? '[OK] Available' : '[NOT AVAILABLE]'}</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Fix Effort</div>
-                                        <div class="detail-value">${f.effort || 'Unknown'}</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Ecosystem</div>
-                                        <div class="detail-value">${f.ecosystem || 'Unknown'}</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Recommended Version</div>
-                                        <div class="detail-value code">${f.recommended_version || f.fixed_version || 'N/A'}</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="reference-links">
-                                    <a href="${cveLink}" target="_blank" class="ref-link">NVD Details</a>
-                                    <a href="${cveMitreLink}" target="_blank" class="ref-link">CVE Mitre</a>
-                                    <a href="${f.reference}" target="_blank" class="ref-link">Additional Reference</a>
-                                </div>
-                                
-                                ${pocHtml}
-                            </div>
-                        `;
-                        container.appendChild(div);
-                    });
-                    
-                    // Remediation list
-                    const list = document.getElementById('remediation-list');
-                    findings.forEach(f => {
-                        const item = document.createElement('li');
-                        item.innerHTML = `<strong>[${f.severity.toUpperCase()}] ${f.package}</strong>: Update from ${f.version} to ${f.recommended_version} (Effort: ${f.effort})`;
-                        list.appendChild(item);
-                    });
-                    
-                    function toggleDetails(button, event) {
+                    function toggleDetails(button, event) {{
                         event.stopPropagation();
                         const details = button.closest('.finding-card').querySelector('.finding-details');
                         const isExpanded = details.style.display !== 'none';
                         details.style.display = isExpanded ? 'none' : 'block';
                         button.textContent = isExpanded ? '▼' : '▲';
-                    }
+                    }}
                     
-                    // Make header clickable
-                    document.querySelectorAll('.finding-header').forEach(header => {
-                        header.addEventListener('click', function() {{
+                    document.querySelectorAll('.finding-header').forEach(header => {{
+                        header.addEventListener('click', function(event) {{
                             if (event.target !== this.querySelector('.finding-toggle')) {{
                                 this.querySelector('.finding-toggle').click();
                             }}
                         }});
-                    });
+                    }});
                 </script>
             </div>
         </body>
