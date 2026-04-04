@@ -127,12 +127,9 @@
                 }
                 
                 .finding-details {
-                    display: none;
+                    display: block;
                     padding: 20px;
                     border-top: 1px solid #eee;
-                }
-                .finding-details.expanded {
-                    display: block;
                 }
                 
                 .detail-grid {
@@ -254,7 +251,7 @@
                 <h1>Dependency Vulnerability Report</h1>
                 <div class="metadata">
                     <p><strong>Project:</strong> package</p>
-                    <p><strong>Scan Time:</strong> 2026-04-04T15:58:24.251256</p>
+                    <p><strong>Scan Time:</strong> 2026-04-04T16:27:12.002591</p>
                 </div>
                 
                 <div class="summary">
@@ -296,69 +293,69 @@
                         div.className = 'finding-card';
                         
                         const severity = f.severity.toLowerCase();
-                        const cveLink = `https://nvd.nist.gov/vuln/detail/${{f.cve}}`;
-                        const cveMitreLink = `https://cve.mitre.org/cgi-bin/cvename.cgi?name=${{f.cve}}`;
+                        const cveLink = `https://nvd.nist.gov/vuln/detail/${f.cve}`;
+                        const cveMitreLink = `https://cve.mitre.org/cgi-bin/cvename.cgi?name=${f.cve}`;
                         
                         const pocHtml = f.poc ? `
                             <div class="poc-section">
                                 <div class="poc-header">Proof of Concept (PoC)</div>
-                                <div class="poc-code"><code>${{f.poc.replace(/</g, '&lt;').replace(/>/g, '&gt;')}}</code></div>
+                                <div class="poc-code"><code>${f.poc.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></div>
                             </div>
                         ` : '';
                         
                         div.innerHTML = `
-                            <div class="finding-header ${{severity}}">
+                            <div class="finding-header ${severity}">
                                 <div>
-                                    <div class="finding-title">${{f.package}} @ ${{f.version}}</div>
+                                    <div class="finding-title">${f.package} @ ${f.version}</div>
                                     <div class="finding-meta">
-                                        <div class="meta-item"><strong>CVE:</strong> ${{f.cve}}</div>
-                                        <div class="meta-item"><span class="severity-badge ${{severity}}">${{f.severity.toUpperCase()}}</span></div>
-                                        <div class="meta-item"><strong>Type:</strong> ${{f.transitive ? 'Transitive' : 'Direct'}}</div>
-                                        <div class="meta-item"><strong>Effort:</strong> ${{f.effort || 'Unknown'}}</div>
+                                        <div class="meta-item"><strong>CVE:</strong> ${f.cve}</div>
+                                        <div class="meta-item"><span class="severity-badge ${severity}">${f.severity.toUpperCase()}</span></div>
+                                        <div class="meta-item"><strong>Type:</strong> ${f.transitive ? 'Transitive' : 'Direct'}</div>
+                                        <div class="meta-item"><strong>Effort:</strong> ${f.effort || 'Unknown'}</div>
                                     </div>
                                 </div>
-                                <button class="finding-toggle" onclick="toggleDetails(this, event)">▼</button>
+                                <button class="finding-toggle" onclick="toggleDetails(this, event)">▲</button>
                             </div>
                             <div class="finding-details">
                                 <div class="description-section">
                                     <div class="label">Description</div>
-                                    <div class="detail-value">${{f.description || 'No description available'}}</div>
+                                    <div class="detail-value">${f.description || 'No description available'}</div>
                                 </div>
                                 
                                 <div class="detail-grid">
                                     <div class="detail-item">
                                         <div class="detail-label">Current Version</div>
-                                        <div class="detail-value code">${{f.version}}</div>
+                                        <div class="detail-value code">${f.version}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="detail-label">Patched Version</div>
-                                        <div class="detail-value code">${{f.fixed_version || 'Unknown'}}</div>
+                                        <div class="detail-value code">${f.fixed_version || 'Unknown'}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="detail-label">Patch Status</div>
-                                        <div class="detail-value">${{f.has_patch ? '[OK] Available' : '[NOT AVAILABLE]'}}</div>
+                                        <div class="detail-value">${f.has_patch ? '[OK] Available' : '[NOT AVAILABLE]'}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="detail-label">Fix Effort</div>
-                                        <div class="detail-value">${{f.effort || 'Unknown'}}</div>
+                                        <div class="detail-value">${f.effort || 'Unknown'}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="detail-label">Ecosystem</div>
-                                        <div class="detail-value">${{f.ecosystem || 'Unknown'}}</div>
+                                        <div class="detail-value">${f.ecosystem || 'Unknown'}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="detail-label">Recommended Version</div>
-                                        <div class="detail-value code">${{f.recommended_version || f.fixed_version || 'N/A'}}</div>
+                                        <div class="detail-value code">${f.recommended_version || f.fixed_version || 'N/A'}</div>
                                     </div>
                                 </div>
                                 
                                 <div class="reference-links">
-                                    <a href="${{cveLink}}" target="_blank" class="ref-link">NVD Details</a>
-                                    <a href="${{cveMitreLink}}" target="_blank" class="ref-link">CVE Mitre</a>
-                                    <a href="${{f.reference}}" target="_blank" class="ref-link">Additional Reference</a>
+                                    <a href="${cveLink}" target="_blank" class="ref-link">NVD Details</a>
+                                    <a href="${cveMitreLink}" target="_blank" class="ref-link">CVE Mitre</a>
+                                    <a href="${f.reference}" target="_blank" class="ref-link">Additional Reference</a>
                                 </div>
                                 
-                                ${{pocHtml}}
+                                ${pocHtml}
                             </div>
                         `;
                         container.appendChild(div);
@@ -368,15 +365,16 @@
                     const list = document.getElementById('remediation-list');
                     findings.forEach(f => {
                         const item = document.createElement('li');
-                        item.innerHTML = `<strong>[${{f.severity.toUpperCase()}}] ${{f.package}}</strong>: Update from ${{f.version}} to ${{f.recommended_version}} (Effort: ${{f.effort}})`;
+                        item.innerHTML = `<strong>[${f.severity.toUpperCase()}] ${f.package}</strong>: Update from ${f.version} to ${f.recommended_version} (Effort: ${f.effort})`;
                         list.appendChild(item);
                     });
                     
                     function toggleDetails(button, event) {
                         event.stopPropagation();
                         const details = button.closest('.finding-card').querySelector('.finding-details');
-                        details.classList.toggle('expanded');
-                        button.textContent = details.classList.contains('expanded') ? '▲' : '▼';
+                        const isExpanded = details.style.display !== 'none';
+                        details.style.display = isExpanded ? 'none' : 'block';
+                        button.textContent = isExpanded ? '▼' : '▲';
                     }
                     
                     // Make header clickable
