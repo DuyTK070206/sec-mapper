@@ -6,6 +6,7 @@ from src.dependency_parser import ParserFactory
 from pathlib import Path
 
 def debug_matching():
+    """Run a debug trace for dependency parsing and vulnerability matching."""
     # Load deps
     parser = ParserFactory.get_parser('package.json')
     package_content = Path('samples/package.json').read_text()
