@@ -89,7 +89,7 @@ Lệnh trên sẽ tạo **2 file báo cáo**:
   - ⏱️ Effort estimation (Low/Medium/High)
 - Mở trong browser:
   ```powershell
-  start samples\package.report.json
+  start samples\package.report.html
   ```
 
 ### Ví dụ Output
