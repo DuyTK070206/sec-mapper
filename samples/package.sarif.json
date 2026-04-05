@@ -34,13 +34,37 @@
             "source": "package.json",
             "remediation_effort": "low"
           }
+        },
+        {
+          "ruleId": "GHSA-95c9-f9f2-q643",
+          "level": "warning",
+          "message": {
+            "text": "axios@^0.20.0: Axios vulnerable to data exposure via URL parameters in server-side requests."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "npm/axios/package.json"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "axios",
+            "installed_version": "^0.20.0",
+            "fixed_version": "0.21.1",
+            "has_patch": true,
+            "source": "package.json",
+            "remediation_effort": "medium"
+          }
         }
       ],
       "properties": {
-        "scan_date": "2026-04-04T15:53:22.638188",
+        "scan_date": "2026-04-05T23:03:33.014105",
         "project_name": "package",
         "total_dependencies": 4,
-        "overall_risk_score": 70
+        "overall_risk_score": 60
       }
     }
   ]

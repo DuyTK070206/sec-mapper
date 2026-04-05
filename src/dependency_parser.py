@@ -8,6 +8,8 @@ import xml.etree.ElementTree as ET
 
 
 class ParsedDependency:
+    """Representation of a parsed dependency extracted from a manifest."""
+
     def __init__(
         self,
         name: str,
@@ -30,11 +32,13 @@ class ParsedDependency:
 class DependencyParser(ABC):
     @abstractmethod
     def parse(self, manifest_content: str) -> List[ParsedDependency]:
+        """Parse manifest text into a list of ParsedDependency items."""
         pass
 
 
 class NpmPackageJsonParser(DependencyParser):
     def parse(self, manifest_content: str) -> List[ParsedDependency]:
+        """Parse npm package.json content and extract direct dependencies."""
         data = json.loads(manifest_content)
         dependencies: List[ParsedDependency] = []
 
@@ -55,6 +59,7 @@ class NpmPackageJsonParser(DependencyParser):
 
 class PackageLockParser(DependencyParser):
     def parse(self, manifest_content: str) -> List[ParsedDependency]:
+        """Parse npm package-lock.json content and extract resolved dependency versions."""
         data = json.loads(manifest_content)
         dependencies: List[ParsedDependency] = []
 
@@ -66,6 +71,7 @@ class PackageLockParser(DependencyParser):
         return dependencies
 
     def _parse_packages_section(self, packages: dict) -> List[ParsedDependency]:
+        """Parse the `packages` section of a package-lock.json file."""
         deps: List[ParsedDependency] = []
 
         for path, meta in packages.items():
@@ -91,6 +97,7 @@ class PackageLockParser(DependencyParser):
         return deps
 
     def _parse_dependencies_section(self, dependencies: dict, parent: Optional[str] = None) -> List[ParsedDependency]:
+        """Recursively parse nested dependency entries from a package-lock.json structure."""
         deps: List[ParsedDependency] = []
 
         for name, meta in dependencies.items():
@@ -115,6 +122,7 @@ class PackageLockParser(DependencyParser):
 
 class PythonRequirementsParser(DependencyParser):
     def parse(self, manifest_content: str) -> List[ParsedDependency]:
+        """Parse a Python requirements.txt file and extract dependency specifiers."""
         dependencies: List[ParsedDependency] = []
 
         for line in manifest_content.splitlines():
@@ -143,6 +151,7 @@ class PythonRequirementsParser(DependencyParser):
 
 class MavenPomXmlParser(DependencyParser):
     def parse(self, manifest_content: str) -> List[ParsedDependency]:
+        """Parse a Maven pom.xml file and extract compile-time dependencies."""
         dependencies: List[ParsedDependency] = []
         root = ET.fromstring(manifest_content)
         namespaces = {'m': 'http://maven.apache.org/POM/4.0.0'}
@@ -169,6 +178,7 @@ class MavenPomXmlParser(DependencyParser):
 class ParserFactory:
     @staticmethod
     def get_parser(manifest_filename: str) -> DependencyParser:
+        """Return the appropriate parser instance for a given manifest filename."""
         lower_name = manifest_filename.lower()
         if lower_name == 'package.json':
             return NpmPackageJsonParser()

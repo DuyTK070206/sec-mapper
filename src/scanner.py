@@ -9,10 +9,14 @@ from src.exploit_generator import ExploitGeneratorFactory
 
 
 class DependencyScanner:
+    """Coordinate parsing, vulnerability matching, exploit generation, and report formatting."""
+
     def __init__(self, db_path: Optional[str] = None, nvd_api_key: Optional[str] = None, github_token: Optional[str] = None) -> None:
+        """Initialize the dependency scanner with optional vulnerability data sources."""
         self.vuln_manager = VulnerabilityManager(db_path, nvd_api_key, github_token)
         self.exploit_generator = ExploitGeneratorFactory()
     def scan_file(self, manifest_path: Path, lock_path: Optional[Path] = None) -> Dict:
+        """Scan the manifest and optional lock file for known vulnerabilities."""
         dependencies = self._load_dependencies(manifest_path, lock_path)
         findings: List[Dict] = []
 
@@ -48,6 +52,10 @@ class DependencyScanner:
                     'poc': poc,
                 })
 
+        # Sort findings by severity (critical first, then high, medium, low)
+        severity_order = {'critical': 0, 'high': 1, 'medium': 2, 'low': 3}
+        findings.sort(key=lambda x: severity_order.get(x['severity'], 4))
+
         total_direct, total_transitive = self._dependency_counts(dependencies)
         return {
             'project_name': manifest_path.stem,
@@ -60,6 +68,7 @@ class DependencyScanner:
         }
 
     def _load_dependencies(self, manifest_path: Path, lock_path: Optional[Path] = None) -> List[ParsedDependency]:
+        """Load dependencies from the manifest and merge optional lock file data."""
         root_parser = ParserFactory.get_parser(manifest_path.name)
         root_deps = root_parser.parse(manifest_path.read_text(encoding='utf-8'))
 
@@ -75,28 +84,44 @@ class DependencyScanner:
         root_deps: List[ParsedDependency],
         lock_deps: List[ParsedDependency],
     ) -> List[ParsedDependency]:
-        merged: Dict[Tuple[str, str, str], ParsedDependency] = {}
+        """Merge root manifest dependencies with lock file dependencies.
+
+        Root dependencies have priority and transitive dependencies are marked
+        appropriately when loaded from the lock file.
+        """
+        merged: Dict[Tuple[str, str], ParsedDependency] = {}  # Key: (name.lower(), ecosystem)
         root_names = {dep.name.lower() for dep in root_deps}
 
+        # First, add all root dependencies
         for dep in root_deps:
-            key = (dep.name.lower(), dep.version, dep.ecosystem)
+            key = (dep.name.lower(), dep.ecosystem)
             merged[key] = dep
 
+        # Then merge lock file dependencies
         for dep in lock_deps:
-            key = (dep.name.lower(), dep.version, dep.ecosystem)
-            if key in merged:
-                continue
-            dep.is_transitive = dep.is_transitive or (dep.name.lower() not in root_names)
-            merged[key] = dep
+            key = (dep.name.lower(), dep.ecosystem)
+            if key not in merged:
+                # New dependency from lock file (transitive)
+                dep.is_transitive = dep.is_transitive or (dep.name.lower() not in root_names)
+                merged[key] = dep
+            else:
+                # Existing dependency - update with lock file info if more specific
+                existing = merged[key]
+                # If lock file has more specific version (no ^ or ~), use it
+                if not dep.version.startswith(('^', '~')) and existing.version.startswith(('^', '~')):
+                    existing.version = dep.version
+                    existing.source = dep.source
 
         return list(merged.values())
 
     def _dependency_counts(self, dependencies: List[ParsedDependency]) -> Tuple[int, int]:
+        """Count direct and transitive dependencies in the scan."""
         direct = sum(1 for dep in dependencies if not dep.is_transitive)
         transitive = sum(1 for dep in dependencies if dep.is_transitive)
         return direct, transitive
 
     def format_report(self, scan_result: Dict, manifest_path: Path) -> str:
+        """Format the scan result as a human-readable text report."""
         lines = [
             '=' * 60,
             'DEPENDENCY VULNERABILITY SCAN REPORT',
@@ -195,7 +220,7 @@ class DependencyScanner:
         return '\n'.join(lines)
     
     def _check_breaking_changes(self, current_version: str, fixed_version: str) -> bool:
-        """Check if update would cause breaking changes"""
+        """Check whether a version update crosses a major version boundary."""
         try:
             from packaging import version
             current = version.parse(current_version.lstrip('^~'))
@@ -205,15 +230,19 @@ class DependencyScanner:
             return False
 
     def generate_json_report(self, scan_result: Dict) -> str:
+        """Generate a JSON-formatted report from the scan result."""
         return ReportGenerator(scan_result).generate_json_report()
 
     def generate_html_report(self, scan_result: Dict) -> str:
+        """Generate an HTML dashboard report from the scan result."""
         return ReportGenerator(scan_result).generate_html_report()
     
     def generate_sarif_report(self, scan_result: Dict) -> str:
+        """Generate a SARIF report for IDE and CI integration."""
         return ReportGenerator(scan_result).generate_sarif_report()
 
     def _estimate_effort(self, current_version: str, fixed_version: str, has_patch: bool) -> str:
+        """Estimate remediation effort based on patch availability and version delta."""
         if not has_patch:
             return 'high'
 
@@ -231,6 +260,7 @@ class DependencyScanner:
         return 'low'
 
     def _calculate_overall_risk_score(self, findings: List[Dict]) -> int:
+        """Compute an overall risk score from the scanned vulnerability findings."""
         if not findings:
             return 0
 

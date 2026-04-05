@@ -1,27 +1,25 @@
 #!/usr/bin/env python3
-"""Generate both JSON and HTML reports with proper sorting by severity"""
+"""Generate both JSON and HTML reports with proper sorting by severity."""
 
-import sys
-import os
 import json
-os.chdir('d:\\ASSIGNMENT_RAISE')
-sys.path.insert(0, 'd:\\ASSIGNMENT_RAISE')
-
 from pathlib import Path
 from src.scanner import DependencyScanner
 
+ROOT_DIR = Path(__file__).resolve().parent
+
 def severity_order(severity):
-    """Return order for sorting by severity (critical first)"""
+    """Return order for sorting by severity (critical first)."""
     order = {'critical': 0, 'high': 1, 'medium': 2, 'low': 3}
     return order.get(severity, 4)
 
 def generate_reports():
+    """Scan the sample project and export JSON and HTML reports sorted by severity."""
     # Initialize scanner
     scanner = DependencyScanner()
     
     # Scan WITH lock file
-    manifest_path = Path('samples/package.json')
-    lock_path = Path('samples/package-lock.json')
+    manifest_path = ROOT_DIR / 'samples' / 'package.json'
+    lock_path = ROOT_DIR / 'samples' / 'package-lock.json'
     
     print("[*] Scanning dependencies with lock file analysis...")
     result = scanner.scan_file(manifest_path, lock_path=lock_path)
@@ -103,7 +101,7 @@ def generate_reports():
     print("[*] Generating HTML report...")
     html_content = scanner.generate_html_report(result)
     
-    html_file = Path('samples/package.report.html')
+    html_file = ROOT_DIR / 'samples' / 'package.report.html'
     html_file.write_text(html_content, encoding='utf-8')
     print("[OK] HTML report saved to: {}".format(html_file))
     

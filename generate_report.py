@@ -5,6 +5,7 @@ from pathlib import Path
 from src.scanner import DependencyScanner
 
 def generate_full_report():
+    """Run a full scan on the sample manifest and lock file, then generate an HTML report."""
     print("🔍 Scanning dependencies with lock file analysis...")
     print("="*60)
     

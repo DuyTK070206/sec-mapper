@@ -5,6 +5,7 @@ from src.scanner import DependencyScanner
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the command-line argument parser for the vulnerability scanner."""
     parser = argparse.ArgumentParser(
         description='Dependency Vulnerability Mapper',
     )
@@ -52,6 +53,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    """Entry point for the CLI tool.
+
+    Parses command-line arguments, optionally syncs vulnerability data,
+    runs the dependency scan, and outputs the result in the requested format.
+    """
     args = build_parser().parse_args()
     manifest_path = args.manifest
 
