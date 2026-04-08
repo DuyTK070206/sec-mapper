@@ -83,9 +83,9 @@ python -m pip install -r requirements.txt
 ```powershell
 python main.py samples\package.json
 python main.py samples\package.json --lock samples\package-lock.json
-python main.py samples\package.json --format json
-python main.py samples\package.json --format html
-python main.py samples\package.json --format sarif
+python main.py samples\package.json --lock samples\package-lock.json --format json
+python main.py samples\package.json --lock samples\package-lock.json --format html
+python main.py samples\package.json --lock samples\package-lock.json --format sarif
 python -m pytest tests -q
 ```
 
