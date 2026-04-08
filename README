@@ -47,19 +47,19 @@ python main.py samples\package.json --vuln-db src\vuln_db.json
 ### Xuất JSON
 
 ```powershell
-python main.py samples\package.json --format json
+python main.py samples\package.json --lock samples\package-lock.json --format json
 ```
 
 ### Xuất HTML
 
 ```powershell
-python main.py samples\package.json --format html
+python main.py samples\package.json --lock samples\package-lock.json --format html
 ```
 
 ### Xuất SARIF
 
 ```powershell
-python main.py samples\package.json --format sarif
+python main.py samples\package.json --lock samples\package-lock.json --format sarif
 ```
 
 ## Tính năng hiện tại
