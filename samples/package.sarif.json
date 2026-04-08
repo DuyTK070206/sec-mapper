@@ -36,10 +36,34 @@
           }
         },
         {
+          "ruleId": "CVE-2021-33901",
+          "level": "error",
+          "message": {
+            "text": "follow-redirects@1.10.0: follow-redirects dependency contains prototype pollution vulnerability."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "npm/follow-redirects/package.json"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "follow-redirects",
+            "installed_version": "1.10.0",
+            "fixed_version": "1.14.0",
+            "has_patch": true,
+            "source": "package-lock.json",
+            "remediation_effort": "medium"
+          }
+        },
+        {
           "ruleId": "GHSA-95c9-f9f2-q643",
           "level": "warning",
           "message": {
-            "text": "axios@^0.20.0: Axios vulnerable to data exposure via URL parameters in server-side requests."
+            "text": "axios@0.20.0: Axios vulnerable to data exposure via URL parameters in server-side requests."
           },
           "locations": [
             {
@@ -52,19 +76,19 @@
           ],
           "properties": {
             "package": "axios",
-            "installed_version": "^0.20.0",
+            "installed_version": "0.20.0",
             "fixed_version": "0.21.1",
             "has_patch": true,
-            "source": "package.json",
+            "source": "package-lock.json",
             "remediation_effort": "medium"
           }
         }
       ],
       "properties": {
-        "scan_date": "2026-04-05T23:03:33.014105",
+        "scan_date": "2026-04-08T11:54:34.914842",
         "project_name": "package",
-        "total_dependencies": 4,
-        "overall_risk_score": 60
+        "total_dependencies": 5,
+        "overall_risk_score": 63
       }
     }
   ]
