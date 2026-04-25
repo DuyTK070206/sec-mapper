@@ -1,12 +1,14 @@
 ﻿# Sec Mapper
 
-Dependency Vulnerability Mapper prototype.
+Dependency Vulnerability Mapper với AI-Powered Attack Path Intelligence.
 
 ## Mục tiêu chính
 - Quét dependency từ `package.json` và `requirements.txt`.
 - Hỗ trợ đọc `package-lock.json` để phát hiện dependencies transitive.
 - So khớp package/version với database lỗ hổng mẫu.
-- Xuất báo cáo theo định dạng text, JSON, HTML và SARIF.
+- **AI-powered attack path analysis** — phân tích đường dẫn tấn công, blast radius, và risk prioritization.
+- **Interactive attack graph visualization** — D3.js force-directed graph với cyber-security theme.
+- Xuất báo cáo theo định dạng text, JSON, HTML, SARIF và attack-graph.
 
 ## Cài đặt nhanh
 
@@ -62,14 +64,61 @@ python main.py samples\package.json --lock samples\package-lock.json --format ht
 python main.py samples\package.json --lock samples\package-lock.json --format sarif
 ```
 
+### 🎯 Xuất AI Attack Graph (D3.js Visualization)
+
+```powershell
+python main.py samples\package.json --lock samples\package-lock.json --format attack-graph
+```
+
+Output file: `samples/package.attack-graph.html`
+
+## Tính năng AI-Powered
+
+### Attack Path Analysis
+- **Attack Path Engine** — phân tích chain tấn công từ entry point đến impact
+- **AI Risk Prioritization** — đánh giá risk score với confidence scoring
+- **MITRE ATT&CK Mapping** — map vulnerabilities với attack techniques
+- **Explainable AI** — reasoning chain cho mỗi recommendation
+
+### Blast Radius Analysis
+- **Propagation Depth** — tính toán độ sâu ảnh hưởng của vulnerability
+- **Affected Package Count** — số lượng packages bị ảnh hưởng
+- **Reachability Score** — đánh giá khả năng reach từ entry point
+- **Supply Chain Risk** — đánh giá risk cho toàn bộ dependency tree
+
+### Interactive Visualization
+- **D3.js Force-Directed Graph** — tương tác trực quan attack paths
+- **Cyber-Security Theme** — dark mode với neon accents (cyan/magenta)
+- **Animated Attack Edges** — hiệu ứng animation cho exploit propagation
+- **Hover Tooltips** — chi tiết vulnerability khi hover
+- **Severity Filtering** — lọc theo Critical/High/Exploitable
+- **Attack Path Cards** — AI reasoning và confidence scores
+- **AI Risk Assessment Panels** — visual risk scoring
+- **Remediation Plan** — prioritized actions với effort estimation
+- **Executive Summary** — technical, management, và business impact
+
 ## Tính năng hiện tại
 - Quét direct dependencies từ `package.json` và `requirements.txt`.
 - Hỗ trợ quét transitive dependencies từ `package-lock.json`.
 - Match package/version với `src/vuln_db.json`.
 - Xuất báo cáo text trên terminal.
-- Xuất báo cáo JSON, HTML và SARIF.
+- Xuất báo cáo JSON, HTML, SARIF và Attack Graph.
 - PoC exploit code mẫu được gắn vào báo cáo HTML.
 - Có cơ chế sync dữ liệu NVD/GitHub nếu cần.
+- **AI Attack Path Analysis** với reasoning và confidence scoring.
+- **Blast Radius Calculation** cho mỗi vulnerability.
+- **Interactive D3.js Visualization** với cyber-security theme.
+
+## Cấu trúc AI Modules
+
+```
+src/
+├── attack_path_engine.py     # AI-powered attack path reasoning
+├── blast_radius_analyzer.py  # Blast radius calculation
+├── graph_builder.py          # D3.js graph data structures
+├── scanner.py                # Main scanner (updated with AI integration)
+└── report_generator.py       # Report generation (includes attack-graph)
+```
 
 ## Script hỗ trợ
 
@@ -83,6 +132,7 @@ python main.py samples\package.json --lock samples\package-lock.json --format sa
 - `--lock` sẽ hợp nhất dependencies từ lock file và đánh dấu transitive deps.
 - `pom.xml` có parser cơ bản trong code nhưng chưa phải là chức năng chính đã test rộng.
 - `--sync` sẽ kết nối NVD và GitHub nếu có token và cần đồng bộ dữ liệu.
+- Attack Graph HTML cần mạng để load D3.js từ CDN.
 
 ## Phát triển tiếp
 
@@ -91,6 +141,8 @@ Các khả năng nâng cấp tiềm năng:
 - Tăng cường matching với dữ liệu CVE thực từ GitHub Advisory/NVD.
 - Cải thiện tree-analysis để hiển thị đường dẫn transitive dependency.
 - Hoàn thiện SARIF và báo cáo interactive HTML.
+- Thêm real-time vulnerability monitoring.
+- Tích hợp với CI/CD pipelines.
 
 ## Chạy tests
 

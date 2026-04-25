@@ -28,7 +28,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         '--format',
-        choices=['text', 'json', 'html', 'sarif'],
+        choices=['text', 'json', 'html', 'sarif', 'attack-graph'],
         default='text',
         help='Output format for the scan report',
     )
@@ -100,6 +100,20 @@ def main() -> None:
         output = manifest_path.parent / f"{manifest_path.stem}.sarif.json"
         output.write_text(sarif, encoding='utf-8')
         print(f'SARIF report written to: {output}')
+        return
+    
+    if args.format == 'attack-graph':
+        # Generate AI-powered attack path analysis
+        attack_analysis = scanner.generate_attack_path_analysis(result)
+        
+        # Generate interactive HTML report with D3.js visualization
+        html = scanner.generate_attack_graph_html(result, attack_analysis)
+        output = manifest_path.with_suffix('.attack-graph.html')
+        output.write_text(html, encoding='utf-8')
+        print(f'Attack graph report written to: {output}')
+        print(f'  - Attack paths identified: {len(attack_analysis.get("attack_paths", []))}')
+        print(f'  - AI risk assessments: {len(attack_analysis.get("ai_assessments", []))}')
+        print(f'  - Blast radius score: {attack_analysis.get("blast_radius", {}).get("summary", {}).get("average_score", 0):.1f}')
         return
 
     print(scanner.format_report(result, manifest_path))

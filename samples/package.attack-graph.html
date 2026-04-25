@@ -1,0 +1,1211 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Attack Path Intelligence Dashboard</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-panel: #111827;
+            --bg-card: #1a2234;
+            --accent-cyan: #00f0ff;
+            --accent-magenta: #ff00aa;
+            --accent-green: #00ff88;
+            --accent-red: #ff3366;
+            --accent-orange: #ff9900;
+            --accent-yellow: #ffee00;
+            --text-primary: #e8eaed;
+            --text-secondary: #9aa0a6;
+            --border-glow: rgba(0, 240, 255, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Roboto', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Cyber background effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(255, 0, 170, 0.06) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0e17 0%, #0d1420 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: linear-gradient(90deg, rgba(0,240,255,0.1) 0%, rgba(255,0,170,0.05) 100%);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+        }
+        
+        .header-meta {
+            display: flex;
+            gap: 30px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .header-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .header-meta .value {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card.critical { border-left: 3px solid var(--accent-red); }
+        .stat-card.high { border-left: 3px solid var(--accent-orange); }
+        .stat-card.medium { border-left: 3px solid var(--accent-yellow); }
+        .stat-card.low { border-left: 3px solid var(--accent-green); }
+        
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .stat-card.critical .stat-value { color: var(--accent-red); }
+        .stat-card.high .stat-value { color: var(--accent-orange); }
+        
+        /* Main Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+        }
+        
+        /* Graph Container */
+        .graph-container {
+            background: var(--bg-panel);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .graph-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .graph-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .graph-title::before {
+            content: '◉';
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .graph-filters {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            padding: 6px 14px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(0, 240, 255, 0.2);
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+        }
+        
+        #attack-graph {
+            width: 100%;
+            height: 500px;
+            background: radial-gradient(ellipse at center, #0d1420 0%, #0a0e17 100%);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            padding: 14px 18px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-content {
+            padding: 16px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        .panel-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .panel-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .panel-content::-webkit-scrollbar-thumb {
+            background: var(--accent-cyan);
+            border-radius: 3px;
+        }
+        
+        /* Attack Path Cards */
+        .attack-path-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+        
+        .attack-path-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+        
+        .attack-path-card.critical { border-left: 3px solid var(--accent-red); }
+        .attack-path-card.high { border-left: 3px solid var(--accent-orange); }
+        
+        .path-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .path-id {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .path-severity {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        
+        .path-severity.critical { background: var(--accent-red); color: white; }
+        .path-severity.high { background: var(--accent-orange); color: white; }
+        .path-severity.medium { background: var(--accent-yellow); color: black; }
+        
+        .path-content {
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        
+        .path-content .label {
+            color: var(--text-secondary);
+            margin-right: 6px;
+        }
+        
+        .path-content .value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .path-metrics {
+            display: flex;
+            gap: 20px;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 10px;
+        }
+        
+        .metric {
+            text-align: center;
+        }
+        
+        .metric-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+        
+        .path-reasoning {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .reasoning-header {
+            font-weight: 600;
+            color: var(--accent-magenta);
+            margin-bottom: 4px;
+        }
+        
+        /* Assessment Cards */
+        .assessment-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .assessment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .assessment-package {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .assessment-confidence {
+            font-size: 11px;
+            color: var(--accent-green);
+        }
+        
+        .assessment-scores {
+            margin-bottom: 10px;
+        }
+        
+        .score-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        
+        .score-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            width: 80px;
+        }
+        
+        .score-track {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .score-fill.exploit { background: linear-gradient(90deg, var(--accent-red), var(--accent-orange)); }
+        .score-fill.reach { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); }
+        
+        .score-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            width: 35px;
+            text-align: right;
+        }
+        
+        .assessment-decision {
+            font-size: 12px;
+            padding: 8px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 4px;
+            color: var(--accent-green);
+            text-align: center;
+        }
+        
+        /* Remediation Items */
+        .remediation-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid transparent;
+        }
+        
+        .remediation-item.critical { border-left-color: var(--accent-red); }
+        .remediation-item.high { border-left-color: var(--accent-orange); }
+        .remediation-item.medium { border-left-color: var(--accent-yellow); }
+        
+        .remediation-priority {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            width: 30px;
+        }
+        
+        .remediation-details {
+            flex: 1;
+        }
+        
+        .rem-package {
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .rem-versions {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+        
+        .remediation-meta {
+            text-align: right;
+        }
+        
+        .rem-risk {
+            font-size: 12px;
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+        
+        .rem-effort {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+        
+        /* Executive Summary */
+        .summary-section {
+            margin-top: 24px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .summary-card {
+            background: var(--bg-panel);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .summary-card h3 {
+            font-size: 14px;
+            color: var(--accent-cyan);
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+        }
+        
+        .summary-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+        
+        /* Graph Legend */
+        .graph-legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .legend-dot.root { background: #4a90d9; }
+        .legend-dot.direct { background: #50c878; }
+        .legend-dot.transitive { background: #9b59b6; }
+        .legend-dot.vuln-critical { background: #e74c3c; }
+        .legend-dot.vuln-high { background: #e67e22; }
+        .legend-dot.vuln-medium { background: #f1c40f; }
+        .legend-dot.impact { background: #9b59b6; }
+        
+        /* Tooltip */
+        .graph-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .graph-tooltip.visible {
+            opacity: 1;
+        }
+        
+        .tooltip-title {
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 6px;
+        }
+        
+        .tooltip-info {
+            color: var(--text-secondary);
+        }
+        
+        /* Export buttons */
+        .export-btns {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .export-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(255,0,170,0.1));
+            border: 1px solid var(--accent-cyan);
+            border-radius: 6px;
+            color: var(--accent-cyan);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .export-btn:hover {
+            background: linear-gradient(135deg, rgba(0,240,255,0.3), rgba(255,0,170,0.2));
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+        
+        /* Node animations */
+        @keyframes nodeGlow {
+            0%, 100% { filter: drop-shadow(0 0 5px currentColor); }
+            50% { filter: drop-shadow(0 0 15px currentColor); }
+        }
+        
+        .node-vulnerable {
+            animation: nodeGlow 2s ease-in-out infinite;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <h1>⚡ AI Attack Path Intelligence</h1>
+            <div class="header-meta">
+                <span>Project: <span class="value">package</span></span>
+                <span>Scan: <span class="value">2026-04-25</span></span>
+                <span>Risk Score: <span class="value">63/100</span></span>
+            </div>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card critical">
+                <div class="stat-label">Critical</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-card high">
+                <div class="stat-label">High</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-card medium">
+                <div class="stat-label">Medium</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-card low">
+                <div class="stat-label">Low</div>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Blast Radius</div>
+                <div class="stat-value">100</div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content-grid">
+            <!-- Graph Container -->
+            <div class="graph-container">
+                <div class="graph-header">
+                    <div class="graph-title">Attack Path Visualization</div>
+                    <div class="graph-filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="critical">Critical</button>
+                        <button class="filter-btn" data-filter="high">High</button>
+                        <button class="filter-btn" data-filter="exploitable">Exploitable</button>
+                    </div>
+                </div>
+                <div id="attack-graph"></div>
+                <div class="graph-legend">
+                    <div class="legend-item"><div class="legend-dot root"></div> Application Root</div>
+                    <div class="legend-item"><div class="legend-dot direct"></div> Direct Dependency</div>
+                    <div class="legend-item"><div class="legend-dot transitive"></div> Transitive Dependency</div>
+                    <div class="legend-item"><div class="legend-dot vuln-critical"></div> Critical Vulnerability</div>
+                    <div class="legend-item"><div class="legend-dot vuln-high"></div> High Vulnerability</div>
+                    <div class="legend-item"><div class="legend-dot impact"></div> Potential Impact</div>
+                </div>
+                <div class="graph-tooltip" id="tooltip">
+                    <div class="tooltip-title"></div>
+                    <div class="tooltip-info"></div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Attack Paths Panel -->
+                <div class="panel">
+                    <div class="panel-header">🎯 Top Attack Paths</div>
+                    <div class="panel-content">
+                        
+            <div class="attack-path-card high">
+                <div class="path-header">
+                    <div class="path-id">PATH-001</div>
+                    <div class="path-severity high">HIGH</div>
+                </div>
+                <div class="path-content">
+                    <div class="path-package">
+                        <span class="label">Target:</span>
+                        <span class="value">lodash</span>
+                    </div>
+                    <div class="path-cve">
+                        <span class="label">CVE:</span>
+                        <span class="value">CVE-2021-23337</span>
+                    </div>
+                    <div class="path-exploit">
+                        <span class="label">Exploit:</span>
+                        <span class="value">Prototype Pollution</span>
+                    </div>
+                    <div class="path-impact">
+                        <span class="label">Impact:</span>
+                        <span class="value">Full application compromise</span>
+                    </div>
+                </div>
+                <div class="path-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Risk Score</span>
+                        <span class="metric-value">67.5</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">AI Confidence</span>
+                        <span class="metric-value">99%</span>
+                    </div>
+                </div>
+                <div class="path-reasoning">
+                    <div class="reasoning-header">AI Reasoning</div>
+                    <div class="reasoning-text">Analysis of lodash reveals Prototype Pollution vulnerability. The vulnerability is classified as HIGH severity. Lodash is a widely-used utility library. Prototype pollution can affect any application ...</div>
+                </div>
+            </div>
+            
+            <div class="attack-path-card high">
+                <div class="path-header">
+                    <div class="path-id">PATH-002</div>
+                    <div class="path-severity high">HIGH</div>
+                </div>
+                <div class="path-content">
+                    <div class="path-package">
+                        <span class="label">Target:</span>
+                        <span class="value">follow-redirects</span>
+                    </div>
+                    <div class="path-cve">
+                        <span class="label">CVE:</span>
+                        <span class="value">CVE-2021-33901</span>
+                    </div>
+                    <div class="path-exploit">
+                        <span class="label">Exploit:</span>
+                        <span class="value">SSRF / Request Smuggling</span>
+                    </div>
+                    <div class="path-impact">
+                        <span class="label">Impact:</span>
+                        <span class="value">Internal infrastructure pivot</span>
+                    </div>
+                </div>
+                <div class="path-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Risk Score</span>
+                        <span class="metric-value">54.0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">AI Confidence</span>
+                        <span class="metric-value">99%</span>
+                    </div>
+                </div>
+                <div class="path-reasoning">
+                    <div class="reasoning-header">AI Reasoning</div>
+                    <div class="reasoning-text">Analysis of follow-redirects reveals SSRF / Request Smuggling vulnerability. The vulnerability is classified as HIGH severity. follow-redirects is a transitive dependency of many HTTP libraries. Compr...</div>
+                </div>
+            </div>
+            
+            <div class="attack-path-card medium">
+                <div class="path-header">
+                    <div class="path-id">PATH-003</div>
+                    <div class="path-severity medium">MEDIUM</div>
+                </div>
+                <div class="path-content">
+                    <div class="path-package">
+                        <span class="label">Target:</span>
+                        <span class="value">axios</span>
+                    </div>
+                    <div class="path-cve">
+                        <span class="label">CVE:</span>
+                        <span class="value">GHSA-95c9-f9f2-q643</span>
+                    </div>
+                    <div class="path-exploit">
+                        <span class="label">Exploit:</span>
+                        <span class="value">Data Exposure via URL Params</span>
+                    </div>
+                    <div class="path-impact">
+                        <span class="label">Impact:</span>
+                        <span class="value">Data breach</span>
+                    </div>
+                </div>
+                <div class="path-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Risk Score</span>
+                        <span class="metric-value">45.0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">AI Confidence</span>
+                        <span class="metric-value">85%</span>
+                    </div>
+                </div>
+                <div class="path-reasoning">
+                    <div class="reasoning-header">AI Reasoning</div>
+                    <div class="reasoning-text">Analysis of axios reveals Data Exposure via URL Params vulnerability. The vulnerability is classified as MEDIUM severity. Axios is commonly used for HTTP requests. URL parameter data exposure can leak...</div>
+                </div>
+            </div>
+            
+                    </div>
+                </div>
+                
+                <!-- AI Assessments Panel -->
+                <div class="panel">
+                    <div class="panel-header">🤖 AI Risk Assessments</div>
+                    <div class="panel-content">
+                        
+            <div class="assessment-card high">
+                <div class="assessment-header">
+                    <div class="assessment-package">lodash</div>
+                    <div class="assessment-confidence">99% confidence</div>
+                </div>
+                <div class="assessment-scores">
+                    <div class="score-bar">
+                        <div class="score-label">Overall Risk</div>
+                        <div class="score-track">
+                            <div class="score-fill" style="width: 87.5%"></div>
+                        </div>
+                        <div class="score-value">87.5</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-label">Exploitability</div>
+                        <div class="score-track">
+                            <div class="score-fill exploit" style="width: 95%"></div>
+                        </div>
+                        <div class="score-value">95.0</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-label">Reachability</div>
+                        <div class="score-track">
+                            <div class="score-fill reach" style="width: 90.0%"></div>
+                        </div>
+                        <div class="score-value">90.0</div>
+                    </div>
+                </div>
+                <div class="assessment-decision">
+                    ✅ FIX NOW
+                </div>
+            </div>
+            
+            <div class="assessment-card high">
+                <div class="assessment-header">
+                    <div class="assessment-package">axios</div>
+                    <div class="assessment-confidence">85% confidence</div>
+                </div>
+                <div class="assessment-scores">
+                    <div class="score-bar">
+                        <div class="score-label">Overall Risk</div>
+                        <div class="score-track">
+                            <div class="score-fill" style="width: 70.0%"></div>
+                        </div>
+                        <div class="score-value">70.0</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-label">Exploitability</div>
+                        <div class="score-track">
+                            <div class="score-fill exploit" style="width: 70%"></div>
+                        </div>
+                        <div class="score-value">70.0</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-label">Reachability</div>
+                        <div class="score-track">
+                            <div class="score-fill reach" style="width: 90.0%"></div>
+                        </div>
+                        <div class="score-value">90.0</div>
+                    </div>
+                </div>
+                <div class="assessment-decision">
+                    ✅ FIX NOW
+                </div>
+            </div>
+            
+            <div class="assessment-card medium">
+                <div class="assessment-header">
+                    <div class="assessment-package">follow-redirects</div>
+                    <div class="assessment-confidence">99% confidence</div>
+                </div>
+                <div class="assessment-scores">
+                    <div class="score-bar">
+                        <div class="score-label">Overall Risk</div>
+                        <div class="score-track">
+                            <div class="score-fill" style="width: 66.5%"></div>
+                        </div>
+                        <div class="score-value">66.5</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-label">Exploitability</div>
+                        <div class="score-track">
+                            <div class="score-fill exploit" style="width: 80%"></div>
+                        </div>
+                        <div class="score-value">80.0</div>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-label">Reachability</div>
+                        <div class="score-track">
+                            <div class="score-fill reach" style="width: 40.0%"></div>
+                        </div>
+                        <div class="score-value">40.0</div>
+                    </div>
+                </div>
+                <div class="assessment-decision">
+                    ✅ FIX NOW
+                </div>
+            </div>
+            
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Remediation Plan -->
+        <div class="panel" style="margin-top: 24px;">
+            <div class="panel-header">🔧 AI-Optimized Remediation Plan</div>
+            <div class="panel-content" style="max-height: none;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px;">
+                    
+            <div class="remediation-item critical">
+                <div class="remediation-priority">#1</div>
+                <div class="remediation-details">
+                    <div class="rem-package">lodash</div>
+                    <div class="rem-versions">4.17.20 → 4.17.21</div>
+                </div>
+                <div class="remediation-meta">
+                    <div class="rem-risk">Risk: 87.5</div>
+                    <div class="rem-effort">LOW</div>
+                </div>
+            </div>
+            
+            <div class="remediation-item high">
+                <div class="remediation-priority">#2</div>
+                <div class="remediation-details">
+                    <div class="rem-package">axios</div>
+                    <div class="rem-versions">0.20.0 → 0.21.1</div>
+                </div>
+                <div class="remediation-meta">
+                    <div class="rem-risk">Risk: 70.0</div>
+                    <div class="rem-effort">MEDIUM</div>
+                </div>
+            </div>
+            
+            <div class="remediation-item high">
+                <div class="remediation-priority">#3</div>
+                <div class="remediation-details">
+                    <div class="rem-package">follow-redirects</div>
+                    <div class="rem-versions">1.10.0 → 1.14.0</div>
+                </div>
+                <div class="remediation-meta">
+                    <div class="rem-risk">Risk: 66.5</div>
+                    <div class="rem-effort">MEDIUM</div>
+                </div>
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <!-- Executive Summary -->
+        <div class="summary-section">
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>📊 Technical Summary</h3>
+                    <p>Technical Analysis:
+- Analyzed 3 vulnerabilities across 3 unique packages
+- 0 CRITICAL, 2 HIGH severity issues identified
+- Average AI-assessed risk score: 74.7/100
+- Generated 3 attack path analyses</p>
+                </div>
+                <div class="summary-card">
+                    <h3>👔 Management Summary</h3>
+                    <p>Management Summary:
+- Immediate action required for 0 critical vulnerabilities
+- 3 vulnerabilities recommended for immediate remediation
+- 0 vulnerabilities may require additional testing before upgrade
+- AI confidence in assessments: 94%</p>
+                </div>
+                <div class="summary-card">
+                    <h3>💼 Business Impact</h3>
+                    <p>Business Impact:
+- Supply chain risk: MODERATE
+- Potential attack paths: 3
+- Recommended remediation timeline: Within 30 days
+- Estimated remediation effort: Medium (~2-4 hours)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Graph data from analysis
+        const graphData = {"nodes": [{"id": "root-app", "label": "package", "type": "root", "severity": null, "version": null, "cve_id": null, "is_transitive": false, "is_compromised": false, "metadata": {"color": "#4a90d9", "icon": "\ud83d\udce6", "description": "Application root"}}, {"id": "dep-lodash", "label": "lodash", "type": "vulnerability", "severity": "high", "version": "4.17.20", "cve_id": null, "is_transitive": false, "is_compromised": true, "metadata": {"color": "#e67e22", "icon": "\u26a0\ufe0f", "description": "Direct dependency", "ecosystem": "npm"}}, {"id": "dep-follow-redirects", "label": "follow-redirects", "type": "vulnerability", "severity": "high", "version": "1.10.0", "cve_id": null, "is_transitive": true, "is_compromised": true, "metadata": {"color": "#e67e22", "icon": "\u26a0\ufe0f", "description": "Transitive dependency", "ecosystem": "npm"}}, {"id": "dep-axios", "label": "axios", "type": "vulnerability", "severity": "medium", "version": "0.20.0", "cve_id": null, "is_transitive": false, "is_compromised": true, "metadata": {"color": "#f1c40f", "icon": "\u26a0\ufe0f", "description": "Direct dependency", "ecosystem": "npm"}}, {"id": "vuln-CVE-2021-23337", "label": "CVE-2021-23337", "type": "vulnerability", "severity": "high", "version": "4.17.20", "cve_id": "CVE-2021-23337", "is_transitive": false, "is_compromised": true, "metadata": {"color": "#e67e22", "icon": "\ud83d\udd34", "description": "Prototype pollution in lodash before 4.17.21.", "exploit_type": "Unknown", "has_patch": true, "fixed_version": "4.17.21"}}, {"id": "vuln-CVE-2021-33901", "label": "CVE-2021-33901", "type": "vulnerability", "severity": "high", "version": "1.10.0", "cve_id": "CVE-2021-33901", "is_transitive": false, "is_compromised": true, "metadata": {"color": "#e67e22", "icon": "\ud83d\udd34", "description": "follow-redirects dependency contains prototype pollution vulnerability.", "exploit_type": "Unknown", "has_patch": true, "fixed_version": "1.14.0"}}, {"id": "vuln-GHSA-95c9-f9f2-q643", "label": "GHSA-95c9-f9f2-q643", "type": "vulnerability", "severity": "medium", "version": "0.20.0", "cve_id": "GHSA-95c9-f9f2-q643", "is_transitive": false, "is_compromised": true, "metadata": {"color": "#f1c40f", "icon": "\ud83d\udd34", "description": "Axios vulnerable to data exposure via URL parameters in server-side requests.", "exploit_type": "Unknown", "has_patch": true, "fixed_version": "0.21.1"}}, {"id": "impact-credential-theft", "label": "Credential Theft", "type": "impact", "severity": "high", "version": null, "cve_id": null, "is_transitive": false, "is_compromised": false, "metadata": {"color": "#9b59b6", "icon": "\ud83d\udca5", "description": "Potential impact: Credential Theft", "related_cve": "CVE-2021-23337"}}, {"id": "impact-privilege-escalation", "label": "Privilege Escalation", "type": "impact", "severity": "high", "version": null, "cve_id": null, "is_transitive": false, "is_compromised": false, "metadata": {"color": "#9b59b6", "icon": "\ud83d\udca5", "description": "Potential impact: Privilege Escalation", "related_cve": "CVE-2021-23337"}}, {"id": "impact-internal-network-access", "label": "Internal Network Access", "type": "impact", "severity": "high", "version": null, "cve_id": null, "is_transitive": false, "is_compromised": false, "metadata": {"color": "#9b59b6", "icon": "\ud83d\udca5", "description": "Potential impact: Internal Network Access", "related_cve": "CVE-2021-23337"}}, {"id": "impact-session-hijacking", "label": "Session Hijacking", "type": "impact", "severity": "medium", "version": null, "cve_id": null, "is_transitive": false, "is_compromised": false, "metadata": {"color": "#9b59b6", "icon": "\ud83d\udca5", "description": "Potential impact: Session Hijacking", "related_cve": "GHSA-95c9-f9f2-q643"}}, {"id": "impact-service-disruption", "label": "Service Disruption", "type": "impact", "severity": "medium", "version": null, "cve_id": null, "is_transitive": false, "is_compromised": false, "metadata": {"color": "#9b59b6", "icon": "\ud83d\udca5", "description": "Potential impact: Service Disruption", "related_cve": "GHSA-95c9-f9f2-q643"}}], "edges": [{"id": "edge-root-lodash", "source": "root-app", "target": "dep-lodash", "type": "depends_on", "label": "depends on", "animated": false, "metadata": {"color": "#7f8c8d", "style": "solid"}}, {"id": "edge-root-follow-redirects", "source": "root-app", "target": "dep-follow-redirects", "type": "depends_on", "label": "depends on", "animated": false, "metadata": {"color": "#7f8c8d", "style": "solid"}}, {"id": "edge-root-axios", "source": "root-app", "target": "dep-axios", "type": "depends_on", "label": "depends on", "animated": false, "metadata": {"color": "#7f8c8d", "style": "solid"}}, {"id": "edge-lodash-CVE-2021-23337", "source": "dep-lodash", "target": "vuln-CVE-2021-23337", "type": "exploits", "label": "vulnerable to", "animated": true, "metadata": {"color": "#e74c3c", "style": "dashed", "severity": "high"}}, {"id": "edge-follow-redirects-CVE-2021-33901", "source": "dep-follow-redirects", "target": "vuln-CVE-2021-33901", "type": "exploits", "label": "vulnerable to", "animated": true, "metadata": {"color": "#e74c3c", "style": "dashed", "severity": "high"}}, {"id": "edge-axios-GHSA-95c9-f9f2-q643", "source": "dep-axios", "target": "vuln-GHSA-95c9-f9f2-q643", "type": "exploits", "label": "vulnerable to", "animated": true, "metadata": {"color": "#e74c3c", "style": "dashed", "severity": "medium"}}, {"id": "edge-CVE-2021-23337-credential-theft", "source": "vuln-CVE-2021-23337", "target": "impact-credential-theft", "type": "leads_to", "label": "can lead to", "animated": true, "metadata": {"color": "#e67e22", "style": "dotted"}}, {"id": "edge-CVE-2021-23337-privilege-escalation", "source": "vuln-CVE-2021-23337", "target": "impact-privilege-escalation", "type": "leads_to", "label": "can lead to", "animated": true, "metadata": {"color": "#e67e22", "style": "dotted"}}, {"id": "edge-CVE-2021-33901-credential-theft", "source": "vuln-CVE-2021-33901", "target": "impact-credential-theft", "type": "leads_to", "label": "can lead to", "animated": true, "metadata": {"color": "#e67e22", "style": "dotted"}}, {"id": "edge-CVE-2021-33901-privilege-escalation", "source": "vuln-CVE-2021-33901", "target": "impact-privilege-escalation", "type": "leads_to", "label": "can lead to", "animated": true, "metadata": {"color": "#e67e22", "style": "dotted"}}, {"id": "edge-GHSA-95c9-f9f2-q643-session-hijacking", "source": "vuln-GHSA-95c9-f9f2-q643", "target": "impact-session-hijacking", "type": "leads_to", "label": "can lead to", "animated": true, "metadata": {"color": "#e67e22", "style": "dotted"}}, {"id": "path-PATH-001-step-0", "source": "step-0", "target": "step-1", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-001"}}, {"id": "path-PATH-001-step-1", "source": "step-1", "target": "step-2", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-001"}}, {"id": "path-PATH-001-step-2", "source": "step-2", "target": "step-3", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-001"}}, {"id": "path-PATH-001-step-3", "source": "step-3", "target": "step-4", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-001"}}, {"id": "path-PATH-002-step-0", "source": "step-0", "target": "step-1", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-002"}}, {"id": "path-PATH-002-step-1", "source": "step-1", "target": "step-2", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-002"}}, {"id": "path-PATH-002-step-2", "source": "step-2", "target": "step-3", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-002"}}, {"id": "path-PATH-002-step-3", "source": "step-3", "target": "step-4", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-002"}}, {"id": "path-PATH-003-step-0", "source": "step-0", "target": "step-1", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-003"}}, {"id": "path-PATH-003-step-1", "source": "step-1", "target": "step-2", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-003"}}, {"id": "path-PATH-003-step-2", "source": "step-2", "target": "step-3", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-003"}}, {"id": "path-PATH-003-step-3", "source": "step-3", "target": "step-4", "type": "compromises", "label": "attack progression", "animated": true, "metadata": {"color": "#e74c3c", "style": "animated", "path_id": "PATH-003"}}], "metadata": {"generated_at": "2026-04-25T15:08:03.692909", "project_name": "package", "statistics": {"total_nodes": 12, "total_edges": 23, "total_dependencies": 3, "vulnerabilities": {"critical": 0, "high": 2, "medium": 1, "low": 0}}, "visualization": {"layout": "force-directed", "physics": {"enabled": true, "stabilization_iterations": 100}}}};
+        
+        // D3.js Force-Directed Graph
+        const container = document.getElementById('attack-graph');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        
+        // Color scale
+        const colorScale = {
+            'root': '#4a90d9',
+            'dependency': '#50c878',
+            'vulnerability': '#e74c3c',
+            'impact': '#9b59b6'
+        };
+        
+        const severityColors = {
+            'critical': '#e74c3c',
+            'high': '#e67e22',
+            'medium': '#f1c40f',
+            'low': '#2ecc71'
+        };
+        
+        // Create SVG
+        const svg = d3.select('#attack-graph')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+        
+        // Add glow filter
+        const defs = svg.append('defs');
+        const filter = defs.append('filter')
+            .attr('id', 'glow');
+        filter.append('feGaussianBlur')
+            .attr('stdDeviation', '3')
+            .attr('result', 'coloredBlur');
+        const feMerge = filter.append('feMerge');
+        feMerge.append('feMergeNode').attr('in', 'coloredBlur');
+        feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+        
+        // Prepare nodes and links
+        const nodes = graphData.nodes || [];
+        const links = (graphData.edges || []).map(e => ({
+            source: e.source,
+            target: e.target,
+            type: e.type,
+            animated: e.animated
+        }));
+        
+        // Create simulation
+        const simulation = d3.forceSimulation(nodes)
+            .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+            .force('charge', d3.forceManyBody().strength(-300))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collision', d3.forceCollide().radius(30));
+        
+        // Draw links
+        const link = svg.append('g')
+            .selectAll('line')
+            .data(links)
+            .enter()
+            .append('line')
+            .attr('stroke', d => d.type === 'exploits' ? '#e74c3c' : d.type === 'leads_to' ? '#e67e22' : '#7f8c8d')
+            .attr('stroke-width', d => d.animated ? 2 : 1)
+            .attr('stroke-dasharray', d => d.animated ? '5,5' : 'none')
+            .attr('opacity', 0.6);
+        
+        // Draw nodes
+        const node = svg.append('g')
+            .selectAll('g')
+            .data(nodes)
+            .enter()
+            .append('g')
+            .attr('class', d => d.type === 'vulnerability' ? 'node-vulnerable' : '')
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+        
+        // Node circles
+        node.append('circle')
+            .attr('r', d => d.type === 'root' ? 20 : d.type === 'vulnerability' ? 15 : 10)
+            .attr('fill', d => {
+                if (d.type === 'root') return '#4a90d9';
+                if (d.type === 'vulnerability') return severityColors[d.severity] || '#e74c3c';
+                if (d.type === 'impact') return '#9b59b6';
+                return d.is_transitive ? '#9b59b6' : '#50c878';
+            })
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 2)
+            .attr('filter', d => d.type === 'vulnerability' ? 'url(#glow)' : '');
+        
+        // Node labels
+        node.append('text')
+            .text(d => d.label.length > 15 ? d.label.substring(0, 12) + '...' : d.label)
+            .attr('x', 0)
+            .attr('y', d => (d.type === 'root' ? 25 : d.type === 'vulnerability' ? 22 : 17))
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#9aa0a6')
+            .attr('font-size', '10px');
+        
+        // Tooltip
+        const tooltip = document.getElementById('tooltip');
+        
+        node.on('mouseover', function(event, d) {
+            tooltip.classList.add('visible');
+            tooltip.querySelector('.tooltip-title').textContent = d.label;
+            tooltip.querySelector('.tooltip-info').innerHTML = 
+                `Type: ${d.type}<br>` +
+                (d.severity ? `Severity: ${d.severity}<br>` : '') +
+                (d.version ? `Version: ${d.version}<br>` : '') +
+                (d.cve_id ? `CVE: ${d.cve_id}` : '');
+            
+            const rect = container.getBoundingClientRect();
+            tooltip.style.left = (event.clientX - rect.left + 10) + 'px';
+            tooltip.style.top = (event.clientY - rect.top + 10) + 'px';
+        })
+        .on('mouseout', function() {
+            tooltip.classList.remove('visible');
+        });
+        
+        // Animation for attack paths
+        function animateAttackPath() {
+            link.attr('stroke-dashoffset', 0)
+                .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', -100)
+                .on('end', animateAttackPath);
+        }
+        
+        // Start animation for animated edges
+        setTimeout(animateAttackPath, 1000);
+        
+        // Simulation tick
+        simulation.on('tick', () => {
+            link
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+            
+            node.attr('transform', d => `translate(${d.x},${d.y})`);
+        });
+        
+        // Drag functions
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+        
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+        
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+        
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                node.style('opacity', d => {
+                    if (filter === 'all') return 1;
+                    if (filter === 'critical') return d.severity === 'critical' ? 1 : 0.3;
+                    if (filter === 'high') return d.severity === 'critical' || d.severity === 'high' ? 1 : 0.3;
+                    if (filter === 'exploitable') return d.type === 'vulnerability' ? 1 : 0.3;
+                    return 1;
+                });
+            });
+        });
+        
+        // Export functionality
+        function exportGraph() {
+            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(graphData));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute('href', dataStr);
+            downloadAnchorNode.setAttribute('download', 'attack_graph.json');
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+    </script>
+</body>
+</html>

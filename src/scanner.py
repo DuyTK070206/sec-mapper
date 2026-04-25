@@ -7,6 +7,15 @@ from src.vulnerability_manager import VulnerabilityManager
 from src.report_generator import ReportGenerator
 from src.exploit_generator import ExploitGeneratorFactory
 
+# Import new AI analysis modules
+try:
+    from src.attack_path_engine import AttackPathEngine
+    from src.blast_radius_analyzer import BlastRadiusAnalyzer
+    from src.graph_builder import GraphBuilder
+    AI_MODULES_AVAILABLE = True
+except ImportError:
+    AI_MODULES_AVAILABLE = False
+
 
 class DependencyScanner:
     """Coordinate parsing, vulnerability matching, exploit generation, and report formatting."""
@@ -267,4 +276,160 @@ class DependencyScanner:
         score_map = {'critical': 90, 'high': 70, 'medium': 50, 'low': 20}
         scores = [score_map.get(f['severity'], 0) for f in findings]
         return int(sum(scores) / len(scores))
+
+    def generate_attack_path_analysis(self, scan_result: Dict) -> Dict:
+        """
+        Generate AI-powered attack path analysis.
+        
+        This method performs deep analysis of vulnerabilities including:
+        - Attack path generation
+        - Blast radius calculation
+        - AI risk prioritization
+        - Remediation planning
+        
+        Args:
+            scan_result: The scan result dictionary from scan_file()
+            
+        Returns:
+            Dictionary containing attack path analysis results
+        """
+        if not AI_MODULES_AVAILABLE:
+            return {
+                'error': 'AI modules not available',
+                'attack_paths': [],
+                'blast_radius': {},
+                'ai_assessments': [],
+                'remediation_plan': []
+            }
+        
+        findings = scan_result.get('findings', [])
+        
+        if not findings:
+            return {
+                'attack_paths': [],
+                'blast_radius': {},
+                'ai_assessments': [],
+                'remediation_plan': [],
+                'executive_summary': {
+                    'technical_summary': 'No vulnerabilities found - no attack paths to analyze.',
+                    'management_summary': 'No action required.',
+                    'business_impact': 'No risk identified.'
+                }
+            }
+        
+        # Convert findings to format expected by AI modules
+        dep_list = [
+            {
+                'name': f['package'],
+                'version': f['version'],
+                'ecosystem': f['ecosystem'],
+                'transitive': f.get('transitive', False)
+            }
+            for f in findings
+        ]
+        
+        # Generate attack paths
+        attack_engine = AttackPathEngine(findings, dep_list)
+        attack_paths = attack_engine.generate_attack_paths()
+        
+        # Perform AI risk prioritization
+        ai_assessments = attack_engine.perform_ai_risk_prioritization()
+        
+        # Generate blast radius analysis
+        blast_analyzer = BlastRadiusAnalyzer(dep_list, findings)
+        blast_results = blast_analyzer.analyze_all_findings()
+        blast_summary = blast_analyzer.get_summary_statistics()
+        
+        # Generate executive summary
+        executive_summary = attack_engine.generate_executive_summary()
+        
+        # Generate intelligent remediation plan
+        remediation_plan = attack_engine.get_remediation_plan()
+        
+        # Build graph data for visualization
+        graph_builder = GraphBuilder(scan_result.get('project_name', 'Application'))
+        graph_data = graph_builder.build_graph(dep_list, findings, [
+            {
+                'path_id': ap.path_id,
+                'chain': ap.chain  # chain is already a List[Dict]
+            }
+            for ap in attack_paths[:5]  # Limit to top 5 paths
+        ])
+        
+        return {
+            'attack_paths': [
+                {
+                    'path_id': ap.path_id,
+                    'entry_point': ap.entry_point,
+                    'vulnerable_package': ap.vulnerable_package,
+                    'cve_id': ap.cve_id,
+                    'severity': ap.severity,
+                    'exploit_type': ap.exploit_type,
+                    'impact': ap.impact,
+                    'chain': ap.chain,
+                    'risk_score': ap.risk_score,
+                    'confidence': ap.confidence,
+                    'reasoning': ap.reasoning,
+                    'remediation_priority': ap.remediation_priority,
+                    'remediation_effort': ap.remediation_effort,
+                    'ai_explanation': ap.ai_explanation
+                }
+                for ap in attack_paths
+            ],
+            'blast_radius': {
+                'results': {
+                    cve: {
+                        'score': br.score,
+                        'depth': br.depth,
+                        'affected_count': br.affected_count,
+                        'reachability_score': br.reachability_score,
+                        'supply_chain_risk': br.supply_chain_risk,
+                        'impacted_packages': br.impacted_packages,
+                        'attack_surface': br.attack_surface,
+                        'explanation': br.explanation
+                    }
+                    for cve, br in blast_results.items()
+                },
+                'summary': blast_summary
+            },
+            'ai_assessments': [
+                {
+                    'cve_id': a.cve_id,
+                    'package_name': a.package_name,
+                    'overall_risk_score': a.overall_risk_score,
+                    'exploitability_score': a.exploitability_score,
+                    'reachability_score': a.reachability_score,
+                    'impact_score': a.impact_score,
+                    'confidence': a.confidence,
+                    'internet_exposure': a.internet_exposure,
+                    'exploit_available': a.exploit_available,
+                    'patch_available': a.patch_available,
+                    'complexity': a.complexity,
+                    'should_fix_first': a.should_fix_first,
+                    'postpone_reason': a.postpone_reason,
+                    'reasoning_chain': a.reasoning_chain,
+                    'ai_narrative': a.ai_narrative
+                }
+                for a in ai_assessments
+            ],
+            'remediation_plan': remediation_plan,
+            'executive_summary': executive_summary,
+            'graph_data': graph_data.to_dict()
+        }
+
+    def generate_attack_graph_html(self, scan_result: Dict, attack_analysis: Dict) -> str:
+        """
+        Generate an interactive AI-powered attack graph HTML report.
+        
+        Args:
+            scan_result: The scan result dictionary from scan_file()
+            attack_analysis: The attack analysis from generate_attack_path_analysis()
+            
+        Returns:
+            HTML string for the interactive attack graph
+        """
+        from src.report_generator import ReportGenerator
+        
+        # Use the ReportGenerator's new method
+        return ReportGenerator(scan_result).generate_attack_graph_html(attack_analysis)
 
