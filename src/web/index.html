@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sec Mapper UI</title>
+  <style>
+    :root { --bg: #0f172a; --panel: #ffffff; --muted: #64748b; --line: #dbe4f0; --accent: #0f766e; --accent-2: #1d4ed8; --danger: #b91c1c; }
+    body { font-family: Segoe UI, Tahoma, sans-serif; margin: 0; color: #0f172a; background: linear-gradient(180deg, #e2e8f0 0%, #f8fafc 45%, #eef2ff 100%); }
+    .wrap { max-width: 1280px; margin: 20px auto; background: rgba(255,255,255,.9); border-radius: 16px; padding: 20px; box-shadow: 0 16px 40px rgba(15,23,42,.12); backdrop-filter: blur(10px); }
+    .hero { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+    .hero h1 { margin: 0; }
+    .hero p { margin: 6px 0 0; color: var(--muted); }
+    .upload-panel { border: 1px solid var(--line); background: linear-gradient(180deg, #f8fafc, #eff6ff); border-radius: 14px; padding: 16px; margin-bottom: 18px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    input, select, button, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
+    button { background: var(--accent); color: #fff; border: 0; cursor: pointer; font-weight: 600; }
+    button:hover { filter: brightness(.95); }
+    button.secondary { background: var(--accent-2); }
+    button.ghost { background: #e2e8f0; color: #0f172a; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 10px; margin: 12px 0; }
+    .card { background: #fff; border-radius: 10px; padding: 12px; border: 1px solid var(--line); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; background: #fff; border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid #e5e7eb; text-align: left; padding: 8px; font-size: 13px; vertical-align: top; }
+    .small { font-size: 12px; color: var(--muted); }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+    .toolbar a { display: inline-block; text-decoration: none; background: var(--accent-2); color: #fff; padding: 10px 12px; border-radius: 8px; }
+    .status { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #ecfeff; border: 1px solid #a5f3fc; color: #0f172a; min-height: 20px; }
+    .status.error { background: #fef2f2; border-color: #fecaca; color: var(--danger); }
+    .target-list { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+    .stack { display: grid; gap: 10px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>Sec Mapper</h1>
+        <p>Upload dependency manifests or lockfiles, scan them in a temp workspace, and export reports without relying on repository-local paths.</p>
+      </div>
+    </div>
+
+    <div class="upload-panel">
+      <div class="stack">
+        <div>
+          <label for="uploadFiles">Upload files</label>
+          <input id="uploadFiles" type="file" multiple />
+          <div class="small">Supported: package.json, package-lock.json, requirements.txt, poetry.lock, Pipfile.lock, pom.xml, go.mod, Cargo.toml</div>
+        </div>
+        <div class="toolbar">
+          <button onclick="uploadAndScan()">Upload and scan</button>
+          <button class="secondary" onclick="startUploadedScan()">Start uploaded scan</button>
+          <button class="ghost" onclick="clearUploadState()">Clear</button>
+        </div>
+        <div id="uploadStatus" class="status">No files uploaded yet.</div>
+        <ul id="scanTargets" class="target-list"></ul>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Manifest path</label>
+        <input id="manifest" placeholder="samples/package.json" value="samples/package.json" />
+      </div>
+      <div>
+        <label>Optional lock path</label>
+        <input id="lock" placeholder="samples/package-lock.json" />
+      </div>
+    </div>
+
+    <div class="toolbar" style="margin-top:10px;">
+      <button onclick="runScan()">Run Scan</button>
+      <a id="exportJson" href="#" onclick="return false;">Export JSON</a>
+      <a id="exportSarif" href="#" onclick="return false;">Export SARIF</a>
+      <a id="exportHtml" href="#" onclick="return false;">Export HTML</a>
+    </div>
+
+    <div id="summary" class="cards"></div>
+    <table id="findingsTable">
+      <thead>
+        <tr>
+          <th>Severity</th>
+          <th>Confidence</th>
+          <th>Package</th>
+          <th>Version</th>
+          <th>Vulnerability</th>
+          <th>Status</th>
+          <th>Path</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>Finding details</h3>
+    <textarea id="details" rows="12" readonly></textarea>
+  </div>
+
+<script>
+let latestJobId = null;
+let latestResult = null;
+let latestUploadJobId = null;
+let latestUploadedTargets = [];
+
+async function runScan() {
+  const manifest = document.getElementById('manifest').value.trim();
+  const lock = document.getElementById('lock').value.trim();
+
+  const payload = { manifest_path: manifest };
+  if (lock) payload.lock_path = lock;
+
+  const res = await fetch('/jobs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  latestJobId = data.job_id;
+  pollJob();
+}
+
+async function uploadFiles() {
+  const input = document.getElementById('uploadFiles');
+  if (!input.files || input.files.length === 0) {
+    throw new Error('Select one or more supported files before uploading.');
+  }
+
+  const formData = new FormData();
+  Array.from(input.files).forEach((file) => formData.append('files', file));
+
+  setUploadStatus('Uploading files...', false);
+  const response = await fetch('/upload', { method: 'POST', body: formData });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.detail || 'Upload failed.');
+  }
+
+  latestUploadJobId = data.job_id;
+  latestUploadedTargets = data.normalized_scan_targets || [];
+  renderUploadTargets();
+  setUploadStatus(`Uploaded ${data.uploaded_filenames.length} file(s).`, false);
+  return data;
+}
+
+async function uploadAndScan() {
+  try {
+    const data = await uploadFiles();
+    await startUploadedScan(data.job_id);
+  } catch (error) {
+    setUploadStatus(error.message, true);
+  }
+}
+
+async function startUploadedScan(explicitJobId) {
+  try {
+    const jobId = explicitJobId || latestUploadJobId;
+    if (!jobId) {
+      throw new Error('Upload files first, then start the uploaded scan.');
+    }
+
+    setUploadStatus('Starting uploaded scan...', false);
+    const response = await fetch('/scan-uploaded', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ job_id: jobId })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.detail || 'Failed to start scan.');
+    }
+
+    latestJobId = data.job_id;
+    pollJob();
+  } catch (error) {
+    setUploadStatus(error.message, true);
+  }
+}
+
+function clearUploadState() {
+  latestUploadJobId = null;
+  latestUploadedTargets = [];
+  document.getElementById('uploadFiles').value = '';
+  document.getElementById('scanTargets').innerHTML = '';
+  setUploadStatus('No files uploaded yet.', false);
+}
+
+function setUploadStatus(message, isError) {
+  const node = document.getElementById('uploadStatus');
+  node.textContent = message;
+  node.classList.toggle('error', Boolean(isError));
+}
+
+function renderUploadTargets() {
+  const node = document.getElementById('scanTargets');
+  node.innerHTML = '';
+  latestUploadedTargets.forEach((target) => {
+    const item = document.createElement('li');
+    const files = (target.uploaded_filenames || []).join(', ');
+    item.textContent = `${files} -> ${target.manifest_path}${target.lock_path ? ` + ${target.lock_path}` : ''}`;
+    node.appendChild(item);
+  });
+}
+
+async function pollJob() {
+  if (!latestJobId) return;
+  const res = await fetch(`/jobs/${latestJobId}`);
+  const data = await res.json();
+  if (data.status !== 'done') {
+    setTimeout(pollJob, 1000);
+    return;
+  }
+  latestResult = data.result;
+  render(data.result);
+
+  setUploadStatus(`Scan completed for job ${latestJobId}.`, false);
+
+  document.getElementById('exportJson').href = `/jobs/${latestJobId}/report/json`;
+  document.getElementById('exportSarif').href = `/jobs/${latestJobId}/report/sarif`;
+  document.getElementById('exportHtml').href = `/jobs/${latestJobId}/report/html`;
+}
+
+function render(result) {
+  const findings = result.findings || [];
+  const summary = document.getElementById('summary');
+  summary.innerHTML = `
+    <div class="card"><div class="small">Risk score</div><div>${result.risk_score}</div></div>
+    <div class="card"><div class="small">Dependencies</div><div>${result.total_dependencies}</div></div>
+    <div class="card"><div class="small">Findings</div><div>${findings.length}</div></div>
+    <div class="card"><div class="small">Discrepancies</div><div>${result.scan_health?.discrepancy_count || 0}</div></div>
+  `;
+
+  const tbody = document.querySelector('#findingsTable tbody');
+  tbody.innerHTML = '';
+  findings.forEach((f, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${f.severity}</td>
+      <td>${f.confidence}</td>
+      <td>${f.package}</td>
+      <td>${f.version}</td>
+      <td>${f.vulnerability_id || f.cve}</td>
+      <td>${f.status}</td>
+      <td>${(f.dependency_path || []).join(' > ')}</td>
+    `;
+    tr.onclick = () => {
+      document.getElementById('details').value = JSON.stringify(f, null, 2);
+    };
+    tbody.appendChild(tr);
+    if (idx === 0) document.getElementById('details').value = JSON.stringify(f, null, 2);
+  });
+}
+</script>
+</body>
+</html>

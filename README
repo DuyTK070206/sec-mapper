@@ -1,99 +1,235 @@
-﻿# Sec Mapper
+# Sec Mapper
 
-Dependency Vulnerability Mapper prototype.
+Sec Mapper is a production-oriented vulnerability intelligence scanner for dependency manifests and lockfiles.
 
-## Mục tiêu chính
-- Quét dependency từ `package.json` và `requirements.txt`.
-- Hỗ trợ đọc `package-lock.json` để phát hiện dependencies transitive.
-- So khớp package/version với database lỗ hổng mẫu.
-- Xuất báo cáo theo định dạng text, JSON, HTML và SARIF.
+It preserves backward compatibility with the original CLI commands while adding:
+- layered vulnerability intelligence (local + optional live NVD/OSV)
+- confidence scoring and false-positive controls
+- reconciliation/discrepancy reporting across sources
+- remediation and mitigation recommendations
+- richer JSON/HTML/SARIF outputs plus a machine-readable API format
+- web API + dashboard UI mode
+- CI/CD and issue tracker integration hooks
 
-## Cài đặt nhanh
+## Key capabilities
+
+- Dependency scanning for direct and transitive dependencies.
+- Dependency path tracking to show why a vulnerable package is present.
+- Source reconciliation and discrepancy reporting.
+- Confidence labels:
+  - exact version match
+  - advisory-backed match
+  - heuristic match
+  - uncertain match requiring review
+- System-state summary after scan:
+  - what is currently vulnerable
+  - what has a fix
+  - what needs immediate upgrade
+  - what can be mitigated
+  - what is uncertain
+- Safe-by-default PoC guidance (non-weaponized). Lab mode is explicit opt-in.
+
+## Supported manifests
+
+Currently supported through parser plugins:
+- package.json
+- package-lock.json
+- requirements.txt
+- poetry.lock
+- Pipfile.lock
+- pom.xml
+- go.mod
+- Cargo.toml
+
+## Install
 
 ```powershell
-cd c:\RAISE\sec-mapper\sec-mapper
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-## Cách dùng
+## CLI usage
 
-### Quét `package.json`
+Backward-compatible scan commands:
 
 ```powershell
 python main.py samples\package.json
-```
-
-### Quét `requirements.txt`
-
-```powershell
 python main.py samples\requirements.txt
-```
-
-### Quét transitive dependencies với `package-lock.json`
-
-```powershell
 python main.py samples\package.json --lock samples\package-lock.json
+python main.py samples\package.json --format json
+python main.py samples\package.json --format html
+python main.py samples\package.json --format sarif
 ```
 
-### Dùng database lỗ hổng riêng
+New machine-readable API format:
 
 ```powershell
-python main.py samples\package.json --vuln-db src\vuln_db.json
+python main.py samples\package.json --format api
 ```
 
-### Xuất JSON
+Fail pipeline on severity threshold:
 
 ```powershell
-python main.py samples\package.json --lock samples\package-lock.json --format json
+python main.py samples\package.json --lock samples\package-lock.json --format json --fail-on-severity high
 ```
 
-### Xuất HTML
+Exit code behavior:
+- 0: success / below threshold
+- 2: threshold matched/exceeded
+- non-zero otherwise: runtime or argument error
+
+## Live intelligence sources
+
+Default behavior is deterministic/offline-first using local advisory DB.
+
+To enable live enrichment (OSV + NVD keyword source):
 
 ```powershell
-python main.py samples\package.json --lock samples\package-lock.json --format html
+$env:SEC_MAPPER_ENABLE_LIVE_INTEL="true"
+python main.py samples\package.json --format json
 ```
 
-### Xuất SARIF
+Optional NVD API key:
 
 ```powershell
-python main.py samples\package.json --lock samples\package-lock.json --format sarif
+python main.py samples\package.json --nvd-api-key <key>
 ```
 
-## Tính năng hiện tại
-- Quét direct dependencies từ `package.json` và `requirements.txt`.
-- Hỗ trợ quét transitive dependencies từ `package-lock.json`.
-- Match package/version với `src/vuln_db.json`.
-- Xuất báo cáo text trên terminal.
-- Xuất báo cáo JSON, HTML và SARIF.
-- PoC exploit code mẫu được gắn vào báo cáo HTML.
-- Có cơ chế sync dữ liệu NVD/GitHub nếu cần.
+## Web UI and API
 
-## Script hỗ trợ
-
-- `main.py` — CLI chính để scan và xuất báo cáo.
-- `generate_full_reports.py` — scan mẫu, sort theo severity, và xuất JSON/HTML.
-- `debug_matching.py` — debug dependency parsing và vulnerability matching.
-
-## Ghi chú quan trọng
-
-- Tool hiện tại dùng database mẫu `src/vuln_db.json`.
-- `--lock` sẽ hợp nhất dependencies từ lock file và đánh dấu transitive deps.
-- `pom.xml` có parser cơ bản trong code nhưng chưa phải là chức năng chính đã test rộng.
-- `--sync` sẽ kết nối NVD và GitHub nếu có token và cần đồng bộ dữ liệu.
-
-## Phát triển tiếp
-
-Các khả năng nâng cấp tiềm năng:
-- Hỗ trợ thêm format manifest: `poetry.lock`, `Pipfile.lock`, `go.mod`, `Cargo.toml`.
-- Tăng cường matching với dữ liệu CVE thực từ GitHub Advisory/NVD.
-- Cải thiện tree-analysis để hiển thị đường dẫn transitive dependency.
-- Hoàn thiện SARIF và báo cáo interactive HTML.
-
-## Chạy tests
+Run server mode:
 
 ```powershell
-python -m pytest tests -v
+python main.py --serve --host 127.0.0.1 --port 8000
 ```
+
+Open browser:
+- http://127.0.0.1:8000
+
+API endpoints:
+- GET /health
+- GET /
+- POST /scan
+- POST /jobs
+- GET /jobs/{job_id}
+- GET /jobs/{job_id}/report/{json|html|sarif|api}
+
+Example scan request:
+
+```json
+{
+  "manifest_path": "samples/package.json",
+  "lock_path": "samples/package-lock.json"
+}
+```
+
+## Output formats
+
+- text: CLI-readable summary
+- json: full structured report with confidence, evidence, status, and remediation
+- html: dashboard with summaries, finding cards, and post-scan system state
+- sarif: CI/Code Scanning integration
+- api: machine-readable API payload for external platforms
+
+## CI/CD integration
+
+GitHub Actions workflow included:
+- .github/workflows/security-scan.yml
+
+It:
+- installs dependencies
+- runs JSON and SARIF scans
+- enforces severity gate
+- uploads SARIF and JSON artifacts
+
+## Pre-commit
+
+Config provided:
+- .pre-commit-config.yaml
+
+Scanner pre-commit helper:
+- scripts/sec_mapper_pre_commit.py
+
+## Issue tracker integration hooks
+
+Implemented in src/integrations.py:
+- GitHub Issues auto-ticket creation for high/critical findings
+- Jira ticket creation hook
+
+Environment variables:
+
+GitHub:
+- SEC_MAPPER_GH_TOKEN
+- SEC_MAPPER_GH_REPO (owner/repo)
+
+Jira:
+- SEC_MAPPER_JIRA_URL
+- SEC_MAPPER_JIRA_USER
+- SEC_MAPPER_JIRA_TOKEN
+- SEC_MAPPER_JIRA_PROJECT
+
+## Security posture and false-positive controls
+
+- Cross-source reconciliation (local, OSV, NVD when enabled)
+- Advisory discrepancy surfaced instead of hidden
+- Evidence required and attached to each finding
+- Deterministic confidence scoring
+- Duplicate clustering and merge of repeated findings
+- Uncertain findings are explicitly labeled for manual review
+
+## Mitigation workflow
+
+Each finding reports:
+- patch availability
+- mitigation availability
+- remediation recommendation
+- status label
+
+Status labels used:
+- vulnerable
+- fixed available
+- mitigation applied
+- mitigation recommended
+- no patch available
+- needs manual review
+- low confidence / unverifiable
+
+## Testing
+
+Run all tests:
+
+```powershell
+python -m pytest -q
+```
+
+Current suite covers:
+- parser behavior and plugin parsers
+- transitive dependency handling
+- scanner integration and report generation
+- confidence and dedup behavior
+- intelligence pipeline cache/discrepancy logic
+- web API basic and async job flow
+
+## Current limitations
+
+- Live source matching from NVD keyword mode can be broad and may require manual review.
+- Source code SAST rules are represented by architecture hooks and safe triage summaries, not full semantic code-flow yet.
+- Issue tracker auto-sync of ticket status is hook-ready but depends on environment and policy wiring.
+
+## Project structure (core)
+
+- src/dependency_parser.py: parser plugins and dependency extraction
+- src/intelligence.py: source adapters, normalization, cache/retries/rate-limit, discrepancy detection
+- src/scanner.py: orchestration, matching, confidence, dedup, triage, remediation
+- src/remediation_engine.py: remediation and system-state logic
+- src/triage.py: deterministic AI-assisted triage layer hooks
+- src/report_generator.py: json/html/sarif/api output generators
+- src/web_api.py: API server and async scan jobs
+- src/web/index.html: web dashboard UI
+- src/integrations.py: issue tracker integration hooks
+
+## Backward compatibility note
+
+Existing commands and report formats remain supported. The architecture is extended rather than replaced.

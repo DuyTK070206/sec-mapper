@@ -12,6 +12,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         'manifest',
         type=Path,
+        nargs='?',
         help='Path to package.json or requirements.txt',
     )
     parser.add_argument(
@@ -28,9 +29,32 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         '--format',
-        choices=['text', 'json', 'html', 'sarif'],
+        choices=['text', 'json', 'html', 'sarif', 'api'],
         default='text',
         help='Output format for the scan report',
+    )
+    parser.add_argument(
+        '--serve',
+        action='store_true',
+        help='Run web API/UI server instead of one-shot CLI scan',
+    )
+    parser.add_argument(
+        '--host',
+        type=str,
+        default='127.0.0.1',
+        help='Host for web server mode',
+    )
+    parser.add_argument(
+        '--port',
+        type=int,
+        default=8000,
+        help='Port for web server mode',
+    )
+    parser.add_argument(
+        '--fail-on-severity',
+        choices=['critical', 'high', 'medium', 'low'],
+        default=None,
+        help='Exit with code 2 when findings at or above this severity exist',
     )
     parser.add_argument(
         '--sync',
@@ -59,7 +83,15 @@ def main() -> None:
     runs the dependency scan, and outputs the result in the requested format.
     """
     args = build_parser().parse_args()
+
+    if args.serve:
+        from src.web_api import run_server
+        run_server(host=args.host, port=args.port, db_path=str(args.vuln_db) if args.vuln_db else None)
+        return
+
     manifest_path = args.manifest
+    if manifest_path is None:
+        raise SystemExit('Manifest path is required unless --serve is used.')
 
     if not manifest_path.exists():
         raise SystemExit(f'File not found: {manifest_path}')
@@ -100,9 +132,27 @@ def main() -> None:
         output = manifest_path.parent / f"{manifest_path.stem}.sarif.json"
         output.write_text(sarif, encoding='utf-8')
         print(f'SARIF report written to: {output}')
+        _apply_fail_threshold(result, args.fail_on_severity)
+        return
+
+    if args.format == 'api':
+        print(scanner.generate_api_report(result))
+        _apply_fail_threshold(result, args.fail_on_severity)
         return
 
     print(scanner.format_report(result, manifest_path))
+    _apply_fail_threshold(result, args.fail_on_severity)
+
+
+def _apply_fail_threshold(result: dict, threshold: str) -> None:
+    if not threshold:
+        return
+    severity_order = {'critical': 0, 'high': 1, 'medium': 2, 'low': 3}
+    threshold_rank = severity_order[threshold]
+    for finding in result.get('findings', []):
+        rank = severity_order.get((finding.get('severity') or 'low').lower(), 4)
+        if rank <= threshold_rank:
+            raise SystemExit(2)
 
 
 if __name__ == '__main__':

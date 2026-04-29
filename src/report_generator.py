@@ -1,590 +1,303 @@
-# report_generator.py
-
-import json
 import html as html_module
+import json
 from datetime import datetime
-from typing import List, Dict
+from typing import Dict, List
 from urllib.parse import quote_plus
 
+
 class ReportGenerator:
-    """
-    Generate various report formats:
-    - JSON (machine-readable)
-    - HTML (interactive dashboard)
-    - PDF (compliance report)
-    - SARIF (GitHub/IDE integration)
-    """
-    
     def __init__(self, scan_result: Dict):
         self.scan_result = scan_result
-        self.timestamp = datetime.now().isoformat()
-    
+        self.timestamp = datetime.utcnow().isoformat() + "Z"
+
     def generate_json_report(self) -> str:
-        """Machine-readable JSON report"""
-        
         report = {
-            'metadata': {
-                'scan_time': self.timestamp,
-                'project': self.scan_result.get('project_name'),
-                'tool_version': '1.0.0',
+            "metadata": {
+                "scan_time": self.timestamp,
+                "project": self.scan_result.get("project_name"),
+                "tool_version": "2.0.0",
+                "schema": "sec-mapper-json-v2",
+                "scan_targets": self.scan_result.get("scan_targets", []),
             },
-            'summary': {
-                'total_dependencies': self.scan_result.get('total_dependencies'),
-                'vulnerabilities': {
-                    'critical': len([v for v in self.scan_result.get('findings', [])
-                                   if v['severity'] == 'critical']),
-                    'high': len([v for v in self.scan_result.get('findings', [])
-                               if v['severity'] == 'high']),
-                    'medium': len([v for v in self.scan_result.get('findings', [])
-                                 if v['severity'] == 'medium']),
-                    'low': len([v for v in self.scan_result.get('findings', [])
-                              if v['severity'] == 'low']),
-                },
-                'overall_risk_score': self.scan_result.get('risk_score'),
-            },
-            'findings': self.scan_result.get('findings', []),
-            'remediation_plan': self._generate_remediation_plan(),
+            "summary": self._summary(),
+            "scan_health": self.scan_result.get("scan_health", {}),
+            "findings": self.scan_result.get("findings", []),
+            "remediation_plan": self._generate_remediation_plan(),
+            "post_scan_system_state": self.scan_result.get("scan_health", {}).get("post_scan_system_state", {}),
         }
-        
         return json.dumps(report, indent=2)
-    
+
+    def generate_api_report(self) -> str:
+        payload = {
+            "api_version": "v1",
+            "kind": "sec-mapper-scan-result",
+            "generated_at": self.timestamp,
+            "project": self.scan_result.get("project_name"),
+            "risk_score": self.scan_result.get("risk_score", 0),
+            "summary": self._summary(),
+            "health": self.scan_result.get("scan_health", {}),
+            "findings": self.scan_result.get("findings", []),
+            "scan_targets": self.scan_result.get("scan_targets", []),
+        }
+        return json.dumps(payload, indent=2)
+
     def generate_html_report(self) -> str:
-        """Interactive HTML dashboard with detailed CVE information"""
-
-        findings_html_parts = []
-        remediation_items = []
-
-        for finding in self.scan_result.get('findings', []):
-            cve_id = finding.get('cve', '')
-            nvd_link = f'https://nvd.nist.gov/vuln/detail/{quote_plus(cve_id)}' if cve_id else '#'
-            mitre_link = f'https://cve.mitre.org/cgi-bin/cvename.cgi?name={quote_plus(cve_id)}' if cve_id else '#'
-            additional_reference = finding.get('reference', '') or ''
-            additional_reference_html = (
-                f'<a href="{html_module.escape(additional_reference)}" target="_blank" rel="noopener noreferrer" class="ref-link">Additional Reference</a>'
-                if additional_reference else '<span class="ref-link disabled">No additional reference</span>'
-            )
-            poc_text = finding.get('poc', '') or ''
-            poc_html = (
-                f"""
-                            <div class=\"poc-section\">
-                                <div class=\"poc-header\">Proof of Concept (PoC)</div>
-                                <div class=\"poc-code\"><code>{html_module.escape(poc_text)}</code></div>
-                            </div>
-                        """ if poc_text else ''
-            )
-            finding_html = f"""
-                        <div class=\"finding-card\">
-                            <div class=\"finding-header {(finding.get('severity') or 'unknown').lower()}\">
-                                <div>
-                                    <div class=\"finding-title\">{html_module.escape(finding.get('package', 'Unknown'))} @ {html_module.escape(finding.get('version', 'Unknown'))}</div>
-                                    <div class=\"finding-meta\">
-                                        <div class=\"meta-item\"><strong>CVE:</strong> {html_module.escape(cve_id or 'Unknown')}</div>
-                                        <div class=\"meta-item\"><span class=\"severity-badge {(finding.get('severity') or 'unknown').lower()}\">{html_module.escape((finding.get('severity') or 'unknown').upper())}</span></div>
-                                        <div class=\"meta-item\"><strong>Type:</strong> {'Transitive' if finding.get('transitive') else 'Direct'}</div>
-                                        <div class=\"meta-item\"><strong>Effort:</strong> {html_module.escape(finding.get('effort', 'Unknown') or 'Unknown')}</div>
-                                    </div>
-                                </div>
-                                <button class=\"finding-toggle\" onclick=\"toggleDetails(this, event)\">▲</button>
-                            </div>
-                            <div class=\"finding-details\">
-                                <div class=\"description-section\">
-                                    <div class=\"label\">Description</div>
-                                    <div class=\"detail-value\">{html_module.escape(finding.get('description', 'No description available') or 'No description available')}</div>
-                                </div>
-                                <div class=\"detail-grid\">
-                                    <div class=\"detail-item\">
-                                        <div class=\"detail-label\">Current Version</div>
-                                        <div class=\"detail-value code\">{html_module.escape(finding.get('version', 'Unknown'))}</div>
-                                    </div>
-                                    <div class=\"detail-item\">
-                                        <div class=\"detail-label\">Patched Version</div>
-                                        <div class=\"detail-value code\">{html_module.escape(finding.get('fixed_version', 'Unknown') or 'Unknown')}</div>
-                                    </div>
-                                    <div class=\"detail-item\">
-                                        <div class=\"detail-label\">Patch Status</div>
-                                        <div class=\"detail-value\">{'[OK] Available' if finding.get('has_patch') else '[NOT AVAILABLE]'}</div>
-                                    </div>
-                                    <div class=\"detail-item\">
-                                        <div class=\"detail-label\">Fix Effort</div>
-                                        <div class=\"detail-value\">{html_module.escape(finding.get('effort', 'Unknown') or 'Unknown')}</div>
-                                    </div>
-                                    <div class=\"detail-item\">
-                                        <div class=\"detail-label\">Ecosystem</div>
-                                        <div class=\"detail-value\">{html_module.escape(finding.get('ecosystem', 'Unknown') or 'Unknown')}</div>
-                                    </div>
-                                    <div class=\"detail-item\">
-                                        <div class=\"detail-label\">Recommended Version</div>
-                                        <div class=\"detail-value code\">{html_module.escape(finding.get('recommended_version', finding.get('fixed_version', 'N/A')) or 'N/A')}</div>
-                                    </div>
-                                </div>
-                                <div class=\"reference-links\">
-                                    <a href=\"{nvd_link}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ref-link\">NVD Details</a>
-                                    <a href=\"{mitre_link}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"ref-link\">CVE Mitre</a>
-                                    {additional_reference_html}
-                                </div>
-                                {poc_html}
-                            </div>
-                        </div>
-                    """
-            findings_html_parts.append(finding_html)
-            remediation_items.append(f"<li><strong>[{html_module.escape((finding.get('severity') or 'unknown').upper())}] {html_module.escape(finding.get('package', 'Unknown'))}</strong>: Update from {html_module.escape(finding.get('version', 'Unknown'))} to {html_module.escape(finding.get('recommended_version', finding.get('fixed_version', 'Unknown')) or 'Unknown')} (Effort: {html_module.escape(finding.get('effort', 'Unknown') or 'Unknown')})</li>")
-
-        findings_html = '\n'.join(findings_html_parts)
-        remediation_html = '\n'.join(remediation_items)
+        findings = self.scan_result.get("findings", [])
+        findings_html = "\n".join([self._finding_card_html(f) for f in findings])
+        severity = self._severity_counts(findings)
+        post = self.scan_result.get("scan_health", {}).get("post_scan_system_state", {})
+        discrepancy_count = self.scan_result.get("scan_health", {}).get("discrepancy_count", 0)
 
         html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Dependency Vulnerability Report</title>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width">
-            <style>
-                body {{
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-                    margin: 0;
-                    padding: 20px;
-                    background: #f5f5f5;
-                }}
-                .container {{
-                    max-width: 1400px;
-                    margin: 0 auto;
-                    background: white;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    padding: 20px;
-                }}
-                h1 {{ color: #333; margin-top: 0; }}
-                h2 {{ color: #555; margin-top: 30px; }}
-                h3 {{ color: #777; margin-top: 20px; }}
-                .metadata {{ color: #666; margin-bottom: 10px; }}
-                
-                .summary {{
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 20px;
-                    margin: 20px 0;
-                }}
-                .stats-card {{
-                    padding: 20px;
-                    border-radius: 8px;
-                    background: #f9f9f9;
-                    border-left: 4px solid #ddd;
-                    text-align: center;
-                }}
-                .stats-card.critical {{ border-left-color: #dc3545; }}
-                .stats-card.high {{ border-left-color: #fd7e14; }}
-                .stats-card.medium {{ border-left-color: #ffc107; }}
-                .stats-card.low {{ border-left-color: #28a745; }}
-                .stats-card .label {{ 
-                    color: #666; 
-                    font-size: 14px; 
-                    margin-bottom: 10px;
-                }}
-                .stats-card .score {{ 
-                    font-size: 32px; 
-                    font-weight: bold;
-                    color: #333;
-                }}
-                
-                .finding-card {{
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
-                    margin-bottom: 15px;
-                    overflow: hidden;
-                    background: #fff;
-                }}
-                .finding-header {{
-                    padding: 15px;
-                    background: #f9f9f9;
-                    cursor: pointer;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    border-bottom: 1px solid #eee;
-                    transition: background 0.2s;
-                }}
-                .finding-header:hover {{
-                    background: #f0f0f0;
-                }}
-                .finding-header.critical {{ border-left: 4px solid #dc3545; }}
-                .finding-header.high {{ border-left: 4px solid #fd7e14; }}
-                .finding-header.medium {{ border-left: 4px solid #ffc107; }}
-                .finding-header.low {{ border-left: 4px solid #28a745; }}
-                
-                .finding-title {{
-                    flex: 1;
-                    font-weight: 600;
-                    font-size: 16px;
-                }}
-                .finding-meta {{
-                    display: flex;
-                    gap: 20px;
-                    flex-wrap: wrap;
-                }}
-                .meta-item {{
-                    display: flex;
-                    align-items: center;
-                    gap: 5px;
-                    font-size: 14px;
-                }}
-                .severity-badge {{
-                    padding: 4px 12px;
-                    border-radius: 4px;
-                    font-weight: 600;
-                    font-size: 12px;
-                }}
-                .severity-badge.critical {{ 
-                    background: #dc3545; 
-                    color: white;
-                }}
-                .severity-badge.high {{ 
-                    background: #fd7e14; 
-                    color: white;
-                }}
-                .severity-badge.medium {{ 
-                    background: #ffc107; 
-                    color: white;
-                }}
-                .severity-badge.low {{ 
-                    background: #28a745; 
-                    color: white;
-                }}
-                
-                .finding-toggle {{
-                    background: none;
-                    border: none;
-                    cursor: pointer;
-                    font-size: 20px;
-                    padding: 0;
-                    color: #666;
-                }}
-                
-                .finding-details {{
-                    display: block;
-                    padding: 20px;
-                    border-top: 1px solid #eee;
-                }}
-                
-                .detail-grid {{
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                    gap: 20px;
-                    margin-bottom: 20px;
-                }}
-                .detail-item {{
-                    background: #f9f9f9;
-                    padding: 12px;
-                    border-radius: 4px;
-                }}
-                .detail-label {{
-                    font-weight: 600;
-                    color: #666;
-                    font-size: 12px;
-                    text-transform: uppercase;
-                    margin-bottom: 5px;
-                }}
-                .detail-value {{
-                    color: #333;
-                    word-break: break-word;
-                }}
-                .detail-value.code {{
-                    font-family: 'Courier New', monospace;
-                    font-size: 13px;
-                    padding: 8px;
-                    background: #f0f0f0;
-                    border-radius: 3px;
-                }}
-                
-                .description-section {{
-                    background: #f9f9f9;
-                    padding: 12px;
-                    border-radius: 4px;
-                    margin-bottom: 15px;
-                    border-left: 3px solid #0066cc;
-                }}
-                .description-section .label {{
-                    font-weight: 600;
-                    color: #0066cc;
-                    font-size: 12px;
-                    text-transform: uppercase;
-                    margin-bottom: 8px;
-                }}
-                
-                .poc-section {{
-                    background: #f5f5f5;
-                    padding: 12px;
-                    border-radius: 4px;
-                    margin-top: 15px;
-                    border-left: 3px solid #dc3545;
-                }}
-                .poc-header {{
-                    font-weight: 600;
-                    color: #dc3545;
-                    font-size: 12px;
-                    text-transform: uppercase;
-                    margin-bottom: 8px;
-                }}
-                .poc-code {{
-                    background: #1e1e1e;
-                    color: #d4d4d4;
-                    padding: 12px;
-                    border-radius: 3px;
-                    font-family: 'Courier New', monospace;
-                    font-size: 12px;
-                    overflow-x: auto;
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
-                    max-height: 300px;
-                    overflow-y: auto;
-                }}
-                
-                .reference-links {{
-                    margin-top: 15px;
-                    display: flex;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                }}
-                .ref-link {{
-                    display: inline-block;
-                    padding: 8px 12px;
-                    background: #e7f3ff;
-                    border-left: 3px solid #0066cc;
-                    text-decoration: none;
-                    color: #0066cc;
-                    border-radius: 3px;
-                    font-size: 13px;
-                }}
-                .ref-link:hover {{
-                    background: #d4e9ff;
-                }}
-                .ref-link.disabled {{
-                    background: #f0f0f0;
-                    border-left-color: #999;
-                    color: #666;
-                    pointer-events: none;
-                    cursor: default;
-                }}
-                
-                .remediation {{
-                    background: #e7f3ff;
-                    padding: 15px;
-                    border-radius: 4px;
-                    margin-top: 20px;
-                    border-left: 4px solid #0066cc;
-                }}
-                .remediation h3 {{
-                    margin-top: 0;
-                    color: #0066cc;
-                }}
-                .remediation ol {{
-                    margin: 10px 0;
-                    padding-left: 20px;
-                }}
-                .remediation li {{
-                    margin-bottom: 8px;
-                    line-height: 1.5;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Dependency Vulnerability Report</h1>
-                <div class="metadata">
-                    <p><strong>Project:</strong> {self.scan_result.get('project_name')}</p>
-                    <p><strong>Scan Time:</strong> {self.timestamp}</p>
-                </div>
-                
-                <div class="summary">
-                    <div class="stats-card critical">
-                        <div class="label">Critical</div>
-                        <div class="score">{len([v for v in self.scan_result.get('findings', []) if v['severity'] == 'critical'])}</div>
-                    </div>
-                    <div class="stats-card high">
-                        <div class="label">High</div>
-                        <div class="score">{len([v for v in self.scan_result.get('findings', []) if v['severity'] == 'high'])}</div>
-                    </div>
-                    <div class="stats-card medium">
-                        <div class="label">Medium</div>
-                        <div class="score">{len([v for v in self.scan_result.get('findings', []) if v['severity'] == 'medium'])}</div>
-                    </div>
-                    <div class="stats-card low">
-                        <div class="label">Low</div>
-                        <div class="score">{len([v for v in self.scan_result.get('findings', []) if v['severity'] == 'low'])}</div>
-                    </div>
-                </div>
-                
-                <h2>Overall Risk Score: {self.scan_result.get('risk_score')}/100</h2>
-                
-                <h3>Detailed Vulnerability Findings</h3>
-                <div id="findings-container">
-                    {findings_html}
-                </div>
-                
-                <div class="remediation">
-                    <h3>Remediation Plan</h3>
-                    <p>Prioritize fixes based on severity and exploitability:</p>
-                    <ol id="remediation-list">
-                        {remediation_html}
-                    </ol>
-                </div>
-                
-                <script>
-                    function toggleDetails(button, event) {{
-                        event.stopPropagation();
-                        const details = button.closest('.finding-card').querySelector('.finding-details');
-                        const isExpanded = details.style.display !== 'none';
-                        details.style.display = isExpanded ? 'none' : 'block';
-                        button.textContent = isExpanded ? '▼' : '▲';
-                    }}
-                    
-                    document.querySelectorAll('.finding-header').forEach(header => {{
-                        header.addEventListener('click', function(event) {{
-                            if (event.target !== this.querySelector('.finding-toggle')) {{
-                                this.querySelector('.finding-toggle').click();
-                            }}
-                        }});
-                    }});
-                </script>
-            </div>
-        </body>
-        </html>
-        """
-        
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=\"utf-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+    <title>Sec Mapper Report</title>
+    <style>
+        body {{ font-family: Segoe UI, Tahoma, sans-serif; margin: 0; background: #f2f4f7; color: #111827; }}
+        .container {{ max-width: 1280px; margin: 24px auto; background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }}
+        .summary {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }}
+        .card {{ padding: 14px; border-radius: 10px; background: #eef2ff; }}
+        .finding-card {{ border: 1px solid #d1d5db; border-radius: 10px; margin-bottom: 14px; overflow: hidden; }}
+        .finding-header {{ padding: 12px 14px; background: #f9fafb; border-left: 4px solid #6b7280; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }}
+        .finding-header.critical {{ border-left-color: #b91c1c; }}
+        .finding-header.high {{ border-left-color: #dc2626; }}
+        .finding-header.medium {{ border-left-color: #d97706; }}
+        .finding-header.low {{ border-left-color: #059669; }}
+        .finding-details {{ padding: 14px; }}
+        .badge {{ padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #e5e7eb; }}
+        .grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-top: 10px; }}
+        .kv {{ background: #f9fafb; border-radius: 8px; padding: 10px; }}
+        .label {{ font-size: 11px; text-transform: uppercase; color: #6b7280; margin-bottom: 4px; }}
+        .value {{ font-size: 14px; line-height: 1.35; word-break: break-word; }}
+        .mono {{ font-family: Consolas, monospace; }}
+        .section-title {{ margin-top: 24px; }}
+        ul {{ margin: 6px 0 0 18px; }}
+    </style>
+</head>
+<body>
+    <div class=\"container\">
+        <h1>Dependency Vulnerability Report</h1>
+        <p><strong>Project:</strong> {html_module.escape(str(self.scan_result.get('project_name', 'unknown')))}</p>
+        <p><strong>Scan Time:</strong> {html_module.escape(self.timestamp)}</p>
+        <p><strong>Risk Score:</strong> {self.scan_result.get('risk_score', 0)}/100</p>
+
+        <div class=\"summary\">
+            <div class=\"card\"><div class=\"label\">Critical</div><div class=\"value\">{severity['critical']}</div></div>
+            <div class=\"card\"><div class=\"label\">High</div><div class=\"value\">{severity['high']}</div></div>
+            <div class=\"card\"><div class=\"label\">Medium</div><div class=\"value\">{severity['medium']}</div></div>
+            <div class=\"card\"><div class=\"label\">Low</div><div class=\"value\">{severity['low']}</div></div>
+            <div class=\"card\"><div class=\"label\">Discrepancies</div><div class=\"value\">{discrepancy_count}</div></div>
+        </div>
+
+        <h2 class=\"section-title\">Post-Scan System State</h2>
+        <div class=\"grid\">
+            <div class=\"kv\"><div class=\"label\">Vulnerable Right Now</div><div class=\"value\">{post.get('vulnerable_now', 0)}</div></div>
+            <div class=\"kv\"><div class=\"label\">Known Fix Available</div><div class=\"value\">{post.get('known_fix_available', 0)}</div></div>
+            <div class=\"kv\"><div class=\"label\">Needs Immediate Upgrade</div><div class=\"value\">{post.get('immediate_upgrade', 0)}</div></div>
+            <div class=\"kv\"><div class=\"label\">Temporary Mitigation</div><div class=\"value\">{post.get('temporary_mitigation', 0)}</div></div>
+            <div class=\"kv\"><div class=\"label\">Uncertain</div><div class=\"value\">{post.get('uncertain', 0)}</div></div>
+        </div>
+
+        <h2 class=\"section-title\">Findings</h2>
+        {findings_html}
+    </div>
+
+    <script>
+        function toggleCard(btn) {{
+            const details = btn.closest('.finding-card').querySelector('.finding-details');
+            const hidden = details.style.display === 'none';
+            details.style.display = hidden ? 'block' : 'none';
+            btn.textContent = hidden ? 'Hide' : 'Show';
+        }}
+    </script>
+</body>
+</html>
+"""
         return html
-    
+
+    def _finding_card_html(self, finding: Dict) -> str:
+        cve_id = finding.get("vulnerability_id", finding.get("cve", ""))
+        nvd_link = f"https://nvd.nist.gov/vuln/detail/{quote_plus(cve_id)}" if cve_id else "#"
+        mitre_link = f"https://cve.mitre.org/cgi-bin/cvename.cgi?name={quote_plus(cve_id)}" if cve_id else "#"
+        refs = finding.get("references", [])
+        refs_html = "".join(
+            [f"<li><a href=\"{html_module.escape(r)}\" target=\"_blank\" rel=\"noopener noreferrer\">{html_module.escape(r)}</a></li>" for r in refs if r]
+        )
+        path = " > ".join(finding.get("dependency_path", []))
+        evidence_html = "".join([f"<li>{html_module.escape(x)}</li>" for x in finding.get("evidence", [])])
+        source_list = ", ".join(finding.get("advisory_sources", []))
+
+        return f"""
+<div class=\"finding-card\">
+    <div class=\"finding-header {html_module.escape((finding.get('severity') or 'unknown').lower())}\">
+        <div>
+            <strong>{html_module.escape(finding.get('title', 'Vulnerability'))}</strong>
+            <span class=\"badge\">{html_module.escape((finding.get('severity') or 'unknown').upper())}</span>
+            <span class=\"badge\">{html_module.escape(finding.get('confidence', 'unknown'))}</span>
+            <span class=\"badge\">{html_module.escape(finding.get('status', 'unknown'))}</span>
+        </div>
+        <button onclick=\"toggleCard(this)\">Hide</button>
+    </div>
+    <div class=\"finding-details\">
+        <div class=\"grid\">
+            <div class=\"kv\"><div class=\"label\">Package</div><div class=\"value mono\">{html_module.escape(finding.get('package', ''))}</div></div>
+            <div class=\"kv\"><div class=\"label\">Ecosystem</div><div class=\"value\">{html_module.escape(finding.get('ecosystem', ''))}</div></div>
+            <div class=\"kv\"><div class=\"label\">Current Version</div><div class=\"value mono\">{html_module.escape(finding.get('version', ''))}</div></div>
+            <div class=\"kv\"><div class=\"label\">Fixed Version</div><div class=\"value mono\">{html_module.escape(str(finding.get('fixed_version') or 'N/A'))}</div></div>
+            <div class=\"kv\"><div class=\"label\">Vulnerability ID</div><div class=\"value mono\">{html_module.escape(cve_id)}</div></div>
+            <div class=\"kv\"><div class=\"label\">Vulnerability Type</div><div class=\"value\">{html_module.escape(finding.get('vulnerability_type', ''))}</div></div>
+            <div class=\"kv\"><div class=\"label\">Confidence Score</div><div class=\"value\">{finding.get('confidence_score', 0):.2f}</div></div>
+            <div class=\"kv\"><div class=\"label\">Dependency Path</div><div class=\"value mono\">{html_module.escape(path)}</div></div>
+            <div class=\"kv\"><div class=\"label\">Patch Availability</div><div class=\"value\">{'Yes' if finding.get('patch_available') else 'No'}</div></div>
+            <div class=\"kv\"><div class=\"label\">Mitigation Availability</div><div class=\"value\">{'Yes' if finding.get('mitigation_available') else 'No'}</div></div>
+            <div class=\"kv\"><div class=\"label\">Provenance</div><div class=\"value\">{html_module.escape(source_list)}</div></div>
+            <div class=\"kv\"><div class=\"label\">Recommendation</div><div class=\"value\">{html_module.escape(finding.get('remediation_recommendation', ''))}</div></div>
+        </div>
+
+        <div class=\"kv\"><div class=\"label\">Root Cause Explanation</div><div class=\"value\">{html_module.escape(finding.get('root_cause', finding.get('description', '')))}</div></div>
+        <div class=\"kv\"><div class=\"label\">Evidence</div><ul>{evidence_html or '<li>No direct evidence provided</li>'}</ul></div>
+        <div class=\"kv\"><div class=\"label\">References</div><ul>{refs_html or '<li>No references</li>'}</ul>
+            <div class=\"value\">Additional Reference</div>
+            <div class=\"value\"><a href=\"{nvd_link}\" target=\"_blank\">NVD</a> | <a href=\"{mitre_link}\" target=\"_blank\">MITRE</a></div>
+        </div>
+    </div>
+</div>
+"""
+
     def generate_sarif_report(self) -> str:
-        """Generate SARIF (Static Analysis Results Format) for GitHub integration"""
-        
-        runs = []
+        rules = []
         results = []
-        
-        for finding in self.scan_result.get('findings', []):
-            result = {
-                'ruleId': finding['cve'],
-                'level': self._map_severity_to_sarif_level(finding['severity']),
-                'message': {
-                    'text': f"{finding['package']}@{finding['version']}: {finding['description']}"
-                },
-                'locations': [
+        seen_rules = set()
+
+        for finding in self.scan_result.get("findings", []):
+            vuln_id = finding.get("vulnerability_id", finding.get("cve", "UNKNOWN"))
+            if vuln_id not in seen_rules:
+                seen_rules.add(vuln_id)
+                rules.append(
                     {
-                        'physicalLocation': {
-                            'artifactLocation': {
-                                'uri': f"{finding['ecosystem']}/{finding['package']}/package.json"
+                        "id": vuln_id,
+                        "name": finding.get("title", vuln_id),
+                        "shortDescription": {"text": finding.get("vulnerability_type", "Dependency Vulnerability")},
+                        "fullDescription": {"text": finding.get("root_cause", finding.get("description", ""))},
+                        "properties": {
+                            "tags": [finding.get("ecosystem", "unknown"), finding.get("severity", "unknown")],
+                            "precision": "high" if finding.get("confidence_score", 0) >= 0.8 else "medium",
+                        },
+                    }
+                )
+
+            results.append(
+                {
+                    "ruleId": vuln_id,
+                    "level": self._map_severity_to_sarif_level(finding.get("severity", "unknown")),
+                    "message": {
+                        "text": f"{finding.get('package')}@{finding.get('version')} {vuln_id}: {finding.get('root_cause', finding.get('description', ''))}"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {"uri": finding.get("source", "manifest")},
                             }
                         }
-                    }
-                ],
-                'properties': {
-                    'package': finding['package'],
-                    'installed_version': finding['version'],
-                    'fixed_version': finding['recommended_version'],
-                    'has_patch': finding['has_patch'],
-                    'source': finding.get('source', 'unknown'),
-                    'remediation_effort': finding['effort'],
+                    ],
+                    "properties": {
+                        "package": finding.get("package"),
+                        "installed_version": finding.get("version"),
+                        "fixed_version": finding.get("fixed_version"),
+                        "dependency_path": finding.get("dependency_path", []),
+                        "confidence": finding.get("confidence"),
+                        "confidence_score": finding.get("confidence_score"),
+                        "status": finding.get("status"),
+                        "mitigation_available": finding.get("mitigation_available"),
+                        "advisory_sources": finding.get("advisory_sources", []),
+                    },
                 }
-            }
-            results.append(result)
-        
+            )
+
         sarif = {
-            'version': '2.1.0',
-            'runs': [
+            "version": "2.1.0",
+            "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+            "runs": [
                 {
-                    'tool': {
-                        'driver': {
-                            'name': 'Dependency Vulnerability Mapper',
-                            'version': '1.0.0',
-                            'informationUri': 'https://github.com/sec-mapper',
-                            'rules': []
+                    "tool": {
+                        "driver": {
+                            "name": "Sec Mapper",
+                            "version": "2.0.0",
+                            "informationUri": "https://github.com/sec-mapper",
+                            "rules": rules,
                         }
                     },
-                    'results': results,
-                    'properties': {
-                        'scan_date': self.timestamp,
-                        'project_name': self.scan_result.get('project_name'),
-                        'total_dependencies': self.scan_result.get('total_dependencies'),
-                        'overall_risk_score': self.scan_result.get('risk_score'),
-                    }
+                    "results": results,
+                    "properties": {
+                        "scan_date": self.timestamp,
+                        "project_name": self.scan_result.get("project_name"),
+                        "total_dependencies": self.scan_result.get("total_dependencies"),
+                        "overall_risk_score": self.scan_result.get("risk_score"),
+                    },
                 }
-            ]
+            ],
         }
-        
         return json.dumps(sarif, indent=2)
-    
+
     def _map_severity_to_sarif_level(self, severity: str) -> str:
-        """Map our severity to SARIF level"""
         mapping = {
-            'critical': 'error',
-            'high': 'error',
-            'medium': 'warning',
-            'low': 'note',
+            "critical": "error",
+            "high": "error",
+            "medium": "warning",
+            "low": "note",
         }
-        return mapping.get(severity, 'note')
+        return mapping.get((severity or "unknown").lower(), "warning")
+
+    def _severity_counts(self, findings: List[Dict]) -> Dict[str, int]:
+        return {
+            "critical": len([f for f in findings if (f.get("severity") or "").lower() == "critical"]),
+            "high": len([f for f in findings if (f.get("severity") or "").lower() == "high"]),
+            "medium": len([f for f in findings if (f.get("severity") or "").lower() == "medium"]),
+            "low": len([f for f in findings if (f.get("severity") or "").lower() == "low"]),
+        }
+
+    def _summary(self) -> Dict:
+        findings = self.scan_result.get("findings", [])
+        return {
+            "total_dependencies": self.scan_result.get("total_dependencies"),
+            "direct_dependencies": self.scan_result.get("direct_dependencies"),
+            "transitive_dependencies": self.scan_result.get("transitive_dependencies"),
+            "vulnerabilities": self._severity_counts(findings),
+            "overall_risk_score": self.scan_result.get("risk_score"),
+            "confidence": {
+                "exact_version_match": len([f for f in findings if f.get("confidence") == "exact version match"]),
+                "advisory_backed": len([f for f in findings if f.get("confidence") == "advisory-backed match"]),
+                "heuristic": len([f for f in findings if f.get("confidence") == "heuristic match"]),
+                "uncertain": len([f for f in findings if f.get("confidence") == "uncertain match requiring review"]),
+            },
+        }
 
     def _generate_remediation_plan(self) -> List[Dict]:
-        """Generate prioritized remediation steps"""
-        
         findings = sorted(
-            self.scan_result.get('findings', []),
+            self.scan_result.get("findings", []),
             key=lambda x: {
-                'critical': 0,
-                'high': 1,
-                'medium': 2,
-                'low': 3,
-            }.get(x.get('severity', 'low'))
+                "critical": 0,
+                "high": 1,
+                "medium": 2,
+                "low": 3,
+            }.get((x.get("severity") or "unknown").lower(), 4),
         )
-        
         plan = []
         for i, finding in enumerate(findings, 1):
-            plan.append({
-                'priority': i,
-                'package': finding.get('package'),
-                'current_version': finding.get('version'),
-                'recommended_version': finding.get('fixed_version'),
-                'severity': finding.get('severity'),
-                'cve': finding.get('cve'),
-                'estimated_effort': finding.get('effort'),
-                'breaking_changes': self._check_breaking_changes(finding),
-                'testing_required': self._get_testing_requirements(finding),
-            })
-        
+            plan.append(
+                {
+                    "priority": i,
+                    "package": finding.get("package"),
+                    "current_version": finding.get("version"),
+                    "recommended_version": finding.get("fixed_version"),
+                    "severity": finding.get("severity"),
+                    "vulnerability_id": finding.get("vulnerability_id", finding.get("cve")),
+                    "status": finding.get("status"),
+                    "recommendation": finding.get("remediation_recommendation"),
+                    "dependency_path": finding.get("dependency_path", []),
+                }
+            )
         return plan
-    
-    def _check_breaking_changes(self, finding: Dict) -> bool:
-        """Check if update would introduce breaking changes"""
-        # Simplified: compare major versions
-        from packaging import version
-        
-        current_spec = finding.get('version', '0').strip()
-        fixed_spec = finding.get('fixed_version', '0').strip()
-        
-        # Strip npm version markers (^, ~, >, <, =)
-        import re
-        current_clean = re.sub(r'^[\^~>=<]+', '', current_spec)
-        fixed_clean = re.sub(r'^[\^~>=<]+', '', fixed_spec)
-        
-        try:
-            current = version.parse(current_clean)
-            fixed = version.parse(fixed_clean)
-            return current.major != fixed.major
-        except Exception:
-            return False
-    
-    def _get_testing_requirements(self, finding: Dict) -> List[str]:
-        """Get list of testing recommendations"""
-        
-        requirements = []
-        
-        if finding.get('has_patch'):
-            requirements.append('Unit tests')
-            requirements.append('Integration tests')
-        
-        if self._check_breaking_changes(finding):
-            requirements.append('Regression tests')
-            requirements.append('API compatibility tests')
-        
-        if finding.get('effort') == 'high':
-            requirements.append('Full application testing')
-            requirements.append('Security testing')
-        
-        return requirements
