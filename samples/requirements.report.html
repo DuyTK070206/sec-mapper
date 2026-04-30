@@ -1,0 +1,907 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sec Mapper Report</title>
+    <style>
+        body { font-family: Segoe UI, Tahoma, sans-serif; margin: 0; background: #f2f4f7; color: #111827; }
+        .container { max-width: 1280px; margin: 24px auto; background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .card { padding: 14px; border-radius: 10px; background: #eef2ff; }
+        .finding-card { border: 1px solid #d1d5db; border-radius: 10px; margin-bottom: 14px; overflow: hidden; }
+        .finding-header { padding: 12px 14px; background: #f9fafb; border-left: 4px solid #6b7280; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .finding-header.critical { border-left-color: #b91c1c; }
+        .finding-header.high { border-left-color: #dc2626; }
+        .finding-header.medium { border-left-color: #d97706; }
+        .finding-header.low { border-left-color: #059669; }
+        .finding-details { padding: 14px; }
+        .badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #e5e7eb; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-top: 10px; }
+        .kv { background: #f9fafb; border-radius: 8px; padding: 10px; }
+        .label { font-size: 11px; text-transform: uppercase; color: #6b7280; margin-bottom: 4px; }
+        .value { font-size: 14px; line-height: 1.35; word-break: break-word; }
+        .mono { font-family: Consolas, monospace; }
+        .section-title { margin-top: 24px; }
+        ul { margin: 6px 0 0 18px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dependency Vulnerability Report</h1>
+        <p><strong>Project:</strong> requirements</p>
+        <p><strong>Scan Time:</strong> 2026-04-30T09:11:31.059688Z</p>
+        <p><strong>Risk Score:</strong> 40/100</p>
+
+        <div class="summary">
+            <div class="card"><div class="label">Critical</div><div class="value">0</div></div>
+            <div class="card"><div class="label">High</div><div class="value">0</div></div>
+            <div class="card"><div class="label">Medium</div><div class="value">5</div></div>
+            <div class="card"><div class="label">Low</div><div class="value">10</div></div>
+            <div class="card"><div class="label">Discrepancies</div><div class="value">0</div></div>
+        </div>
+
+        <h2 class="section-title">Post-Scan System State</h2>
+        <div class="grid">
+            <div class="kv"><div class="label">Vulnerable Right Now</div><div class="value">17</div></div>
+            <div class="kv"><div class="label">Known Fix Available</div><div class="value">15</div></div>
+            <div class="kv"><div class="label">Needs Immediate Upgrade</div><div class="value">0</div></div>
+            <div class="kv"><div class="label">Temporary Mitigation</div><div class="value">2</div></div>
+            <div class="kv"><div class="label">Uncertain</div><div class="value">0</div></div>
+        </div>
+
+        <h2 class="section-title">Findings</h2>
+        
+<div class="finding-card">
+    <div class="finding-header medium">
+        <div>
+            <strong>cryptography Vulnerable to a Subgroup Attack Due to Missing Subgroup Validation for SECT Curves</strong>
+                            <span class="badge">PRIO 1</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">MEDIUM</span>
+                            <span class="badge">Risk 46/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2026-26007')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2026-26007-pre')">Copy Mitigation</button>
+                <pre id="CVE-2026-26007-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">cryptography</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==3.4.7</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">46.0.5</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2026-26007</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">cryptography</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade cryptography to 46.0.5.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">cryptography Vulnerable to a Subgroup Attack Due to Missing Subgroup Validation for SECT Curves</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 1.5.3</li><li>Fixed version available: 3.2</li><li>Fixed version available: 3.2.1</li><li>Fixed version available: 42.0.0</li><li>Fixed version available: 42.0.2</li><li>Fixed version available: 46.0.5</li><li>Fixed version available: 46.0.6</li><li>Fixed version available: b924696b2e8731f39696584d12cceeb3aeb2d874</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://github.com/pyca/cryptography/security/advisories/GHSA-r6ph-v2qm-q3c2" target="_blank" rel="noopener noreferrer">https://github.com/pyca/cryptography/security/advisories/GHSA-r6ph-v2qm-q3c2</a></li><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-26007" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2026-26007</a></li><li><a href="https://github.com/pyca/cryptography/commit/0eebb9dbb6343d9bc1d91e5a2482ed4e054a6d8c" target="_blank" rel="noopener noreferrer">https://github.com/pyca/cryptography/commit/0eebb9dbb6343d9bc1d91e5a2482ed4e054a6d8c</a></li><li><a href="https://github.com/pyca/cryptography" target="_blank" rel="noopener noreferrer">https://github.com/pyca/cryptography</a></li><li><a href="https://github.com/pyca/cryptography/releases/tag/46.0.5" target="_blank" rel="noopener noreferrer">https://github.com/pyca/cryptography/releases/tag/46.0.5</a></li><li><a href="http://www.openwall.com/lists/oss-security/2026/02/10/4" target="_blank" rel="noopener noreferrer">http://www.openwall.com/lists/oss-security/2026/02/10/4</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-26007" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-26007" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header medium">
+        <div>
+            <strong>Flask session does not add `Vary: Cookie` header when accessed in some ways</strong>
+                            <span class="badge">PRIO 2</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">MEDIUM</span>
+                            <span class="badge">Risk 46/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2026-27205')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2026-27205-pre')">Copy Mitigation</button>
+                <pre id="CVE-2026-27205-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">flask</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==0.0.3</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">3.1.3</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2026-27205</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">flask</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade flask to 3.1.3.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Flask session does not add `Vary: Cookie` header when accessed in some ways</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 0.12.3</li><li>Fixed version available: 1.0</li><li>Fixed version available: 3.1.3</li><li>Fixed version available: 70f906c51ce49c485f1d355703e9cc3386b1cc2b</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://github.com/pallets/flask/security/advisories/GHSA-68rp-wp8r-4726" target="_blank" rel="noopener noreferrer">https://github.com/pallets/flask/security/advisories/GHSA-68rp-wp8r-4726</a></li><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-27205" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2026-27205</a></li><li><a href="https://github.com/pallets/flask/commit/089cb86dd22bff589a4eafb7ab8e42dc357623b4" target="_blank" rel="noopener noreferrer">https://github.com/pallets/flask/commit/089cb86dd22bff589a4eafb7ab8e42dc357623b4</a></li><li><a href="https://github.com/pallets/flask" target="_blank" rel="noopener noreferrer">https://github.com/pallets/flask</a></li><li><a href="https://github.com/pallets/flask/releases/tag/3.1.3" target="_blank" rel="noopener noreferrer">https://github.com/pallets/flask/releases/tag/3.1.3</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-27205" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-27205" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header medium">
+        <div>
+            <strong>Jinja2 vulnerable to sandbox breakout through attr filter selecting format method</strong>
+                            <span class="badge">PRIO 3</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">MEDIUM</span>
+                            <span class="badge">Risk 46/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2025-27516')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2025-27516-pre')">Copy Mitigation</button>
+                <pre id="CVE-2025-27516-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">jinja2</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==2.11.3</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">3.1.6</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2025-27516</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">jinja2</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade jinja2 to 3.1.6.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Jinja2 vulnerable to sandbox breakout through attr filter selecting format method</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 2.10.1</li><li>Fixed version available: 2.11.3</li><li>Fixed version available: 2.7.2</li><li>Fixed version available: 2.8.1</li><li>Fixed version available: 3.1.3</li><li>Fixed version available: 3.1.4</li><li>Fixed version available: 3.1.5</li><li>Fixed version available: 3.1.6</li><li>Fixed version available: 9b53045c34e61013dc8f09b7e52a555fa16bed16</li><li>Fixed version available: acb672b6a179567632e032f547582f30fa2f4aa7</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://github.com/pallets/jinja/security/advisories/GHSA-cpwx-vrp4-4pq7" target="_blank" rel="noopener noreferrer">https://github.com/pallets/jinja/security/advisories/GHSA-cpwx-vrp4-4pq7</a></li><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2025-27516" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2025-27516</a></li><li><a href="https://github.com/pallets/jinja/commit/90457bbf33b8662926ae65cdde4c4c32e756e403" target="_blank" rel="noopener noreferrer">https://github.com/pallets/jinja/commit/90457bbf33b8662926ae65cdde4c4c32e756e403</a></li><li><a href="https://github.com/pallets/jinja" target="_blank" rel="noopener noreferrer">https://github.com/pallets/jinja</a></li><li><a href="https://lists.debian.org/debian-lts-announce/2025/04/msg00022.html" target="_blank" rel="noopener noreferrer">https://lists.debian.org/debian-lts-announce/2025/04/msg00022.html</a></li><li><a href="https://lists.debian.org/debian-lts-announce/2025/04/msg00045.html" target="_blank" rel="noopener noreferrer">https://lists.debian.org/debian-lts-announce/2025/04/msg00045.html</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2025-27516" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-27516" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header medium">
+        <div>
+            <strong>Exposure of Sensitive Information to an Unauthorized Actor in Requests</strong>
+                            <span class="badge">PRIO 4</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">MEDIUM</span>
+                            <span class="badge">Risk 46/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2014-1830')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2014-1830-pre')">Copy Mitigation</button>
+                <pre id="CVE-2014-1830-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">requests</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==2.25.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">2.3.0</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2014-1830</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">requests</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade requests to 2.3.0.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Exposure of Sensitive Information to an Unauthorized Actor in Requests</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 2.20.0</li><li>Fixed version available: 2.3.0</li><li>Fixed version available: 2.32.0</li><li>Fixed version available: 2.32.4</li><li>Fixed version available: 2.33.0</li><li>Fixed version available: c45d7c49ea75133e52ab22a8e9e13173938e36ff</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2014-1830" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2014-1830</a></li><li><a href="https://github.com/kennethreitz/requests/issues/1885" target="_blank" rel="noopener noreferrer">https://github.com/kennethreitz/requests/issues/1885</a></li><li><a href="https://github.com/psf/requests/issues/1885" target="_blank" rel="noopener noreferrer">https://github.com/psf/requests/issues/1885</a></li><li><a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=733108" target="_blank" rel="noopener noreferrer">https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=733108</a></li><li><a href="https://github.com/psf/requests" target="_blank" rel="noopener noreferrer">https://github.com/psf/requests</a></li><li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/requests/PYSEC-2014-14.yaml" target="_blank" rel="noopener noreferrer">https://github.com/pypa/advisory-database/tree/main/vulns/requests/PYSEC-2014-14.yaml</a></li><li><a href="https://web.archive.org/web/20150523055216/http://www.mandriva.com/en/support/security/advisories/advisory/MDVSA-2015:133/?name=MDVSA-2015:133" target="_blank" rel="noopener noreferrer">https://web.archive.org/web/20150523055216/http://www.mandriva.com/en/support/security/advisories/advisory/MDVSA-2015:133/?name=MDVSA-2015:133</a></li><li><a href="http://advisories.mageia.org/MGASA-2014-0409.html" target="_blank" rel="noopener noreferrer">http://advisories.mageia.org/MGASA-2014-0409.html</a></li><li><a href="http://lists.opensuse.org/opensuse-updates/2016-01/msg00095.html" target="_blank" rel="noopener noreferrer">http://lists.opensuse.org/opensuse-updates/2016-01/msg00095.html</a></li><li><a href="http://www.debian.org/security/2015/dsa-3146" target="_blank" rel="noopener noreferrer">http://www.debian.org/security/2015/dsa-3146</a></li><li><a href="http://www.mandriva.com/security/advisories?name=MDVSA-2015:133" target="_blank" rel="noopener noreferrer">http://www.mandriva.com/security/advisories?name=MDVSA-2015:133</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2014-1830" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-1830" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header medium">
+        <div>
+            <strong> Werkzeug safe_join() allows Windows special device names</strong>
+                            <span class="badge">PRIO 5</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">MEDIUM</span>
+                            <span class="badge">Risk 46/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2026-27199')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2026-27199-pre')">Copy Mitigation</button>
+                <pre id="CVE-2026-27199-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">werkzeug</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==2.0.3</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">3.1.6</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2026-27199</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">werkzeug</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade werkzeug to 3.1.6.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value"> Werkzeug safe_join() allows Windows special device names</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 0.11.11</li><li>Fixed version available: 0.11.6</li><li>Fixed version available: 0.15.3</li><li>Fixed version available: 0.15.5</li><li>Fixed version available: 00bc43b1672e662e5e3b8cecd79e67fc968fa246</li><li>Fixed version available: 2.2.3</li><li>Fixed version available: 3.0.3</li><li>Fixed version available: 3.0.6</li><li>Fixed version available: 3.1.4</li><li>Fixed version available: 3.1.5</li><li>Fixed version available: 3.1.6</li><li>Fixed version available: 517cac5a804e8c4dc4ed038bb20dacd038e7a9f1</li><li>Fixed version available: 9a3a981d70d2e9ec3344b5192f86fcaf3210cd85</li><li>Fixed version available: cf275f42acad1b5950c50ffe8ef58fe62cdce028</li><li>Fixed version available: f3c803b3ade485a45f12b6d6617595350c0f03e2</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://github.com/pallets/werkzeug/security/advisories/GHSA-29vq-49wr-vm6x" target="_blank" rel="noopener noreferrer">https://github.com/pallets/werkzeug/security/advisories/GHSA-29vq-49wr-vm6x</a></li><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-27199" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2026-27199</a></li><li><a href="https://github.com/pallets/werkzeug/commit/f407712fdc60a09c2b3f4fe7db557703e5d9338d" target="_blank" rel="noopener noreferrer">https://github.com/pallets/werkzeug/commit/f407712fdc60a09c2b3f4fe7db557703e5d9338d</a></li><li><a href="https://github.com/pallets/werkzeug" target="_blank" rel="noopener noreferrer">https://github.com/pallets/werkzeug</a></li><li><a href="https://github.com/pallets/werkzeug/releases/tag/3.1.6" target="_blank" rel="noopener noreferrer">https://github.com/pallets/werkzeug/releases/tag/3.1.6</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-27199" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-27199" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>Cross-site Scripting (XSS) in Django REST Framework</strong>
+                            <span class="badge">PRIO 6</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 38/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2020-25626')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2020-25626-pre')">Copy Mitigation</button>
+                <pre id="CVE-2020-25626-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">djangorestframework</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==3.12.4</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">3.11.2</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2020-25626</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Cross-Site Scripting</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">djangorestframework</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade djangorestframework to 3.11.2.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Cross-site Scripting (XSS) in Django REST Framework</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 3.11.2</li><li>Fixed version available: 3.15.2</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-25626" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2020-25626</a></li><li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=1878635" target="_blank" rel="noopener noreferrer">https://bugzilla.redhat.com/show_bug.cgi?id=1878635</a></li><li><a href="https://github.com/advisories/GHSA-fx83-3ph3-9j2q" target="_blank" rel="noopener noreferrer">https://github.com/advisories/GHSA-fx83-3ph3-9j2q</a></li><li><a href="https://github.com/encode/django-rest-framework" target="_blank" rel="noopener noreferrer">https://github.com/encode/django-rest-framework</a></li><li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/djangorestframework/PYSEC-2020-263.yaml" target="_blank" rel="noopener noreferrer">https://github.com/pypa/advisory-database/tree/main/vulns/djangorestframework/PYSEC-2020-263.yaml</a></li><li><a href="https://security.netapp.com/advisory/ntap-20201016-0003" target="_blank" rel="noopener noreferrer">https://security.netapp.com/advisory/ntap-20201016-0003</a></li><li><a href="https://www.debian.org/security/2022/dsa-5186" target="_blank" rel="noopener noreferrer">https://www.debian.org/security/2022/dsa-5186</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-25626" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-25626" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>CVE-2024-24762</strong>
+                            <span class="badge">PRIO 7</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 38/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: RCE | PoC: No | Exploit Score: 0.30
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2024-24762')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2024-24762-pre')">Copy Mitigation</button>
+                <pre id="CVE-2024-24762-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">fastapi</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==0.0.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">9d34ad0ee8a0dfbbcce06f76c2d5d851085024fc</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2024-24762</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Code Execution</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">fastapi</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade fastapi to 9d34ad0ee8a0dfbbcce06f76c2d5d851085024fc.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">FastAPI is a web framework for building APIs with Python 3.8+ based on standard Python type hints. When using form data, `python-multipart` uses a Regular Expression to parse the HTTP `Content-Type` header, including options. An attacker could send a custom-made `Content-Type` option that is very difficult for the RegEx to process, consuming CPU resources and stalling indefinitely (minutes or more) while holding the main event loop. This means that process can&#x27;t handle any more requests. It&#x27;s a ReDoS(Regular expression Denial of Service), it only applies to those reading form data, using `python-multipart`. This vulnerability has been patched in version 0.109.1.</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 0.65.2</li><li>Fixed version available: 9d34ad0ee8a0dfbbcce06f76c2d5d851085024fc</li><li>Fixed version available: fa7e3c996edf2d5482fff8f9d890ac2390dede4d</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://github.com/tiangolo/fastapi/security/advisories/GHSA-qf9m-vfgh-m389" target="_blank" rel="noopener noreferrer">https://github.com/tiangolo/fastapi/security/advisories/GHSA-qf9m-vfgh-m389</a></li><li><a href="https://github.com/tiangolo/fastapi/commit/9d34ad0ee8a0dfbbcce06f76c2d5d851085024fc" target="_blank" rel="noopener noreferrer">https://github.com/tiangolo/fastapi/commit/9d34ad0ee8a0dfbbcce06f76c2d5d851085024fc</a></li><li><a href="https://github.com/tiangolo/fastapi/releases/tag/0.109.1" target="_blank" rel="noopener noreferrer">https://github.com/tiangolo/fastapi/releases/tag/0.109.1</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-24762" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-24762" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>Pillow Uncontrolled Resource Consumption</strong>
+                            <span class="badge">PRIO 8</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 38/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: RCE | PoC: No | Exploit Score: 0.30
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2021-27922')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2021-27922-pre')">Copy Mitigation</button>
+                <pre id="CVE-2021-27922-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">pillow</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==4.2.1</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">8.1.2</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2021-27922</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Code Execution</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">pillow</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade pillow to 8.1.2.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Pillow Uncontrolled Resource Consumption</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 0.1.8</li><li>Fixed version available: 10.0.0</li><li>Fixed version available: 10.0.1</li><li>Fixed version available: 10.2.0</li><li>Fixed version available: 10.3.0</li><li>Fixed version available: 11918eac0628ec8ac0812670d9838361ead2d6a4</li><li>Fixed version available: 1fe1bb49c452b0318cad12ea9d97c3bef188e9a7</li><li>Fixed version available: 2.3.1</li><li>Fixed version available: 2.3.2</li><li>Fixed version available: 2.5.0</li><li>Fixed version available: 2.5.3</li><li>Fixed version available: 2.7.0</li><li>Fixed version available: 205e056f8f9b06ed7b925cf8aa0874bc4aaf8a7d</li><li>Fixed version available: 3.1.1</li><li>Fixed version available: 3.3.2</li><li>Fixed version available: 46f4a349b88915787fea3fb91348bb1665831bbb</li><li>Fixed version available: 4e0d9b0b9740d258ade40cce248c93777362ac1e</li><li>Fixed version available: 4e2def2539ec13e53a82e06c4b3daf00454100c4</li><li>Fixed version available: 4e9f367dfd3f04c8f5d23f7f759ec12782e10ee7</li><li>Fixed version available: 5bdf54b5a76b54fb00bd05f2d733e0a4173eefc9</li><li>Fixed version available: 6.2.0</li><li>Fixed version available: 6.2.2</li><li>Fixed version available: 6a83e4324738bb0452fbe8074a995b1c73f08de7</li><li>Fixed version available: 6dcbf5bd96b717c58d7b642949da8d323099928e</li><li>Fixed version available: 7.0.0</li><li>Fixed version available: 7.1.0</li><li>Fixed version available: 8.1.0</li><li>Fixed version available: 8.1.1</li><li>Fixed version available: 8.1.2</li><li>Fixed version available: 8.2.0</li><li>Fixed version available: 8.3.0</li><li>Fixed version available: 893a40850c2d5da41537958e40569c029a6e127b</li><li>Fixed version available: 9.0.0</li><li>Fixed version available: 9.0.1</li><li>Fixed version available: 9.2.0</li><li>Fixed version available: 93b22b846e0269ee9594ff71a72bec02d2bea8fd</li><li>Fixed version available: 9e08eb8f78fdfd2f476e1b20b7cf38683754866b</li><li>Fixed version available: a09acd0decd8a87ccce939d5ff65dab59e7d365b</li><li>Fixed version available: a79b65c47c7dc6fe623aadf09aa6192fc54548f3</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-27922" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2021-27922</a></li><li><a href="https://github.com/python-pillow/Pillow/commit/756fff33128a0b643d10518a26ad04b726dd8973" target="_blank" rel="noopener noreferrer">https://github.com/python-pillow/Pillow/commit/756fff33128a0b643d10518a26ad04b726dd8973</a></li><li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2021-41.yaml" target="_blank" rel="noopener noreferrer">https://github.com/pypa/advisory-database/tree/main/vulns/pillow/PYSEC-2021-41.yaml</a></li><li><a href="https://github.com/python-pillow/Pillow" target="_blank" rel="noopener noreferrer">https://github.com/python-pillow/Pillow</a></li><li><a href="https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/S7G44Z33J4BNI2DPDROHWGVG2U7ZH5JU" target="_blank" rel="noopener noreferrer">https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/S7G44Z33J4BNI2DPDROHWGVG2U7ZH5JU</a></li><li><a href="https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/TQQY6472RX4J2SUJENWDZAWKTJJGP2ML" target="_blank" rel="noopener noreferrer">https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/TQQY6472RX4J2SUJENWDZAWKTJJGP2ML</a></li><li><a href="https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/ZTSY25UJU7NJUFHH3HWT575LT4TDFWBZ" target="_blank" rel="noopener noreferrer">https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/ZTSY25UJU7NJUFHH3HWT575LT4TDFWBZ</a></li><li><a href="https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/S7G44Z33J4BNI2DPDROHWGVG2U7ZH5JU" target="_blank" rel="noopener noreferrer">https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/S7G44Z33J4BNI2DPDROHWGVG2U7ZH5JU</a></li><li><a href="https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/TQQY6472RX4J2SUJENWDZAWKTJJGP2ML" target="_blank" rel="noopener noreferrer">https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/TQQY6472RX4J2SUJENWDZAWKTJJGP2ML</a></li><li><a href="https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/ZTSY25UJU7NJUFHH3HWT575LT4TDFWBZ" target="_blank" rel="noopener noreferrer">https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/ZTSY25UJU7NJUFHH3HWT575LT4TDFWBZ</a></li><li><a href="https://pillow.readthedocs.io/en/stable/releasenotes/8.1.1.html" target="_blank" rel="noopener noreferrer">https://pillow.readthedocs.io/en/stable/releasenotes/8.1.1.html</a></li><li><a href="https://pillow.readthedocs.io/en/stable/releasenotes/8.1.2.html" target="_blank" rel="noopener noreferrer">https://pillow.readthedocs.io/en/stable/releasenotes/8.1.2.html</a></li><li><a href="https://security.gentoo.org/glsa/202107-33" target="_blank" rel="noopener noreferrer">https://security.gentoo.org/glsa/202107-33</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-27922" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-27922" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>Improper Input Validation in PyYAML</strong>
+                            <span class="badge">PRIO 9</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 38/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2020-14343')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2020-14343-pre')">Copy Mitigation</button>
+                <pre id="CVE-2020-14343-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">pyyaml</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==5.4.1</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">5.4</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2020-14343</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">pyyaml</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade pyyaml to 5.4.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Improper Input Validation in PyYAML</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 4.1</li><li>Fixed version available: 5.1</li><li>Fixed version available: 5.4</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-14343" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2020-14343</a></li><li><a href="https://github.com/SeldonIO/seldon-core/issues/2252" target="_blank" rel="noopener noreferrer">https://github.com/SeldonIO/seldon-core/issues/2252</a></li><li><a href="https://github.com/yaml/pyyaml/issues/420" target="_blank" rel="noopener noreferrer">https://github.com/yaml/pyyaml/issues/420</a></li><li><a href="https://github.com/yaml/pyyaml/issues/420#issuecomment-663673966" target="_blank" rel="noopener noreferrer">https://github.com/yaml/pyyaml/issues/420#issuecomment-663673966</a></li><li><a href="https://github.com/yaml/pyyaml/commit/a001f2782501ad2d24986959f0239a354675f9dc" target="_blank" rel="noopener noreferrer">https://github.com/yaml/pyyaml/commit/a001f2782501ad2d24986959f0239a354675f9dc</a></li><li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=1860466" target="_blank" rel="noopener noreferrer">https://bugzilla.redhat.com/show_bug.cgi?id=1860466</a></li><li><a href="https://github.com/advisories/GHSA-8q59-q68h-6hv4" target="_blank" rel="noopener noreferrer">https://github.com/advisories/GHSA-8q59-q68h-6hv4</a></li><li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/pyyaml/PYSEC-2021-142.yaml" target="_blank" rel="noopener noreferrer">https://github.com/pypa/advisory-database/tree/main/vulns/pyyaml/PYSEC-2021-142.yaml</a></li><li><a href="https://github.com/yaml/pyyaml" target="_blank" rel="noopener noreferrer">https://github.com/yaml/pyyaml</a></li><li><a href="https://pypi.org/project/PyYAML" target="_blank" rel="noopener noreferrer">https://pypi.org/project/PyYAML</a></li><li><a href="https://www.oracle.com/security-alerts/cpuapr2022.html" target="_blank" rel="noopener noreferrer">https://www.oracle.com/security-alerts/cpuapr2022.html</a></li><li><a href="https://www.oracle.com/security-alerts/cpujul2022.html" target="_blank" rel="noopener noreferrer">https://www.oracle.com/security-alerts/cpujul2022.html</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-14343" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-14343" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>SciPy creates insecure temporary directories</strong>
+                            <span class="badge">PRIO 10</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 38/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2013-4251')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2013-4251-pre')">Copy Mitigation</button>
+                <pre id="CVE-2013-4251-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">scipy</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==1.7.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">0.12.1</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2013-4251</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">scipy</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade scipy to 0.12.1.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">SciPy creates insecure temporary directories</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 0.12.1</li><li>Fixed version available: 1.10.0</li><li>Fixed version available: 1.8.0</li><li>Fixed version available: bd296e0336420b840fcd2faabb97084fd252a973</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2013-4251" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2013-4251</a></li><li><a href="https://github.com/scipy/scipy/commit/bd296e0336420b840fcd2faabb97084fd252a973" target="_blank" rel="noopener noreferrer">https://github.com/scipy/scipy/commit/bd296e0336420b840fcd2faabb97084fd252a973</a></li><li><a href="https://access.redhat.com/security/cve/cve-2013-4251" target="_blank" rel="noopener noreferrer">https://access.redhat.com/security/cve/cve-2013-4251</a></li><li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2013-4251" target="_blank" rel="noopener noreferrer">https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2013-4251</a></li><li><a href="https://bugzilla.suse.com/show_bug.cgi?id=CVE-2013-4251" target="_blank" rel="noopener noreferrer">https://bugzilla.suse.com/show_bug.cgi?id=CVE-2013-4251</a></li><li><a href="https://exchange.xforce.ibmcloud.com/vulnerabilities/88052" target="_blank" rel="noopener noreferrer">https://exchange.xforce.ibmcloud.com/vulnerabilities/88052</a></li><li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/scipy/PYSEC-2019-156.yaml" target="_blank" rel="noopener noreferrer">https://github.com/pypa/advisory-database/tree/main/vulns/scipy/PYSEC-2019-156.yaml</a></li><li><a href="https://github.com/scipy/scipy" target="_blank" rel="noopener noreferrer">https://github.com/scipy/scipy</a></li><li><a href="https://security-tracker.debian.org/tracker/CVE-2013-4251" target="_blank" rel="noopener noreferrer">https://security-tracker.debian.org/tracker/CVE-2013-4251</a></li><li><a href="http://lists.fedoraproject.org/pipermail/package-announce/2013-November/120696.html" target="_blank" rel="noopener noreferrer">http://lists.fedoraproject.org/pipermail/package-announce/2013-November/120696.html</a></li><li><a href="http://lists.fedoraproject.org/pipermail/package-announce/2013-October/119759.html" target="_blank" rel="noopener noreferrer">http://lists.fedoraproject.org/pipermail/package-announce/2013-October/119759.html</a></li><li><a href="http://lists.fedoraproject.org/pipermail/package-announce/2013-October/119771.html" target="_blank" rel="noopener noreferrer">http://lists.fedoraproject.org/pipermail/package-announce/2013-October/119771.html</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2013-4251" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-4251" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>SQLAlchemy is vulnerable to SQL Injection via group_by parameter </strong>
+                            <span class="badge">PRIO 11</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 38/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2019-7548')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2019-7548-pre')">Copy Mitigation</button>
+                <pre id="CVE-2019-7548-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">sqlalchemy</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==1.4.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">1.2.19</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2019-7548</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Injection</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">sqlalchemy</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade sqlalchemy to 1.2.19.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">SQLAlchemy is vulnerable to SQL Injection via group_by parameter </div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 0.7.0</li><li>Fixed version available: 0.7.0b4</li><li>Fixed version available: 1.2.18</li><li>Fixed version available: 1.2.19</li><li>Fixed version available: 1.3.0b3</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2019-7548" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2019-7548</a></li><li><a href="https://github.com/sqlalchemy/sqlalchemy/issues/4481#issuecomment-461204518" target="_blank" rel="noopener noreferrer">https://github.com/sqlalchemy/sqlalchemy/issues/4481#issuecomment-461204518</a></li><li><a href="https://github.com/sqlalchemy/sqlalchemy/issues/4510" target="_blank" rel="noopener noreferrer">https://github.com/sqlalchemy/sqlalchemy/issues/4510</a></li><li><a href="https://access.redhat.com/errata/RHSA-2019:0981" target="_blank" rel="noopener noreferrer">https://access.redhat.com/errata/RHSA-2019:0981</a></li><li><a href="https://access.redhat.com/errata/RHSA-2019:0984" target="_blank" rel="noopener noreferrer">https://access.redhat.com/errata/RHSA-2019:0984</a></li><li><a href="https://github.com/advisories/GHSA-38fc-9xqv-7f7q" target="_blank" rel="noopener noreferrer">https://github.com/advisories/GHSA-38fc-9xqv-7f7q</a></li><li><a href="https://github.com/no-security/sqlalchemy_test" target="_blank" rel="noopener noreferrer">https://github.com/no-security/sqlalchemy_test</a></li><li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/sqlalchemy/PYSEC-2019-124.yaml" target="_blank" rel="noopener noreferrer">https://github.com/pypa/advisory-database/tree/main/vulns/sqlalchemy/PYSEC-2019-124.yaml</a></li><li><a href="https://github.com/sqlalchemy/sqlalchemy" target="_blank" rel="noopener noreferrer">https://github.com/sqlalchemy/sqlalchemy</a></li><li><a href="https://lists.debian.org/debian-lts-announce/2019/03/msg00020.html" target="_blank" rel="noopener noreferrer">https://lists.debian.org/debian-lts-announce/2019/03/msg00020.html</a></li><li><a href="https://lists.debian.org/debian-lts-announce/2021/11/msg00005.html" target="_blank" rel="noopener noreferrer">https://lists.debian.org/debian-lts-announce/2021/11/msg00005.html</a></li><li><a href="https://www.oracle.com/security-alerts/cpujan2021.html" target="_blank" rel="noopener noreferrer">https://www.oracle.com/security-alerts/cpujan2021.html</a></li><li><a href="http://lists.opensuse.org/opensuse-security-announce/2019-08/msg00087.html" target="_blank" rel="noopener noreferrer">http://lists.opensuse.org/opensuse-security-announce/2019-08/msg00087.html</a></li><li><a href="http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00010.html" target="_blank" rel="noopener noreferrer">http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00010.html</a></li><li><a href="http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00016.html" target="_blank" rel="noopener noreferrer">http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00016.html</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2019-7548" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-7548" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>CVE-2023-45803</strong>
+                            <span class="badge">PRIO 12</span>
+                            <span class="badge">P3</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 38/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: Yes | Exploit Score: 0.35
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2023-45803')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2023-45803-pre')">Copy Mitigation</button>
+                <pre id="CVE-2023-45803-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">urllib3</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==1.01.6</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">4e98d57809dacab1cbe625fddeec1a290c478ea9</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2023-45803</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">urllib3</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade urllib3 to 4e98d57809dacab1cbe625fddeec1a290c478ea9.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">urllib3 is a user-friendly HTTP client library for Python. urllib3 previously wouldn&#x27;t remove the HTTP request body when an HTTP redirect response using status 301, 302, or 303 after the request had its method changed from one that could accept a request body (like `POST`) to `GET` as is required by HTTP RFCs. Although this behavior is not specified in the section for redirects, it can be inferred by piecing together information from different sections and we have observed the behavior in other major HTTP client implementations like curl and web browsers. Because the vulnerability requires a previously trusted service to become compromised in order to have an impact on confidentiality we believe the exploitability of this vulnerability is low. Additionally, many users aren&#x27;t putting sensitive data in HTTP request bodies, if this is the case then this vulnerability isn&#x27;t exploitable. Both of the following conditions must be true to be affected by this vulnerability: 1. Using urllib3 and submitting sensitive information in the HTTP request body (such as form data or JSON) and 2. The origin service is compromised and starts redirecting using 301, 302, or 303 to a malicious peer or the redirected-to service becomes compromised. This issue has been addressed in versions 1.26.18 and 2.0.7 and users are advised to update to resolve this issue. Users unable to update should disable redirects for services that aren&#x27;t expecting to respond with redirects with `redirects=False` and disable automatic redirects with `redirects=False` and handle 301, 302, and 303 redirects manually by stripping the HTTP request body.
+</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 1.23</li><li>Fixed version available: 1.24.2</li><li>Fixed version available: 1.24.3</li><li>Fixed version available: 1.25.9</li><li>Fixed version available: 1.26.19</li><li>Fixed version available: 1dd69c5c5982fae7c87a620d487c2ebf7a6b436b</li><li>Fixed version available: 2.5.0</li><li>Fixed version available: 2d4a3fee6de2fa45eb82169361918f759269b4ec</li><li>Fixed version available: 4e98d57809dacab1cbe625fddeec1a290c478ea9</li><li>Fixed version available: 644124ecd0b6e417c527191f866daa05a5a2056d</li><li>Fixed version available: adb358f8e06865406d1f05e581a16cbea2136fbc</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://github.com/urllib3/urllib3/security/advisories/GHSA-g4mx-q9vg-27p4" target="_blank" rel="noopener noreferrer">https://github.com/urllib3/urllib3/security/advisories/GHSA-g4mx-q9vg-27p4</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc9110.html#name-get" target="_blank" rel="noopener noreferrer">https://www.rfc-editor.org/rfc/rfc9110.html#name-get</a></li><li><a href="https://github.com/urllib3/urllib3/commit/4e98d57809dacab1cbe625fddeec1a290c478ea9" target="_blank" rel="noopener noreferrer">https://github.com/urllib3/urllib3/commit/4e98d57809dacab1cbe625fddeec1a290c478ea9</a></li><li><a href="https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/PPDPLM6UUMN55ESPQWJFLLIZY4ZKCNRX/" target="_blank" rel="noopener noreferrer">https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/PPDPLM6UUMN55ESPQWJFLLIZY4ZKCNRX/</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2023-45803" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-45803" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>Log injection in uvicorn</strong>
+                            <span class="badge">PRIO 13</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 42/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2020-7694')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2020-7694-pre')">Copy Mitigation</button>
+                <pre id="CVE-2020-7694-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">uvicorn</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==0.29.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">0.11.7</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2020-7694</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Injection</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">uvicorn</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade uvicorn to 0.11.7.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Log injection in uvicorn</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 0.11.7</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-7694" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2020-7694</a></li><li><a href="https://github.com/encode/uvicorn/issues/723" target="_blank" rel="noopener noreferrer">https://github.com/encode/uvicorn/issues/723</a></li><li><a href="https://github.com/encode/uvicorn/commit/895807f94ea9a8e588605c12076b7d7517cda503" target="_blank" rel="noopener noreferrer">https://github.com/encode/uvicorn/commit/895807f94ea9a8e588605c12076b7d7517cda503</a></li><li><a href="https://github.com/encode/uvicorn" target="_blank" rel="noopener noreferrer">https://github.com/encode/uvicorn</a></li><li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/uvicorn/PYSEC-2020-150.yaml" target="_blank" rel="noopener noreferrer">https://github.com/pypa/advisory-database/tree/main/vulns/uvicorn/PYSEC-2020-150.yaml</a></li><li><a href="https://snyk.io/vuln/SNYK-PYTHON-UVICORN-575560" target="_blank" rel="noopener noreferrer">https://snyk.io/vuln/SNYK-PYTHON-UVICORN-575560</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-7694" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-7694" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>Django Cross-Site Request Forgery vulnerability</strong>
+                            <span class="badge">PRIO 14</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 41/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">mitigation recommended</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2011-4140')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2011-4140-pre')">Copy Mitigation</button>
+                <pre id="CVE-2011-4140-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{
+  &quot;summary&quot;: &quot;No automated mitigation available; apply default containment.&quot;,
+  &quot;mitigation_steps&quot;: [
+    &quot;Sanitize and validate inputs to reduce exploit surface&quot;,
+    &quot;Disable or restrict the vulnerable feature if configurable&quot;,
+    &quot;Restrict network access and apply least-privilege ACLs&quot;
+  ],
+  &quot;config_example&quot;: &quot;# Example: restrict access via firewall or feature flag\nfirewall_rule: deny from untrusted\nfeature_x_enabled: false&quot;,
+  &quot;risk_if_not_fixed&quot;: &quot;Continued exposure may lead to compromise; prioritize investigation and temporary isolation.&quot;
+}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">django</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==3.2.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">N/A</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2011-4140</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.80</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">django</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">No</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">No automated mitigation available; apply default containment.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Django Cross-Site Request Forgery vulnerability</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 1.1</li><li>Fixed version available: 1.1.3</li><li>Fixed version available: 1.11.27</li><li>Fixed version available: 1.11.28</li><li>Fixed version available: 1.2.7</li><li>Fixed version available: 1.3.2</li><li>Fixed version available: 1.4.11</li><li>Fixed version available: 1.4.14</li><li>Fixed version available: 1.4.18</li><li>Fixed version available: 1.4.20</li><li>Fixed version available: 1.4.21</li><li>Fixed version available: 1.7.6</li><li>Fixed version available: 1.8.10</li><li>Fixed version available: 1.8.14</li><li>Fixed version available: 1.8.15</li><li>Fixed version available: 1.8.16</li><li>Fixed version available: 2.2.24</li><li>Fixed version available: 2b31342cdf14fc20e07c43d258f1e7334ad664a6</li><li>Fixed version available: 3.2.15</li><li>Fixed version available: 316bc3fc9437c5960c24baceb93c73f1939711e4</li><li>Fixed version available: 4.2.24</li><li>Fixed version available: 67b46ba7016da2d259c1ecc7d666d11f5e1cfaab</li><li>Fixed version available: c5544d289233f501917e25970c03ed444abbd4f0</li><li>Fixed version available: d03bf6fe4e9bf5b07de62c1a271c4b41a7d3d158</li><li>No fixed version from this source</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2011-4140" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2011-4140</a></li><li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=737366" target="_blank" rel="noopener noreferrer">https://bugzilla.redhat.com/show_bug.cgi?id=737366</a></li><li><a href="https://github.com/advisories/GHSA-h95j-h2rv-qrg4" target="_blank" rel="noopener noreferrer">https://github.com/advisories/GHSA-h95j-h2rv-qrg4</a></li><li><a href="https://github.com/django/django" target="_blank" rel="noopener noreferrer">https://github.com/django/django</a></li><li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/django/PYSEC-2011-5.yaml" target="_blank" rel="noopener noreferrer">https://github.com/pypa/advisory-database/tree/main/vulns/django/PYSEC-2011-5.yaml</a></li><li><a href="https://hermes.opensuse.org/messages/14700881" target="_blank" rel="noopener noreferrer">https://hermes.opensuse.org/messages/14700881</a></li><li><a href="https://web.archive.org/web/20140806062902/http://secunia.com/advisories/46614" target="_blank" rel="noopener noreferrer">https://web.archive.org/web/20140806062902/http://secunia.com/advisories/46614</a></li><li><a href="https://www.djangoproject.com/weblog/2011/sep/09" target="_blank" rel="noopener noreferrer">https://www.djangoproject.com/weblog/2011/sep/09</a></li><li><a href="https://www.djangoproject.com/weblog/2011/sep/10/127" target="_blank" rel="noopener noreferrer">https://www.djangoproject.com/weblog/2011/sep/10/127</a></li><li><a href="http://openwall.com/lists/oss-security/2011/09/11/1" target="_blank" rel="noopener noreferrer">http://openwall.com/lists/oss-security/2011/09/11/1</a></li><li><a href="http://openwall.com/lists/oss-security/2011/09/13/2" target="_blank" rel="noopener noreferrer">http://openwall.com/lists/oss-security/2011/09/13/2</a></li><li><a href="http://www.debian.org/security/2011/dsa-2332" target="_blank" rel="noopener noreferrer">http://www.debian.org/security/2011/dsa-2332</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2011-4140" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-4140" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>Numpy Deserialization of Untrusted Data</strong>
+                            <span class="badge">PRIO 15</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 40/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">mitigation recommended</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2019-6446')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2019-6446-pre')">Copy Mitigation</button>
+                <pre id="CVE-2019-6446-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{
+  &quot;summary&quot;: &quot;No automated mitigation available; apply default containment.&quot;,
+  &quot;mitigation_steps&quot;: [
+    &quot;Sanitize and validate inputs to reduce exploit surface&quot;,
+    &quot;Disable or restrict the vulnerable feature if configurable&quot;,
+    &quot;Restrict network access and apply least-privilege ACLs&quot;
+  ],
+  &quot;config_example&quot;: &quot;# Example: restrict access via firewall or feature flag\nfirewall_rule: deny from untrusted\nfeature_x_enabled: false&quot;,
+  &quot;risk_if_not_fixed&quot;: &quot;Continued exposure may lead to compromise; prioritize investigation and temporary isolation.&quot;
+}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">numpy</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==1.21.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">N/A</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2019-6446</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Insecure Deserialization</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.80</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">numpy</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">No</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">No automated mitigation available; apply default containment.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Numpy Deserialization of Untrusted Data</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 0bb46c1448b0d3f5453d5182a17ea7ac5854ee15</li><li>Fixed version available: 1.13.3</li><li>Fixed version available: 1.16.1</li><li>Fixed version available: 1.19</li><li>Fixed version available: 1.19.0</li><li>Fixed version available: 1.19.1</li><li>Fixed version available: 1.22</li><li>Fixed version available: 1.8.1</li><li>No fixed version from this source</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2019-6446" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2019-6446</a></li><li><a href="https://github.com/numpy/numpy/issues/12759" target="_blank" rel="noopener noreferrer">https://github.com/numpy/numpy/issues/12759</a></li><li><a href="https://github.com/numpy/numpy/pull/12889" target="_blank" rel="noopener noreferrer">https://github.com/numpy/numpy/pull/12889</a></li><li><a href="https://access.redhat.com/errata/RHSA-2019:3335" target="_blank" rel="noopener noreferrer">https://access.redhat.com/errata/RHSA-2019:3335</a></li><li><a href="https://access.redhat.com/errata/RHSA-2019:3704" target="_blank" rel="noopener noreferrer">https://access.redhat.com/errata/RHSA-2019:3704</a></li><li><a href="https://bugzilla.suse.com/show_bug.cgi?id=1122208" target="_blank" rel="noopener noreferrer">https://bugzilla.suse.com/show_bug.cgi?id=1122208</a></li><li><a href="https://github.com/numpy/numpy" target="_blank" rel="noopener noreferrer">https://github.com/numpy/numpy</a></li><li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/numpy/PYSEC-2019-108.yaml" target="_blank" rel="noopener noreferrer">https://github.com/pypa/advisory-database/tree/main/vulns/numpy/PYSEC-2019-108.yaml</a></li><li><a href="https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/7ZZAYIQNUUYXGMKHSPEEXS4TRYFOUYE4" target="_blank" rel="noopener noreferrer">https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/7ZZAYIQNUUYXGMKHSPEEXS4TRYFOUYE4</a></li><li><a href="https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/7ZZAYIQNUUYXGMKHSPEEXS4TRYFOUYE4" target="_blank" rel="noopener noreferrer">https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/7ZZAYIQNUUYXGMKHSPEEXS4TRYFOUYE4</a></li><li><a href="https://web.archive.org/web/20210124234613/https://www.securityfocus.com/bid/106670" target="_blank" rel="noopener noreferrer">https://web.archive.org/web/20210124234613/https://www.securityfocus.com/bid/106670</a></li><li><a href="http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00091.html" target="_blank" rel="noopener noreferrer">http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00091.html</a></li><li><a href="http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00092.html" target="_blank" rel="noopener noreferrer">http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00092.html</a></li><li><a href="http://lists.opensuse.org/opensuse-security-announce/2019-10/msg00015.html" target="_blank" rel="noopener noreferrer">http://lists.opensuse.org/opensuse-security-announce/2019-10/msg00015.html</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2019-6446" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-6446" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header unknown">
+        <div>
+            <strong>CVE-2020-13091</strong>
+                            <span class="badge">PRIO 16</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">UNKNOWN</span>
+                            <span class="badge">Risk 38/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2020-13091')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2020-13091-pre')">Copy Mitigation</button>
+                <pre id="CVE-2020-13091-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">pandas</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==1.3.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">1.0.4</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2020-13091</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">pandas</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade pandas to 1.0.4.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">** DISPUTED ** pandas through 1.0.3 can unserialize and execute commands from an untrusted file that is passed to the read_pickle() function, if __reduce__ makes an os.system call. NOTE: third parties dispute this issue because the read_pickle() function is documented as unsafe and it is the user&#x27;s responsibility to use the function in a secure manner.</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Exact version observed in manifest/lock data</li><li>Advisory backed by OSV</li><li>Fixed version available: 1.0.4</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://github.com/0FuzzingQ/vuln/blob/master/pandas%20unserialize.md" target="_blank" rel="noopener noreferrer">https://github.com/0FuzzingQ/vuln/blob/master/pandas%20unserialize.md</a></li><li><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_pickle.html" target="_blank" rel="noopener noreferrer">https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_pickle.html</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-13091" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-13091" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header unknown">
+        <div>
+            <strong>CVE-2016-10075</strong>
+                            <span class="badge">PRIO 17</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">UNKNOWN</span>
+                            <span class="badge">Risk 38/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2016-10075')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2016-10075-pre')">Copy Mitigation</button>
+                <pre id="CVE-2016-10075-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">tqdm</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">pip</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">==4.62.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">4.11.2</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2016-10075</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">tqdm</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade tqdm to 4.11.2.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">The tqdm._version module in tqdm versions 4.4.1 and 4.10 allows local users to execute arbitrary code via a crafted repo with a malicious git log in the current working directory.</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Exact version observed in manifest/lock data</li><li>Advisory backed by OSV</li><li>Fixed version available: 4.11.2</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://github.com/tqdm/tqdm/issues/328" target="_blank" rel="noopener noreferrer">https://github.com/tqdm/tqdm/issues/328</a></li><li><a href="http://www.securityfocus.com/bid/95143" target="_blank" rel="noopener noreferrer">http://www.securityfocus.com/bid/95143</a></li><li><a href="http://www.openwall.com/lists/oss-security/2016/12/28/8" target="_blank" rel="noopener noreferrer">http://www.openwall.com/lists/oss-security/2016/12/28/8</a></li><li><a href="https://security.gentoo.org/glsa/201807-01" target="_blank" rel="noopener noreferrer">https://security.gentoo.org/glsa/201807-01</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2016-10075" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-10075" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+    </div>
+
+    <script>
+        function toggleCard(btn) {
+            const details = btn.closest('.finding-card').querySelector('.finding-details');
+            const hidden = details.style.display === 'none';
+            details.style.display = hidden ? 'block' : 'none';
+            btn.textContent = hidden ? 'Hide' : 'Show';
+        }
+
+        function toggleMitigation(id) {
+            const el = document.getElementById(id + '-pre');
+            if (!el) return;
+            el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+        }
+
+        function copyText(elemId) {
+            const el = document.getElementById(elemId);
+            if (!el) return;
+            const text = el.innerText || el.textContent || '';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).catch(() => alert('Copy failed'));
+            } else {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) { alert('Copy failed'); }
+                ta.remove();
+            }
+        }
+    </script>
+</body>
+</html>

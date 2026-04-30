@@ -6,8 +6,18 @@ class RemediationEngine:
         fixed = finding.get("fixed_version")
         patch_available = bool(fixed)
         mitigation = self._mitigation_for(finding)
-
+        # Avoid recommending downgrades: only recommend upgrade if fixed > current
+        from packaging.version import Version, InvalidVersion
+        recommend_upgrade = False
         if patch_available:
+            try:
+                if finding.get('version') and Version(str(fixed)) > Version(str(finding.get('version'))):
+                    recommend_upgrade = True
+            except (InvalidVersion, TypeError):
+                # If parsing fails, still recommend cautiously
+                recommend_upgrade = True
+
+        if patch_available and recommend_upgrade:
             recommendation = f"Upgrade {finding.get('package')} to {fixed}."
             status = "fixed available"
         elif mitigation:

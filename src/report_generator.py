@@ -43,7 +43,23 @@ class ReportGenerator:
 
     def generate_html_report(self) -> str:
         findings = self.scan_result.get("findings", [])
-        findings_html = "\n".join([self._finding_card_html(f) for f in findings])
+        # Sort findings by severity (critical, high, medium, low) and confidence_score desc
+        severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+        findings_sorted = sorted(
+            findings,
+            key=lambda f: (
+                severity_order.get((f.get("severity") or "unknown").lower(), 4),
+                -float(f.get("confidence_score", 0) or 0),
+            ),
+        )
+        # Assign remediation priority
+        for idx, f in enumerate(findings_sorted, 1):
+            try:
+                f["remediation_priority"] = int(f.get("remediation_priority") or idx)
+            except Exception:
+                f["remediation_priority"] = idx
+
+        findings_html = "\n".join([self._finding_card_html(f) for f in findings_sorted])
         severity = self._severity_counts(findings)
         post = self.scan_result.get("scan_health", {}).get("post_scan_system_state", {})
         discrepancy_count = self.scan_result.get("scan_health", {}).get("discrepancy_count", 0)
@@ -112,6 +128,29 @@ class ReportGenerator:
             details.style.display = hidden ? 'block' : 'none';
             btn.textContent = hidden ? 'Hide' : 'Show';
         }}
+
+        function toggleMitigation(id) {{
+            const el = document.getElementById(id + '-pre');
+            if (!el) return;
+            el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+        }}
+
+        function copyText(elemId) {{
+            const el = document.getElementById(elemId);
+            if (!el) return;
+            const text = el.innerText || el.textContent || '';
+            if (navigator.clipboard && navigator.clipboard.writeText) {{
+                navigator.clipboard.writeText(text).catch(() => alert('Copy failed'));
+            }} else {{
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                try {{ document.execCommand('copy'); }} catch (e) {{ alert('Copy failed'); }}
+                ta.remove();
+            }}
+        }}
     </script>
 </body>
 </html>
@@ -123,22 +162,44 @@ class ReportGenerator:
         nvd_link = f"https://nvd.nist.gov/vuln/detail/{quote_plus(cve_id)}" if cve_id else "#"
         mitre_link = f"https://cve.mitre.org/cgi-bin/cvename.cgi?name={quote_plus(cve_id)}" if cve_id else "#"
         refs = finding.get("references", [])
+        # Support references that may be dicts (from various sources) - extract a URL or stringify
+        def _ref_to_str(r):
+            if isinstance(r, dict):
+                return r.get("url") or r.get("reference") or json.dumps(r)
+            return str(r)
+
         refs_html = "".join(
-            [f"<li><a href=\"{html_module.escape(r)}\" target=\"_blank\" rel=\"noopener noreferrer\">{html_module.escape(r)}</a></li>" for r in refs if r]
+            [
+                f"<li><a href=\"{html_module.escape(_ref_to_str(r))}\" target=\"_blank\" rel=\"noopener noreferrer\">{html_module.escape(_ref_to_str(r))}</a></li>"
+                for r in refs
+                if r
+            ]
         )
         path = " > ".join(finding.get("dependency_path", []))
         evidence_html = "".join([f"<li>{html_module.escape(x)}</li>" for x in finding.get("evidence", [])])
         source_list = ", ".join(finding.get("advisory_sources", []))
+        mit_id = quote_plus(cve_id or finding.get('title', 'mitigation'))
 
         return f"""
 <div class=\"finding-card\">
     <div class=\"finding-header {html_module.escape((finding.get('severity') or 'unknown').lower())}\">
         <div>
             <strong>{html_module.escape(finding.get('title', 'Vulnerability'))}</strong>
-            <span class=\"badge\">{html_module.escape((finding.get('severity') or 'unknown').upper())}</span>
-            <span class=\"badge\">{html_module.escape(finding.get('confidence', 'unknown'))}</span>
-            <span class=\"badge\">{html_module.escape(finding.get('status', 'unknown'))}</span>
+                            <span class=\"badge\">PRIO {html_module.escape(str(finding.get('remediation_priority') or ''))}</span>
+                            <span class=\"badge\">{html_module.escape(str(finding.get('fix_priority') or ''))}</span>
+                            <span class=\"badge\">{html_module.escape((finding.get('severity') or 'low').upper())}</span>
+                            <span class=\"badge\">Risk {html_module.escape(str(finding.get('risk_score', 0)))}/100</span>
+                            <span class=\"badge\">{html_module.escape(finding.get('confidence', 'unknown'))}</span>
+                            <span class=\"badge\">{html_module.escape(finding.get('status', 'unknown'))}</span>
         </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: {html_module.escape(finding.get('exploitability', {}).get('impact', 'Unknown'))} | PoC: {('Yes' if finding.get('exploitability', {}).get('poc') else 'No')} | Exploit Score: {finding.get('exploitability', {}).get('exploitability_score', 0.0):.2f}
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('{mit_id}')">Show Mitigation</button>
+                <button onclick="copyText('{mit_id}-pre')">Copy Mitigation</button>
+                <pre id="{mit_id}-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{html_module.escape(json.dumps(finding.get('ai_mitigation', {}) or {}, indent=2))}</pre>
+            </div>
         <button onclick=\"toggleCard(this)\">Hide</button>
     </div>
     <div class=\"finding-details\">

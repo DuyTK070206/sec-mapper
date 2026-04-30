@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -10,32 +11,232 @@ from src.dependency_parser import ParsedDependency, ParserFactory
 from src.exploit_generator import ExploitGeneratorFactory
 from src.intelligence import IntelligencePipeline, LocalJsonAdapter, NvdKeywordAdapter, OsvAdapter
 from src.models import Finding
+from src.osv_client import OSVClient, OSVVulnerabilityConverter
 from src.remediation_engine import RemediationEngine
+from src.ai_remediation import generate_mitigation
 from src.report_generator import ReportGenerator
 from src.triage import AITriageEngine
+
+logger = logging.getLogger(__name__)
 
 
 class DependencyScanner:
     """Coordinate parsing, vulnerability intelligence, triage, remediation, and report formatting."""
 
-    def __init__(self, db_path: Optional[str] = None, nvd_api_key: Optional[str] = None, github_token: Optional[str] = None) -> None:
+    def __init__(self, db_path: Optional[str] = None, nvd_api_key: Optional[str] = None, github_token: Optional[str] = None, use_osv_direct: bool = True) -> None:
+        """
+        Initialize DependencyScanner.
+        
+        Args:
+            db_path: Path to local vuln_db.json (fallback only)
+            nvd_api_key: NVD API key (legacy)
+            github_token: GitHub token (legacy)
+            use_osv_direct: If True, use OSVClient directly for queries; if False, use IntelligencePipeline
+        """
         self.db_path = Path(db_path) if db_path else (Path(__file__).resolve().parent / "vuln_db.json")
-        enable_live = os.getenv("SEC_MAPPER_ENABLE_LIVE_INTEL", "false").lower() == "true"
-        adapters = [LocalJsonAdapter(self.db_path)]
-        if enable_live:
-            adapters.extend([OsvAdapter(), NvdKeywordAdapter(api_key=nvd_api_key)])
-        self.adapter_names = [adapter.source_name for adapter in adapters]
-        self.pipeline = IntelligencePipeline(
-            adapters=adapters,
-            cache_path=Path(__file__).resolve().parent.parent / "scan_cache" / "advisories.json",
-            rate_limit_seconds=0.25,
-            retries=1,
-        )
+        self.use_osv_direct = use_osv_direct
+        self.osv_client = None
+        
+        # Use OSV API directly (primary source)
+        if self.use_osv_direct:
+            logger.info("[INIT] Using OSV API directly for vulnerability scanning")
+            self.osv_client = OSVClient(use_cache=True)
+            self.adapter_names = ["OSV"]
+            self.pipeline = None
+        else:
+            # Fallback: Use IntelligencePipeline with multiple adapters
+            logger.info("[INIT] Using IntelligencePipeline for vulnerability scanning")
+            enable_live = os.getenv("SEC_MAPPER_ENABLE_LIVE_INTEL", "false").lower() == "true"
+            adapters = [LocalJsonAdapter(self.db_path)]
+            if enable_live:
+                adapters.extend([OsvAdapter(), NvdKeywordAdapter(api_key=nvd_api_key)])
+            self.adapter_names = [adapter.source_name for adapter in adapters]
+            self.pipeline = IntelligencePipeline(
+                adapters=adapters,
+                cache_path=Path(__file__).resolve().parent.parent / "scan_cache" / "advisories.json",
+                rate_limit_seconds=0.25,
+                retries=1,
+            )
+        
         self.triage = AITriageEngine()
         self.remediation = RemediationEngine()
 
     def scan_file(self, manifest_path: Path, lock_path: Optional[Path] = None) -> Dict:
         dependencies = self._load_dependencies(manifest_path, lock_path)
+        findings: List[Dict] = []
+        discrepancies: List[Dict] = []
+
+        if self.use_osv_direct:
+            # Direct OSV API scanning
+            findings, discrepancies = self._scan_with_osv_direct(dependencies)
+        else:
+            # IntelligencePipeline scanning (legacy)
+            findings, discrepancies = self._scan_with_pipeline(dependencies)
+
+        findings = self.triage.cluster_duplicates(findings)
+        findings = self._sort_findings(findings)
+
+        total_direct, total_transitive = self._dependency_counts(dependencies)
+        scan_health = {
+            "sources_checked": self.adapter_names,
+            "discrepancies": discrepancies,
+            "discrepancy_count": len(discrepancies),
+            "false_positive_controls": [
+                "cross-source reconciliation",
+                "confidence scoring",
+                "evidence-backed triage",
+                "deduplication",
+            ],
+            "post_scan_system_state": self.remediation.system_state(findings),
+        }
+
+        return {
+            "project_name": manifest_path.stem,
+            "scan_time": datetime.utcnow().isoformat() + "Z",
+            "total_dependencies": len(dependencies),
+            "direct_dependencies": total_direct,
+            "transitive_dependencies": total_transitive,
+            "findings": findings,
+            "risk_score": self._calculate_overall_risk_score(findings),
+            "scan_health": scan_health,
+            "scan_targets": [
+                {
+                    "manifest_path": str(manifest_path),
+                    "lock_path": str(lock_path) if lock_path else None,
+                    "uploaded_filenames": [manifest_path.name] + ([lock_path.name] if lock_path else []),
+                }
+            ],
+        }
+
+    def _scan_with_osv_direct(self, dependencies: List[ParsedDependency]) -> Tuple[List[Dict], List[Dict]]:
+        """Scan dependencies using OSV API directly."""
+        findings: List[Dict] = []
+        
+        for dep in dependencies:
+            logger.debug(f"[OSV-SCAN] Scanning {dep.name}@{dep.version} ({dep.ecosystem})")
+            
+            # Query OSV API
+            osv_vulns = self.osv_client.query(dep.name, dep.ecosystem, dep.version)
+            
+            for osv_vuln in osv_vulns:
+                # Convert OSV format to internal format
+                converted = OSVVulnerabilityConverter.convert(
+                    osv_vuln, dep.name, dep.ecosystem, dep.version
+                )
+                
+                # Verify the vulnerability actually affects this version
+                if not self._matches(converted['affected_versions'], dep.version, dep.ecosystem):
+                    logger.debug(f"[SKIP-VERSION] {dep.name}@{dep.version} not in affected range")
+                    continue
+                
+                # Skip if already fixed
+                if converted['fixed_version']:
+                    try:
+                        if Version(converted['fixed_version']) <= Version(dep.version):
+                            logger.debug(f"[SKIP-FIXED] {dep.name}@{dep.version} already fixed in {converted['fixed_version']}")
+                            continue
+                    except (InvalidVersion, TypeError):
+                        pass
+                
+                # Skip very old CVEs
+                vuln_id = converted['vulnerability_id']
+                if vuln_id.startswith("CVE-1999") or vuln_id.startswith("CVE-2000"):
+                    logger.debug(f"[SKIP-OLD] Skipping very old CVE: {vuln_id}")
+                    continue
+                
+                # Calculate confidence
+                confidence, score, evidence = self._confidence_for_osv(dep, converted, "osv")
+
+                # Analyze exploitability
+                exploit_info = self._analyze_exploitability(converted)
+                
+                # Infer vulnerability type
+                vuln_type = self._infer_vuln_type_from_advisory(converted)
+                
+                # Generate PoC if available
+                generator = ExploitGeneratorFactory.get_generator(
+                    {
+                        "cve_id": vuln_id,
+                        "description": converted['description'],
+                        "cwe_ids": converted.get('cwe', []),
+                    }
+                )
+                poc = generator.generate_poc({"cve_id": vuln_id}) if generator else None
+                
+                # Create finding
+                finding = Finding(
+                    title=converted['title'] or vuln_id,
+                    package=dep.name,
+                    ecosystem=dep.ecosystem,
+                    version=dep.version,
+                    fixed_version=converted['fixed_version'],
+                    severity=(converted.get('severity') or 'low').lower(),
+                    confidence=confidence,
+                    confidence_score=score,
+                    vulnerability_id=vuln_id,
+                    vulnerability_type=vuln_type,
+                    dependency_path=self._dependency_path(dep),
+                    root_cause=converted['description'],
+                    evidence=evidence,
+                    patch_available=converted.get('has_patch', False),
+                    mitigation_available=False,
+                    remediation_recommendation="",
+                    status="vulnerable",
+                    source=dep.source,
+                    transitive=dep.is_transitive,
+                    references=converted.get('references', []),
+                    advisory_sources=["OSV"],
+                    cwe=converted.get('cwe', []),
+                    risk_score=self._calculate_finding_risk_score(
+                        converted.get('severity', 'unknown'),
+                        score,
+                        converted.get('has_patch', False),
+                        dep.is_transitive,
+                        exploit_info.get('exploitability_score', 0.0),
+                    ),
+                ).to_dict()
+                
+                if poc:
+                    finding["poc"] = poc
+                # Attach exploit analysis
+                finding["exploitability"] = exploit_info
+
+                # Assign priority label
+                finding_sev = (finding.get('severity') or 'unknown').lower()
+                finding_exploitable = exploit_info.get('exploitable', False)
+                if finding_sev == 'critical' and finding_exploitable and not finding.get('transitive'):
+                    finding['fix_priority'] = 'P0'
+                elif finding_sev == 'high' and finding_exploitable:
+                    finding['fix_priority'] = 'P1'
+                elif finding_sev in {'medium'} or not finding_exploitable:
+                    finding['fix_priority'] = 'P2'
+                else:
+                    finding['fix_priority'] = 'P3'
+                
+                # Apply remediation recommendations
+                rem = self.remediation.recommend(finding)
+                finding["patch_available"] = rem["patch_available"]
+                finding["mitigation_available"] = rem["mitigation_available"]
+                finding["remediation_recommendation"] = rem["recommendation"]
+                finding["status"] = rem["status"]
+
+                # If no patch is available, call AI remediation helper (cached) to provide mitigation suggestions
+                try:
+                    if not finding.get("patch_available"):
+                        ai_result = generate_mitigation(finding)
+                        finding["ai_mitigation"] = ai_result
+                        # If AI provided a config_example or explicit recommendation, prefer it for remediation display
+                        if ai_result and ai_result.get("mitigation_steps"):
+                            finding["remediation_recommendation"] = ai_result.get("summary") or finding["remediation_recommendation"]
+                except Exception as e:
+                    logger.debug(f"[AI-INTEGRATION-ERROR] {e}")
+                
+                findings.append(self.triage.enrich(finding))
+        
+        return findings, []
+
+    def _scan_with_pipeline(self, dependencies: List[ParsedDependency]) -> Tuple[List[Dict], List[Dict]]:
+        """Scan dependencies using IntelligencePipeline (legacy)."""
         findings: List[Dict] = []
         discrepancies: List[Dict] = []
 
@@ -80,7 +281,7 @@ class DependencyScanner:
                         ecosystem=dep.ecosystem,
                         version=dep.version,
                         fixed_version=advisory.fixed_version,
-                        severity=(advisory.severity or "unknown").lower(),
+                        severity=(advisory.severity or "low").lower(),
                         confidence=confidence,
                         confidence_score=score,
                         vulnerability_id=vuln_id,
@@ -108,41 +309,9 @@ class DependencyScanner:
                     finding["remediation_recommendation"] = rem["recommendation"]
                     finding["status"] = rem["status"]
                     findings.append(self.triage.enrich(finding))
+        
+        return findings, discrepancies
 
-        findings = self.triage.cluster_duplicates(findings)
-        findings = self._sort_findings(findings)
-
-        total_direct, total_transitive = self._dependency_counts(dependencies)
-        scan_health = {
-            "sources_checked": self.adapter_names,
-            "discrepancies": discrepancies,
-            "discrepancy_count": len(discrepancies),
-            "false_positive_controls": [
-                "cross-source reconciliation",
-                "confidence scoring",
-                "evidence-backed triage",
-                "deduplication",
-            ],
-            "post_scan_system_state": self.remediation.system_state(findings),
-        }
-
-        return {
-            "project_name": manifest_path.stem,
-            "scan_time": datetime.utcnow().isoformat() + "Z",
-            "total_dependencies": len(dependencies),
-            "direct_dependencies": total_direct,
-            "transitive_dependencies": total_transitive,
-            "findings": findings,
-            "risk_score": self._calculate_overall_risk_score(findings),
-            "scan_health": scan_health,
-            "scan_targets": [
-                {
-                    "manifest_path": str(manifest_path),
-                    "lock_path": str(lock_path) if lock_path else None,
-                    "uploaded_filenames": [manifest_path.name] + ([lock_path.name] if lock_path else []),
-                }
-            ],
-        }
 
     def scan_targets(self, targets: List[Dict]) -> Dict:
         if not targets:
@@ -336,6 +505,120 @@ class DependencyScanner:
             return advisory.cwe[0]
         return "Dependency Vulnerability"
 
+    def _infer_vuln_type_from_advisory(self, advisory_dict: Dict) -> str:
+        """Infer vulnerability type from OSV advisory dict."""
+        text = f"{advisory_dict.get('title', '')} {advisory_dict.get('description', '')}".lower()
+        if "injection" in text:
+            return "Injection"
+        if "deserial" in text:
+            return "Insecure Deserialization"
+        if "execution" in text or "rce" in text:
+            return "Code Execution"
+        if "xss" in text:
+            return "Cross-Site Scripting"
+        if advisory_dict.get('cwe'):
+            return advisory_dict['cwe'][0]
+        return "Dependency Vulnerability"
+
+    def _confidence_for_osv(self, dep: ParsedDependency, advisory_dict: Dict, source_name: str = "osv") -> Tuple[str, float, List[str]]:
+        """Calculate confidence score for OSV-based advisory."""
+        evidence: List[str] = []
+        score = 0.35
+
+        if dep.version and self._is_exact_version(dep.version.lstrip("=")):
+            score += 0.25
+            evidence.append("Exact version observed in manifest/lock data")
+        else:
+            evidence.append("Version range matched; exact resolved version unavailable")
+
+        if source_name in {"osv", "nvd"}:
+            score += 0.2
+            evidence.append(f"Advisory backed by {source_name.upper()}")
+        elif source_name == "local-db":
+            score += 0.1
+            evidence.append("Matched local advisory database")
+
+        if dep.is_transitive:
+            evidence.append("Transitive dependency path present")
+            score += 0.05
+
+        if advisory_dict.get('fixed_version'):
+            score += 0.1
+            evidence.append(f"Fixed version available: {advisory_dict['fixed_version']}")
+        else:
+            evidence.append("No fixed version from this source")
+
+        score = max(0.0, min(score, 0.99))
+        if score >= 0.8:
+            label = "exact version match"
+        elif score >= 0.6:
+            label = "advisory-backed match"
+        elif score >= 0.45:
+            label = "heuristic match"
+        else:
+            label = "uncertain match requiring review"
+        return label, score, evidence
+
+    def _analyze_exploitability(self, advisory: Dict) -> Dict:
+        """Basic exploitability analysis using advisory metadata and references.
+
+        Returns a dict with:
+        - exploitable: bool
+        - poc: bool
+        - requires_user_input: bool
+        - requires_auth: bool
+        - impact: str (RCE, PrivEsc, Information Disclosure, Unknown)
+        - exploitability_score: float (0.0-1.0)
+        """
+        text = (advisory.get('title', '') + ' ' + advisory.get('description', '')).lower()
+        refs = advisory.get('references', []) or []
+        poc = False
+        requires_user_input = False
+        requires_auth = False
+        impact = 'Unknown'
+        score = 0.0
+
+        # Heuristics from text
+        if 'proof-of-concept' in text or 'proof of concept' in text or 'poc' in text:
+            poc = True
+            score += 0.4
+        if 'exploit' in text or 'exploit-db' in text or 'exploit available' in text:
+            poc = True
+            score += 0.35
+        if 'rce' in text or 'remote code execution' in text or 'remote code execution' in text:
+            impact = 'RCE'
+            score += 0.3
+        if 'privilege escalation' in text or 'priv esc' in text:
+            impact = 'PrivEsc'
+            score += 0.25
+        if 'authentication' in text or 'auth' in text:
+            requires_auth = True
+            score -= 0.1
+        if 'user interaction' in text or 'requires user interaction' in text or 'click' in text:
+            requires_user_input = True
+            score -= 0.1
+
+        # Inspect references for known PoC sources
+        for r in refs:
+            rr = r if isinstance(r, str) else json.dumps(r)
+            rl = rr.lower()
+            if 'exploit-db' in rl or 'proof-of-concept' in rl or '/poc' in rl or 'github.com' in rl and 'poc' in rl:
+                poc = True
+                score += 0.3
+
+        score = max(0.0, min(1.0, score))
+        exploitable = poc or (score >= 0.5)
+
+        return {
+            'exploitable': bool(exploitable),
+            'poc': bool(poc),
+            'requires_user_input': bool(requires_user_input),
+            'requires_auth': bool(requires_auth),
+            'impact': impact,
+            'exploitability_score': float(score),
+        }
+
+
     def _confidence_for(self, dep: ParsedDependency, advisory, source_name: str) -> Tuple[str, float, List[str]]:
         evidence: List[str] = []
         score = 0.35
@@ -374,24 +657,35 @@ class DependencyScanner:
             label = "uncertain match requiring review"
         return label, score, evidence
 
-    def _calculate_finding_risk_score(self, severity: str, confidence_score: float, patch_available: bool, is_transitive: bool) -> int:
-        """Calculate risk score for individual finding based on severity, confidence, patch status, and dependency type."""
+    def _calculate_finding_risk_score(self, severity: str, confidence_score: float, patch_available: bool, is_transitive: bool, exploitability_score: float = 0.0) -> int:
+        """Calculate risk score for individual finding.
+
+        Factors: severity, confidence_score (0-1), patch_available (bool), is_transitive (bool), exploitability_score (0-1).
+        Returns an integer 0-100.
+        """
         severity_scores = {"critical": 100, "high": 80, "medium": 60, "low": 40, "unknown": 50}
-        base_score = severity_scores.get(severity.lower(), 50)
-        
-        # Adjust for confidence (0-1 scale)
-        confidence_multiplier = 0.5 + (confidence_score * 0.5)  # 0.5 to 1.0
+        base_score = severity_scores.get((severity or "").lower(), 50)
+
+        # Confidence amplifies base severity (0.5x to 1.0x)
+        confidence_multiplier = 0.5 + (float(confidence_score or 0.0) * 0.5)
         score = base_score * confidence_multiplier
-        
+
+        # Exploitability increases score (0-1 adds up to +30%)
+        try:
+            exploit_boost = float(exploitability_score or 0.0) * 0.3
+        except Exception:
+            exploit_boost = 0.0
+        score = score * (1.0 + exploit_boost)
+
         # Reduce if patch available
         if patch_available:
             score *= 0.8
-        
+
         # Reduce for transitive dependencies
         if is_transitive:
             score *= 0.9
-        
-        return int(min(100, max(0, score)))
+
+        return int(min(100, max(0, round(score))))
 
     def _sort_findings(self, findings: List[Dict]) -> List[Dict]:
         severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3, "unknown": 4}

@@ -1,0 +1,22 @@
+{
+  "CVE-2011-4140": {
+    "summary": "No automated mitigation available; apply default containment.",
+    "mitigation_steps": [
+      "Sanitize and validate inputs to reduce exploit surface",
+      "Disable or restrict the vulnerable feature if configurable",
+      "Restrict network access and apply least-privilege ACLs"
+    ],
+    "config_example": "# Example: restrict access via firewall or feature flag\nfirewall_rule: deny from untrusted\nfeature_x_enabled: false",
+    "risk_if_not_fixed": "Continued exposure may lead to compromise; prioritize investigation and temporary isolation."
+  },
+  "CVE-2019-6446": {
+    "summary": "No automated mitigation available; apply default containment.",
+    "mitigation_steps": [
+      "Sanitize and validate inputs to reduce exploit surface",
+      "Disable or restrict the vulnerable feature if configurable",
+      "Restrict network access and apply least-privilege ACLs"
+    ],
+    "config_example": "# Example: restrict access via firewall or feature flag\nfirewall_rule: deny from untrusted\nfeature_x_enabled: false",
+    "risk_if_not_fixed": "Continued exposure may lead to compromise; prioritize investigation and temporary isolation."
+  }
+}

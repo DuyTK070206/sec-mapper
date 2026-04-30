@@ -31,14 +31,14 @@
     <div class="container">
         <h1>Dependency Vulnerability Report</h1>
         <p><strong>Project:</strong> package</p>
-        <p><strong>Scan Time:</strong> 2026-04-30T00:50:53.331143Z</p>
-        <p><strong>Risk Score:</strong> 54/100</p>
+        <p><strong>Scan Time:</strong> 2026-04-30T09:11:03.199610Z</p>
+        <p><strong>Risk Score:</strong> 35/100</p>
 
         <div class="summary">
             <div class="card"><div class="label">Critical</div><div class="value">0</div></div>
-            <div class="card"><div class="label">High</div><div class="value">2</div></div>
+            <div class="card"><div class="label">High</div><div class="value">0</div></div>
             <div class="card"><div class="label">Medium</div><div class="value">1</div></div>
-            <div class="card"><div class="label">Low</div><div class="value">0</div></div>
+            <div class="card"><div class="label">Low</div><div class="value">2</div></div>
             <div class="card"><div class="label">Discrepancies</div><div class="value">0</div></div>
         </div>
 
@@ -46,7 +46,7 @@
         <div class="grid">
             <div class="kv"><div class="label">Vulnerable Right Now</div><div class="value">3</div></div>
             <div class="kv"><div class="label">Known Fix Available</div><div class="value">3</div></div>
-            <div class="kv"><div class="label">Needs Immediate Upgrade</div><div class="value">2</div></div>
+            <div class="kv"><div class="label">Needs Immediate Upgrade</div><div class="value">0</div></div>
             <div class="kv"><div class="label">Temporary Mitigation</div><div class="value">0</div></div>
             <div class="kv"><div class="label">Uncertain</div><div class="value">0</div></div>
         </div>
@@ -54,49 +54,118 @@
         <h2 class="section-title">Findings</h2>
         
 <div class="finding-card">
-    <div class="finding-header high">
+    <div class="finding-header medium">
         <div>
-            <strong>CVE-2021-33901</strong>
-            <span class="badge">HIGH</span>
-            <span class="badge">exact version match</span>
-            <span class="badge">fixed available</span>
+            <strong>follow-redirects leaks Custom Authentication Headers to Cross-Domain Redirect Targets</strong>
+                            <span class="badge">PRIO 1</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">MEDIUM</span>
+                            <span class="badge">Risk 46/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
         </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('GHSA-r4q5-vmmm-2653')">Show Mitigation</button>
+                <button onclick="copyText('GHSA-r4q5-vmmm-2653-pre')">Copy Mitigation</button>
+                <pre id="GHSA-r4q5-vmmm-2653-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
         <button onclick="toggleCard(this)">Hide</button>
     </div>
     <div class="finding-details">
         <div class="grid">
             <div class="kv"><div class="label">Package</div><div class="value mono">follow-redirects</div></div>
             <div class="kv"><div class="label">Ecosystem</div><div class="value">npm</div></div>
-            <div class="kv"><div class="label">Current Version</div><div class="value mono">1.10.0</div></div>
-            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">1.14.0</div></div>
-            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2021-33901</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">1.13.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">1.16.0</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">GHSA-r4q5-vmmm-2653</div></div>
             <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
-            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.85</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
             <div class="kv"><div class="label">Dependency Path</div><div class="value mono">follow-redirects</div></div>
             <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
             <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
-            <div class="kv"><div class="label">Provenance</div><div class="value">local-db</div></div>
-            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade follow-redirects to 1.14.0.</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade follow-redirects to 1.16.0.</div></div>
         </div>
 
-        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">follow-redirects dependency contains prototype pollution vulnerability.</div></div>
-        <div class="kv"><div class="label">Evidence</div><ul><li>Exact version observed in manifest/lock data</li><li>Matched local advisory database</li><li>Transitive dependency path present</li><li>Fixed version available: 1.14.0</li></ul></div>
-        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-33901" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2021-33901</a></li></ul>
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">follow-redirects leaks Custom Authentication Headers to Cross-Domain Redirect Targets</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 1.14.7</li><li>Fixed version available: 1.14.8</li><li>Fixed version available: 1.15.4</li><li>Fixed version available: 1.15.6</li><li>Fixed version available: 1.16.0</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://github.com/follow-redirects/follow-redirects/security/advisories/GHSA-r4q5-vmmm-2653" target="_blank" rel="noopener noreferrer">https://github.com/follow-redirects/follow-redirects/security/advisories/GHSA-r4q5-vmmm-2653</a></li><li><a href="https://github.com/follow-redirects/follow-redirects/commit/844c4d302ac963d29bdb5dc1754ec7df3d70d7f9" target="_blank" rel="noopener noreferrer">https://github.com/follow-redirects/follow-redirects/commit/844c4d302ac963d29bdb5dc1754ec7df3d70d7f9</a></li><li><a href="https://github.com/follow-redirects/follow-redirects" target="_blank" rel="noopener noreferrer">https://github.com/follow-redirects/follow-redirects</a></li></ul>
             <div class="value">Additional Reference</div>
-            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-33901" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-33901" target="_blank">MITRE</a></div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/GHSA-r4q5-vmmm-2653" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=GHSA-r4q5-vmmm-2653" target="_blank">MITRE</a></div>
         </div>
     </div>
 </div>
 
 
 <div class="finding-card">
-    <div class="finding-header high">
+    <div class="finding-header low">
         <div>
-            <strong>CVE-2021-23337</strong>
-            <span class="badge">HIGH</span>
-            <span class="badge">advisory-backed match</span>
-            <span class="badge">fixed available</span>
+            <strong>Denial of Service in axios</strong>
+                            <span class="badge">PRIO 2</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 30/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
         </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2019-10742')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2019-10742-pre')">Copy Mitigation</button>
+                <pre id="CVE-2019-10742-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
+        <button onclick="toggleCard(this)">Hide</button>
+    </div>
+    <div class="finding-details">
+        <div class="grid">
+            <div class="kv"><div class="label">Package</div><div class="value mono">axios</div></div>
+            <div class="kv"><div class="label">Ecosystem</div><div class="value">npm</div></div>
+            <div class="kv"><div class="label">Current Version</div><div class="value mono">0.1.0</div></div>
+            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">0.18.1</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2019-10742</div></div>
+            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
+            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">axios</div></div>
+            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
+            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade axios to 0.18.1.</div></div>
+        </div>
+
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Denial of Service in axios</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 0.18.1</li><li>Fixed version available: 0.21.1</li><li>Fixed version available: 0.21.2</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2019-10742" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2019-10742</a></li><li><a href="https://github.com/axios/axios/issues/1098" target="_blank" rel="noopener noreferrer">https://github.com/axios/axios/issues/1098</a></li><li><a href="https://github.com/axios/axios/pull/1485" target="_blank" rel="noopener noreferrer">https://github.com/axios/axios/pull/1485</a></li><li><a href="https://github.com/axios/axios/commit/acabfbdf00a58bb866c9d070e8a10d1d0dbeb572" target="_blank" rel="noopener noreferrer">https://github.com/axios/axios/commit/acabfbdf00a58bb866c9d070e8a10d1d0dbeb572</a></li><li><a href="https://app.snyk.io/vuln/SNYK-JS-AXIOS-174505" target="_blank" rel="noopener noreferrer">https://app.snyk.io/vuln/SNYK-JS-AXIOS-174505</a></li><li><a href="https://snyk.io/vuln/SNYK-JS-AXIOS-174505" target="_blank" rel="noopener noreferrer">https://snyk.io/vuln/SNYK-JS-AXIOS-174505</a></li><li><a href="https://www.npmjs.com/advisories/880" target="_blank" rel="noopener noreferrer">https://www.npmjs.com/advisories/880</a></li></ul>
+            <div class="value">Additional Reference</div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2019-10742" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10742" target="_blank">MITRE</a></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="finding-card">
+    <div class="finding-header low">
+        <div>
+            <strong>Regular Expression Denial of Service (ReDoS) in lodash</strong>
+                            <span class="badge">PRIO 3</span>
+                            <span class="badge">P2</span>
+                            <span class="badge">LOW</span>
+                            <span class="badge">Risk 30/100</span>
+                            <span class="badge">exact version match</span>
+                            <span class="badge">fixed available</span>
+        </div>
+        <div class="exploit-summary" style="font-size:12px; color:#374151; margin-top:6px;">
+            Exploit: Unknown | PoC: No | Exploit Score: 0.00
+        </div>
+            <div class="mitigation-controls" style="margin-left:8px;">
+                <button onclick="toggleMitigation('CVE-2020-28500')">Show Mitigation</button>
+                <button onclick="copyText('CVE-2020-28500-pre')">Copy Mitigation</button>
+                <pre id="CVE-2020-28500-pre" style="display:none; background:#f8fafc; padding:8px; border-radius:6px; overflow:auto; max-height:240px;">{}</pre>
+            </div>
         <button onclick="toggleCard(this)">Hide</button>
     </div>
     <div class="finding-details">
@@ -105,57 +174,21 @@
             <div class="kv"><div class="label">Ecosystem</div><div class="value">npm</div></div>
             <div class="kv"><div class="label">Current Version</div><div class="value mono">4.17.20</div></div>
             <div class="kv"><div class="label">Fixed Version</div><div class="value mono">4.17.21</div></div>
-            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2021-23337</div></div>
+            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">CVE-2020-28500</div></div>
             <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
-            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.80</div></div>
+            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.90</div></div>
             <div class="kv"><div class="label">Dependency Path</div><div class="value mono">lodash</div></div>
             <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
             <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
-            <div class="kv"><div class="label">Provenance</div><div class="value">local-db</div></div>
+            <div class="kv"><div class="label">Provenance</div><div class="value">OSV</div></div>
             <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade lodash to 4.17.21.</div></div>
         </div>
 
-        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Prototype pollution in lodash before 4.17.21.</div></div>
-        <div class="kv"><div class="label">Evidence</div><ul><li>Exact version observed in manifest/lock data</li><li>Matched local advisory database</li><li>Fixed version available: 4.17.21</li></ul></div>
-        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-23337" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2021-23337</a></li></ul>
+        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Regular Expression Denial of Service (ReDoS) in lodash</div></div>
+        <div class="kv"><div class="label">Evidence</div><ul><li>Advisory backed by OSV</li><li>Exact version observed in manifest/lock data</li><li>Fixed version available: 4.17.21</li><li>Fixed version available: 4.17.23</li><li>Fixed version available: 4.18.0</li></ul></div>
+        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-28500" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2020-28500</a></li><li><a href="https://github.com/github/advisory-database/pull/6139" target="_blank" rel="noopener noreferrer">https://github.com/github/advisory-database/pull/6139</a></li><li><a href="https://github.com/lodash/lodash/pull/5065" target="_blank" rel="noopener noreferrer">https://github.com/lodash/lodash/pull/5065</a></li><li><a href="https://github.com/lodash/lodash/pull/5065/commits/02906b8191d3c100c193fe6f7b27d1c40f200bb7" target="_blank" rel="noopener noreferrer">https://github.com/lodash/lodash/pull/5065/commits/02906b8191d3c100c193fe6f7b27d1c40f200bb7</a></li><li><a href="https://github.com/lodash/lodash/commit/c4847ebe7d14540bb28a8b932a9ce1b9ecbfee1a" target="_blank" rel="noopener noreferrer">https://github.com/lodash/lodash/commit/c4847ebe7d14540bb28a8b932a9ce1b9ecbfee1a</a></li><li><a href="https://www.oracle.com/security-alerts/cpuoct2021.html" target="_blank" rel="noopener noreferrer">https://www.oracle.com/security-alerts/cpuoct2021.html</a></li><li><a href="https://www.oracle.com/security-alerts/cpujul2022.html" target="_blank" rel="noopener noreferrer">https://www.oracle.com/security-alerts/cpujul2022.html</a></li><li><a href="https://www.oracle.com/security-alerts/cpujan2022.html" target="_blank" rel="noopener noreferrer">https://www.oracle.com/security-alerts/cpujan2022.html</a></li><li><a href="https://www.oracle.com//security-alerts/cpujul2021.html" target="_blank" rel="noopener noreferrer">https://www.oracle.com//security-alerts/cpujul2021.html</a></li><li><a href="https://snyk.io/vuln/SNYK-JS-LODASH-1018905" target="_blank" rel="noopener noreferrer">https://snyk.io/vuln/SNYK-JS-LODASH-1018905</a></li><li><a href="https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-1074893" target="_blank" rel="noopener noreferrer">https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-1074893</a></li><li><a href="https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSBOWERGITHUBLODASH-1074895" target="_blank" rel="noopener noreferrer">https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSBOWERGITHUBLODASH-1074895</a></li><li><a href="https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSBOWER-1074892" target="_blank" rel="noopener noreferrer">https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSBOWER-1074892</a></li><li><a href="https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARS-1074894" target="_blank" rel="noopener noreferrer">https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARS-1074894</a></li><li><a href="https://snyk.io/vuln/SNYK-JAVA-ORGFUJIONWEBJARS-1074896" target="_blank" rel="noopener noreferrer">https://snyk.io/vuln/SNYK-JAVA-ORGFUJIONWEBJARS-1074896</a></li><li><a href="https://security.netapp.com/advisory/ntap-20210312-0006" target="_blank" rel="noopener noreferrer">https://security.netapp.com/advisory/ntap-20210312-0006</a></li><li><a href="https://github.com/rubysec/ruby-advisory-db/blob/master/gems/lodash-rails/CVE-2020-28500.yml" target="_blank" rel="noopener noreferrer">https://github.com/rubysec/ruby-advisory-db/blob/master/gems/lodash-rails/CVE-2020-28500.yml</a></li><li><a href="https://github.com/lodash/lodash/blob/npm/trimEnd.js%23L8" target="_blank" rel="noopener noreferrer">https://github.com/lodash/lodash/blob/npm/trimEnd.js%23L8</a></li><li><a href="https://github.com/lodash/lodash" target="_blank" rel="noopener noreferrer">https://github.com/lodash/lodash</a></li><li><a href="https://cert-portal.siemens.com/productcert/pdf/ssa-637483.pdf" target="_blank" rel="noopener noreferrer">https://cert-portal.siemens.com/productcert/pdf/ssa-637483.pdf</a></li></ul>
             <div class="value">Additional Reference</div>
-            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-23337" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-23337" target="_blank">MITRE</a></div>
-        </div>
-    </div>
-</div>
-
-
-<div class="finding-card">
-    <div class="finding-header medium">
-        <div>
-            <strong>GHSA-95c9-f9f2-q643</strong>
-            <span class="badge">MEDIUM</span>
-            <span class="badge">advisory-backed match</span>
-            <span class="badge">fixed available</span>
-        </div>
-        <button onclick="toggleCard(this)">Hide</button>
-    </div>
-    <div class="finding-details">
-        <div class="grid">
-            <div class="kv"><div class="label">Package</div><div class="value mono">axios</div></div>
-            <div class="kv"><div class="label">Ecosystem</div><div class="value">npm</div></div>
-            <div class="kv"><div class="label">Current Version</div><div class="value mono">0.1.0</div></div>
-            <div class="kv"><div class="label">Fixed Version</div><div class="value mono">0.21.1</div></div>
-            <div class="kv"><div class="label">Vulnerability ID</div><div class="value mono">GHSA-95c9-f9f2-q643</div></div>
-            <div class="kv"><div class="label">Vulnerability Type</div><div class="value">Dependency Vulnerability</div></div>
-            <div class="kv"><div class="label">Confidence Score</div><div class="value">0.80</div></div>
-            <div class="kv"><div class="label">Dependency Path</div><div class="value mono">axios</div></div>
-            <div class="kv"><div class="label">Patch Availability</div><div class="value">Yes</div></div>
-            <div class="kv"><div class="label">Mitigation Availability</div><div class="value">Yes</div></div>
-            <div class="kv"><div class="label">Provenance</div><div class="value">local-db</div></div>
-            <div class="kv"><div class="label">Recommendation</div><div class="value">Upgrade axios to 0.21.1.</div></div>
-        </div>
-
-        <div class="kv"><div class="label">Root Cause Explanation</div><div class="value">Axios vulnerable to data exposure via URL parameters in server-side requests.</div></div>
-        <div class="kv"><div class="label">Evidence</div><ul><li>Exact version observed in manifest/lock data</li><li>Matched local advisory database</li><li>Fixed version available: 0.21.1</li></ul></div>
-        <div class="kv"><div class="label">References</div><ul><li><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-41773" target="_blank" rel="noopener noreferrer">https://nvd.nist.gov/vuln/detail/CVE-2021-41773</a></li></ul>
-            <div class="value">Additional Reference</div>
-            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/GHSA-95c9-f9f2-q643" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=GHSA-95c9-f9f2-q643" target="_blank">MITRE</a></div>
+            <div class="value"><a href="https://nvd.nist.gov/vuln/detail/CVE-2020-28500" target="_blank">NVD</a> | <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-28500" target="_blank">MITRE</a></div>
         </div>
     </div>
 </div>
@@ -168,6 +201,29 @@
             const hidden = details.style.display === 'none';
             details.style.display = hidden ? 'block' : 'none';
             btn.textContent = hidden ? 'Hide' : 'Show';
+        }
+
+        function toggleMitigation(id) {
+            const el = document.getElementById(id + '-pre');
+            if (!el) return;
+            el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+        }
+
+        function copyText(elemId) {
+            const el = document.getElementById(elemId);
+            if (!el) return;
+            const text = el.innerText || el.textContent || '';
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).catch(() => alert('Copy failed'));
+            } else {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) { alert('Copy failed'); }
+                ta.remove();
+            }
         }
     </script>
 </body>

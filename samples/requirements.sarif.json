@@ -1,0 +1,841 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Sec Mapper",
+          "version": "2.0.0",
+          "informationUri": "https://github.com/sec-mapper",
+          "rules": [
+            {
+              "id": "CVE-2026-26007",
+              "name": "cryptography Vulnerable to a Subgroup Attack Due to Missing Subgroup Validation for SECT Curves",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": "cryptography Vulnerable to a Subgroup Attack Due to Missing Subgroup Validation for SECT Curves"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "medium"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2026-27205",
+              "name": "Flask session does not add `Vary: Cookie` header when accessed in some ways",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": "Flask session does not add `Vary: Cookie` header when accessed in some ways"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "medium"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2025-27516",
+              "name": "Jinja2 vulnerable to sandbox breakout through attr filter selecting format method",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": "Jinja2 vulnerable to sandbox breakout through attr filter selecting format method"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "medium"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2014-1830",
+              "name": "Exposure of Sensitive Information to an Unauthorized Actor in Requests",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": "Exposure of Sensitive Information to an Unauthorized Actor in Requests"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "medium"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2026-27199",
+              "name": " Werkzeug safe_join() allows Windows special device names",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": " Werkzeug safe_join() allows Windows special device names"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "medium"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2011-4140",
+              "name": "Django Cross-Site Request Forgery vulnerability",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": "Django Cross-Site Request Forgery vulnerability"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "low"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2020-25626",
+              "name": "Cross-site Scripting (XSS) in Django REST Framework",
+              "shortDescription": {
+                "text": "Cross-Site Scripting"
+              },
+              "fullDescription": {
+                "text": "Cross-site Scripting (XSS) in Django REST Framework"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "low"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2024-24762",
+              "name": "CVE-2024-24762",
+              "shortDescription": {
+                "text": "Code Execution"
+              },
+              "fullDescription": {
+                "text": "FastAPI is a web framework for building APIs with Python 3.8+ based on standard Python type hints. When using form data, `python-multipart` uses a Regular Expression to parse the HTTP `Content-Type` header, including options. An attacker could send a custom-made `Content-Type` option that is very difficult for the RegEx to process, consuming CPU resources and stalling indefinitely (minutes or more) while holding the main event loop. This means that process can't handle any more requests. It's a ReDoS(Regular expression Denial of Service), it only applies to those reading form data, using `python-multipart`. This vulnerability has been patched in version 0.109.1."
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "low"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2019-6446",
+              "name": "Numpy Deserialization of Untrusted Data",
+              "shortDescription": {
+                "text": "Insecure Deserialization"
+              },
+              "fullDescription": {
+                "text": "Numpy Deserialization of Untrusted Data"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "low"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2021-27922",
+              "name": "Pillow Uncontrolled Resource Consumption",
+              "shortDescription": {
+                "text": "Code Execution"
+              },
+              "fullDescription": {
+                "text": "Pillow Uncontrolled Resource Consumption"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "low"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2020-14343",
+              "name": "Improper Input Validation in PyYAML",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": "Improper Input Validation in PyYAML"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "low"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2013-4251",
+              "name": "SciPy creates insecure temporary directories",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": "SciPy creates insecure temporary directories"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "low"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2019-7548",
+              "name": "SQLAlchemy is vulnerable to SQL Injection via group_by parameter ",
+              "shortDescription": {
+                "text": "Injection"
+              },
+              "fullDescription": {
+                "text": "SQLAlchemy is vulnerable to SQL Injection via group_by parameter "
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "low"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2023-45803",
+              "name": "CVE-2023-45803",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": "urllib3 is a user-friendly HTTP client library for Python. urllib3 previously wouldn't remove the HTTP request body when an HTTP redirect response using status 301, 302, or 303 after the request had its method changed from one that could accept a request body (like `POST`) to `GET` as is required by HTTP RFCs. Although this behavior is not specified in the section for redirects, it can be inferred by piecing together information from different sections and we have observed the behavior in other major HTTP client implementations like curl and web browsers. Because the vulnerability requires a previously trusted service to become compromised in order to have an impact on confidentiality we believe the exploitability of this vulnerability is low. Additionally, many users aren't putting sensitive data in HTTP request bodies, if this is the case then this vulnerability isn't exploitable. Both of the following conditions must be true to be affected by this vulnerability: 1. Using urllib3 and submitting sensitive information in the HTTP request body (such as form data or JSON) and 2. The origin service is compromised and starts redirecting using 301, 302, or 303 to a malicious peer or the redirected-to service becomes compromised. This issue has been addressed in versions 1.26.18 and 2.0.7 and users are advised to update to resolve this issue. Users unable to update should disable redirects for services that aren't expecting to respond with redirects with `redirects=False` and disable automatic redirects with `redirects=False` and handle 301, 302, and 303 redirects manually by stripping the HTTP request body.\n"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "low"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2020-7694",
+              "name": "Log injection in uvicorn",
+              "shortDescription": {
+                "text": "Injection"
+              },
+              "fullDescription": {
+                "text": "Log injection in uvicorn"
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "low"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2020-13091",
+              "name": "CVE-2020-13091",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": "** DISPUTED ** pandas through 1.0.3 can unserialize and execute commands from an untrusted file that is passed to the read_pickle() function, if __reduce__ makes an os.system call. NOTE: third parties dispute this issue because the read_pickle() function is documented as unsafe and it is the user's responsibility to use the function in a secure manner."
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "unknown"
+                ],
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CVE-2016-10075",
+              "name": "CVE-2016-10075",
+              "shortDescription": {
+                "text": "Dependency Vulnerability"
+              },
+              "fullDescription": {
+                "text": "The tqdm._version module in tqdm versions 4.4.1 and 4.10 allows local users to execute arbitrary code via a crafted repo with a malicious git log in the current working directory."
+              },
+              "properties": {
+                "tags": [
+                  "pip",
+                  "unknown"
+                ],
+                "precision": "high"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CVE-2026-26007",
+          "level": "warning",
+          "message": {
+            "text": "cryptography@==3.4.7 CVE-2026-26007: cryptography Vulnerable to a Subgroup Attack Due to Missing Subgroup Validation for SECT Curves"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "cryptography",
+            "installed_version": "==3.4.7",
+            "fixed_version": "46.0.5",
+            "dependency_path": [
+              "cryptography"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2026-27205",
+          "level": "warning",
+          "message": {
+            "text": "flask@==0.0.3 CVE-2026-27205: Flask session does not add `Vary: Cookie` header when accessed in some ways"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "flask",
+            "installed_version": "==0.0.3",
+            "fixed_version": "3.1.3",
+            "dependency_path": [
+              "flask"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2025-27516",
+          "level": "warning",
+          "message": {
+            "text": "jinja2@==2.11.3 CVE-2025-27516: Jinja2 vulnerable to sandbox breakout through attr filter selecting format method"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "jinja2",
+            "installed_version": "==2.11.3",
+            "fixed_version": "3.1.6",
+            "dependency_path": [
+              "jinja2"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2014-1830",
+          "level": "warning",
+          "message": {
+            "text": "requests@==2.25.0 CVE-2014-1830: Exposure of Sensitive Information to an Unauthorized Actor in Requests"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "requests",
+            "installed_version": "==2.25.0",
+            "fixed_version": "2.3.0",
+            "dependency_path": [
+              "requests"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2026-27199",
+          "level": "warning",
+          "message": {
+            "text": "werkzeug@==2.0.3 CVE-2026-27199:  Werkzeug safe_join() allows Windows special device names"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "werkzeug",
+            "installed_version": "==2.0.3",
+            "fixed_version": "3.1.6",
+            "dependency_path": [
+              "werkzeug"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2011-4140",
+          "level": "note",
+          "message": {
+            "text": "django@==3.2.0 CVE-2011-4140: Django Cross-Site Request Forgery vulnerability"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "django",
+            "installed_version": "==3.2.0",
+            "fixed_version": null,
+            "dependency_path": [
+              "django"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.8,
+            "status": "mitigation recommended",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2020-25626",
+          "level": "note",
+          "message": {
+            "text": "djangorestframework@==3.12.4 CVE-2020-25626: Cross-site Scripting (XSS) in Django REST Framework"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "djangorestframework",
+            "installed_version": "==3.12.4",
+            "fixed_version": "3.11.2",
+            "dependency_path": [
+              "djangorestframework"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2024-24762",
+          "level": "note",
+          "message": {
+            "text": "fastapi@==0.0.0 CVE-2024-24762: FastAPI is a web framework for building APIs with Python 3.8+ based on standard Python type hints. When using form data, `python-multipart` uses a Regular Expression to parse the HTTP `Content-Type` header, including options. An attacker could send a custom-made `Content-Type` option that is very difficult for the RegEx to process, consuming CPU resources and stalling indefinitely (minutes or more) while holding the main event loop. This means that process can't handle any more requests. It's a ReDoS(Regular expression Denial of Service), it only applies to those reading form data, using `python-multipart`. This vulnerability has been patched in version 0.109.1."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "fastapi",
+            "installed_version": "==0.0.0",
+            "fixed_version": "9d34ad0ee8a0dfbbcce06f76c2d5d851085024fc",
+            "dependency_path": [
+              "fastapi"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2019-6446",
+          "level": "note",
+          "message": {
+            "text": "numpy@==1.21.0 CVE-2019-6446: Numpy Deserialization of Untrusted Data"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "numpy",
+            "installed_version": "==1.21.0",
+            "fixed_version": null,
+            "dependency_path": [
+              "numpy"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.8,
+            "status": "mitigation recommended",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2021-27922",
+          "level": "note",
+          "message": {
+            "text": "pillow@==4.2.1 CVE-2021-27922: Pillow Uncontrolled Resource Consumption"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "pillow",
+            "installed_version": "==4.2.1",
+            "fixed_version": "8.1.2",
+            "dependency_path": [
+              "pillow"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2020-14343",
+          "level": "note",
+          "message": {
+            "text": "pyyaml@==5.4.1 CVE-2020-14343: Improper Input Validation in PyYAML"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "pyyaml",
+            "installed_version": "==5.4.1",
+            "fixed_version": "5.4",
+            "dependency_path": [
+              "pyyaml"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2013-4251",
+          "level": "note",
+          "message": {
+            "text": "scipy@==1.7.0 CVE-2013-4251: SciPy creates insecure temporary directories"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "scipy",
+            "installed_version": "==1.7.0",
+            "fixed_version": "0.12.1",
+            "dependency_path": [
+              "scipy"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2019-7548",
+          "level": "note",
+          "message": {
+            "text": "sqlalchemy@==1.4.0 CVE-2019-7548: SQLAlchemy is vulnerable to SQL Injection via group_by parameter "
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "sqlalchemy",
+            "installed_version": "==1.4.0",
+            "fixed_version": "1.2.19",
+            "dependency_path": [
+              "sqlalchemy"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2023-45803",
+          "level": "note",
+          "message": {
+            "text": "urllib3@==1.01.6 CVE-2023-45803: urllib3 is a user-friendly HTTP client library for Python. urllib3 previously wouldn't remove the HTTP request body when an HTTP redirect response using status 301, 302, or 303 after the request had its method changed from one that could accept a request body (like `POST`) to `GET` as is required by HTTP RFCs. Although this behavior is not specified in the section for redirects, it can be inferred by piecing together information from different sections and we have observed the behavior in other major HTTP client implementations like curl and web browsers. Because the vulnerability requires a previously trusted service to become compromised in order to have an impact on confidentiality we believe the exploitability of this vulnerability is low. Additionally, many users aren't putting sensitive data in HTTP request bodies, if this is the case then this vulnerability isn't exploitable. Both of the following conditions must be true to be affected by this vulnerability: 1. Using urllib3 and submitting sensitive information in the HTTP request body (such as form data or JSON) and 2. The origin service is compromised and starts redirecting using 301, 302, or 303 to a malicious peer or the redirected-to service becomes compromised. This issue has been addressed in versions 1.26.18 and 2.0.7 and users are advised to update to resolve this issue. Users unable to update should disable redirects for services that aren't expecting to respond with redirects with `redirects=False` and disable automatic redirects with `redirects=False` and handle 301, 302, and 303 redirects manually by stripping the HTTP request body.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "urllib3",
+            "installed_version": "==1.01.6",
+            "fixed_version": "4e98d57809dacab1cbe625fddeec1a290c478ea9",
+            "dependency_path": [
+              "urllib3"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2020-7694",
+          "level": "note",
+          "message": {
+            "text": "uvicorn@==0.29.0 CVE-2020-7694: Log injection in uvicorn"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "uvicorn",
+            "installed_version": "==0.29.0",
+            "fixed_version": "0.11.7",
+            "dependency_path": [
+              "uvicorn"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2020-13091",
+          "level": "warning",
+          "message": {
+            "text": "pandas@==1.3.0 CVE-2020-13091: ** DISPUTED ** pandas through 1.0.3 can unserialize and execute commands from an untrusted file that is passed to the read_pickle() function, if __reduce__ makes an os.system call. NOTE: third parties dispute this issue because the read_pickle() function is documented as unsafe and it is the user's responsibility to use the function in a secure manner."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "pandas",
+            "installed_version": "==1.3.0",
+            "fixed_version": "1.0.4",
+            "dependency_path": [
+              "pandas"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        },
+        {
+          "ruleId": "CVE-2016-10075",
+          "level": "warning",
+          "message": {
+            "text": "tqdm@==4.62.0 CVE-2016-10075: The tqdm._version module in tqdm versions 4.4.1 and 4.10 allows local users to execute arbitrary code via a crafted repo with a malicious git log in the current working directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "package": "tqdm",
+            "installed_version": "==4.62.0",
+            "fixed_version": "4.11.2",
+            "dependency_path": [
+              "tqdm"
+            ],
+            "confidence": "exact version match",
+            "confidence_score": 0.9,
+            "status": "fixed available",
+            "mitigation_available": true,
+            "advisory_sources": [
+              "OSV"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "scan_date": "2026-04-30T09:10:54.447435Z",
+        "project_name": "requirements",
+        "total_dependencies": 17,
+        "overall_risk_score": 40
+      }
+    }
+  ]
+}
