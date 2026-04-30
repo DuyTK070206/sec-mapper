@@ -14,6 +14,7 @@ from src.models import Finding
 from src.osv_client import OSVClient, OSVVulnerabilityConverter
 from src.remediation_engine import RemediationEngine
 from src.ai_remediation import generate_mitigation
+from src.ai_risk_analyzer import generate_ai_analysis
 from src.report_generator import ReportGenerator
 from src.triage import AITriageEngine
 
@@ -231,6 +232,19 @@ class DependencyScanner:
                 except Exception as e:
                     logger.debug(f"[AI-INTEGRATION-ERROR] {e}")
                 
+                # Generate comprehensive AI analysis for all findings
+                try:
+                    ai_analysis = generate_ai_analysis(finding)
+                    finding["ai_analysis"] = ai_analysis
+                except Exception as e:
+                    logger.debug(f"[AI-ANALYSIS-INTEGRATION-ERROR] {e}")
+                    finding["ai_analysis"] = {
+                        "impact_analysis": "AI analysis failed",
+                        "attack_scenario": "AI analysis failed", 
+                        "mitigation_strategy": "AI analysis failed",
+                        "risk_assessment": "AI analysis failed"
+                    }
+                
                 findings.append(self.triage.enrich(finding))
         
         return findings, []
@@ -308,6 +322,20 @@ class DependencyScanner:
                     finding["mitigation_available"] = rem["mitigation_available"]
                     finding["remediation_recommendation"] = rem["recommendation"]
                     finding["status"] = rem["status"]
+                    
+                    # Generate comprehensive AI analysis for all findings
+                    try:
+                        ai_analysis = generate_ai_analysis(finding)
+                        finding["ai_analysis"] = ai_analysis
+                    except Exception as e:
+                        logger.debug(f"[AI-ANALYSIS-INTEGRATION-ERROR] {e}")
+                        finding["ai_analysis"] = {
+                            "impact_analysis": "AI analysis failed",
+                            "attack_scenario": "AI analysis failed", 
+                            "mitigation_strategy": "AI analysis failed",
+                            "risk_assessment": "AI analysis failed"
+                        }
+                    
                     findings.append(self.triage.enrich(finding))
         
         return findings, discrepancies

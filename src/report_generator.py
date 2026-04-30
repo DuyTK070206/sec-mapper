@@ -220,6 +220,16 @@ class ReportGenerator:
 
         <div class=\"kv\"><div class=\"label\">Root Cause Explanation</div><div class=\"value\">{html_module.escape(finding.get('root_cause', finding.get('description', '')))}</div></div>
         <div class=\"kv\"><div class=\"label\">Evidence</div><ul>{evidence_html or '<li>No direct evidence provided</li>'}</ul></div>
+        
+        <div class=\"kv\"><div class=\"label\">AI Risk Analysis</div>
+            <div class=\"value\">
+                <div style=\"margin-bottom: 8px;\"><strong>Impact Analysis:</strong> {html_module.escape(finding.get('ai_analysis', {}).get('impact_analysis', 'Not available'))}</div>
+                <div style=\"margin-bottom: 8px;\"><strong>Attack Scenario:</strong> {html_module.escape(finding.get('ai_analysis', {}).get('attack_scenario', 'Not available'))}</div>
+                <div style=\"margin-bottom: 8px;\"><strong>Mitigation Strategy:</strong> {html_module.escape(finding.get('ai_analysis', {}).get('mitigation_strategy', 'Not available'))}</div>
+                <div><strong>Risk Assessment:</strong> {html_module.escape(finding.get('ai_analysis', {}).get('risk_assessment', 'Not available'))}</div>
+            </div>
+        </div>
+        
         <div class=\"kv\"><div class=\"label\">References</div><ul>{refs_html or '<li>No references</li>'}</ul>
             <div class=\"value\">Additional Reference</div>
             <div class=\"value\"><a href=\"{nvd_link}\" target=\"_blank\">NVD</a> | <a href=\"{mitre_link}\" target=\"_blank\">MITRE</a></div>

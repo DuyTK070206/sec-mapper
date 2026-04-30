@@ -12,12 +12,25 @@ from src.upload_service import build_scan_targets, cleanup_workspace, store_uplo
 JOBS: Dict[str, Dict] = {}
 
 
-def _run_job(job_id: str, scan_targets: List[Dict], db_path: Optional[str]) -> None:
+def _run_job(job_id: str, scan_targets: List[Dict], db_path: Optional[str], ai_mode: bool = False) -> None:
     try:
-        scanner = DependencyScanner(db_path=db_path)
-        result = scanner.scan_targets(scan_targets)
-        JOBS[job_id]["result"] = result
-        JOBS[job_id]["status"] = "done"
+        # Set AI mode environment variable
+        import os
+        original_ai_mode = os.environ.get("AI_MODE")
+        os.environ["AI_MODE"] = "true" if ai_mode else "false"
+        
+        try:
+            scanner = DependencyScanner(db_path=db_path)
+            result = scanner.scan_targets(scan_targets)
+            JOBS[job_id]["result"] = result
+            JOBS[job_id]["status"] = "done"
+        finally:
+            # Restore original AI mode setting
+            if original_ai_mode is not None:
+                os.environ["AI_MODE"] = original_ai_mode
+            elif "AI_MODE" in os.environ:
+                del os.environ["AI_MODE"]
+                
     except Exception as exc:
         JOBS[job_id]["status"] = "failed"
         JOBS[job_id]["error"] = str(exc)
@@ -41,6 +54,7 @@ def create_app(db_path: Optional[str] = None):
 
     class ScanUploadedRequest(BaseModel):
         job_id: str
+        ai_mode: bool = False
 
     def _job_response(job_id: str) -> Dict:
         job = JOBS.get(job_id)
@@ -113,7 +127,7 @@ def create_app(db_path: Optional[str] = None):
             raise HTTPException(status_code=400, detail="No uploaded scan targets are available for this job")
 
         job["status"] = "running"
-        thread = threading.Thread(target=_run_job, args=(req.job_id, job["normalized_scan_targets"], db_path), daemon=True)
+        thread = threading.Thread(target=_run_job, args=(req.job_id, job["normalized_scan_targets"], db_path, req.ai_mode), daemon=True)
         thread.start()
         return {
             "job_id": req.job_id,

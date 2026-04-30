@@ -97,16 +97,87 @@ Optional NVD API key:
 python main.py samples\package.json --nvd-api-key <key>
 ```
 
+## AI-Powered Risk Analysis
+
+Sec Mapper includes optional AI analysis for enhanced vulnerability understanding using OpenAI's GPT models.
+
+### Enable AI Analysis
+
+Set the `AI_MODE` environment variable:
+
+```powershell
+$env:AI_MODE="true"
+python main.py samples\package.json --format html
+```
+
+### Configuration
+
+Required environment variables:
+- `AI_MODE`: Set to "true", "1", "yes", or "on" to enable AI analysis
+- `OPENAI_API_KEY`: Your OpenAI API key (required when AI_MODE is enabled)
+- `OPENAI_MODEL`: Optional, defaults to "gpt-4o-mini"
+
+### AI Analysis Features
+
+When enabled, each vulnerability finding includes:
+- **Impact Analysis**: Detailed explanation of potential system impact
+- **Attack Scenario**: Realistic exploitation methods and attack vectors
+- **Mitigation Strategy**: Specific steps to reduce risk
+- **Risk Assessment**: Overall risk evaluation and urgency guidance
+
+### Safe Failure
+
+The scanner works normally even when:
+- AI_MODE is disabled (default)
+- OPENAI_API_KEY is not configured
+- OpenAI API is unreachable
+- AI analysis fails for any reason
+
+AI analysis results are cached per vulnerability ID to avoid repeated API calls.
+
 ## Web UI and API
 
 Run server mode:
 
 ```powershell
-python main.py --serve --host 127.0.0.1 --port 8000
+python main.py --serve --host 127.0.0.1 --port 8001
+```
+
+Lấy api_key:https://platform.openai.com/api-keys
+
+The server will prompt you to configure OpenAI API key and AI mode settings:
+
+```
+============================================================
+Sec Mapper Web Server - Configuration
+============================================================
+
+[1/2] OpenAI API Key Configuration
+------------------------------------------------------------
+Enter your OpenAI API key (or press Enter to skip):
+```
+
+### Configuration Options
+
+**Interactive Mode (Default):**
+- Prompts for OpenAI API key
+- Asks whether to enable AI analysis
+- Can be skipped by pressing Enter
+
+**Non-Interactive Mode (for automation):**
+```powershell
+python main.py --serve --host 127.0.0.1 --port 8001 --openai-api-key sk-... --ai-mode
+```
+
+**Environment Variables:**
+```powershell
+$env:OPENAI_API_KEY="sk-..."
+$env:AI_MODE="true"
+python main.py --serve --host 127.0.0.1 --port 8001
 ```
 
 Open browser:
-- http://127.0.0.1:8000
+- http://127.0.0.1:8001
 
 API endpoints:
 - GET /health

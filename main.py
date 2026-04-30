@@ -1,4 +1,5 @@
 import argparse
+import os
 from pathlib import Path
 
 from src.scanner import DependencyScanner
@@ -73,6 +74,20 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help='GitHub token for accessing advisories',
     )
+    parser.add_argument(
+        '--openai-api-key',
+        type=str,
+        default=None,
+        help='OpenAI API key for AI analysis (can also use OPENAI_API_KEY environment variable)',
+    )
+    parser.add_argument(
+        '--ai-mode',
+        type=bool,
+        nargs='?',
+        const=True,
+        default=None,
+        help='Enable AI analysis mode (only with --serve)',
+    )
     return parser
 
 
@@ -85,6 +100,54 @@ def main() -> None:
     args = build_parser().parse_args()
 
     if args.serve:
+        print("\n" + "="*60)
+        print("Sec Mapper Web Server - Configuration")
+        print("="*60)
+        
+        # Get OpenAI API Key from argument or environment or interactive prompt
+        api_key = args.openai_api_key or os.environ.get("OPENAI_API_KEY")
+        
+        if not api_key:
+            # Interactive mode
+            print("\n[1/2] OpenAI API Key Configuration")
+            print("-" * 60)
+            api_key = input("Enter your OpenAI API key (or press Enter to skip): ").strip()
+        
+        if api_key:
+            os.environ["OPENAI_API_KEY"] = api_key
+            print("✓ OpenAI API key configured")
+        else:
+            print("⊗ OpenAI API key not configured (AI analysis will be disabled)")
+        
+        # Get AI Mode setting
+        print("\n[2/2] AI Mode Configuration")
+        print("-" * 60)
+        
+        if args.ai_mode is not None:
+            # Argument provided
+            ai_mode = args.ai_mode
+        elif api_key:
+            # Interactive mode only if API key is available
+            ai_mode_input = input("Enable AI analysis by default? (y/n, default: n): ").strip().lower()
+            ai_mode = ai_mode_input in ('y', 'yes', '1', 'true')
+        else:
+            ai_mode = False
+        
+        if api_key:
+            if ai_mode:
+                os.environ["AI_MODE"] = "true"
+                print("✓ AI mode enabled")
+            else:
+                os.environ["AI_MODE"] = "false"
+                print("⊗ AI mode disabled (can be toggled in web interface)")
+        else:
+            os.environ["AI_MODE"] = "false"
+            print("⊗ AI mode disabled (API key not configured)")
+        
+        print("\n" + "="*60)
+        print(f"Starting server at http://{args.host}:{args.port}")
+        print("="*60 + "\n")
+        
         from src.web_api import run_server
         run_server(host=args.host, port=args.port, db_path=str(args.vuln_db) if args.vuln_db else None)
         return

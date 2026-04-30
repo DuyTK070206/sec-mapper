@@ -2,8 +2,8 @@
   "name": "vulnerable-test-app",
   "version": "1.0.0",
   "dependencies": {
-    "lodash": "4.17.20",
     "axios": "0.1.0",
+    "lodash": "4.17.20",
     "urllib3": "1.25.0",
     "requests": "2.25.0",
     "follow-redirects": "1.13.0"

@@ -522,6 +522,14 @@
         </button>
 
         <button
+          id="aiToggleBtn"
+          class="clear-btn"
+          onclick="toggleAIMode()"
+        >
+          AI Mode: OFF
+        </button>
+
+        <button
           class="clear-btn"
           onclick="clearState()"
         >
@@ -660,6 +668,8 @@ let latestJobId = null;
 
 let findingsCache = [];
 
+let aiMode = localStorage.getItem('aiMode') === 'true';
+
 async function startScan() {
 
   try {
@@ -706,7 +716,8 @@ async function startScan() {
         },
 
         body: JSON.stringify({
-          job_id: uploadData.job_id
+          job_id: uploadData.job_id,
+          ai_mode: aiMode
         })
 
       });
@@ -1061,11 +1072,50 @@ function showDetails(f) {
 
     ${detail(
       'Recommendation',
+      f.remediation_recommendation ||
       f.recommendation ||
       'Upgrade dependency'
     )}
 
-    <div class="detail-section">
+    ${
+      f.ai_analysis ? `
+        <div class="detail-section">
+          <div class="detail-title">
+            AI Impact Analysis
+          </div>
+          <div>
+            ${escapeHtml(f.ai_analysis.impact_analysis || 'Not available')}
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-title">
+            AI Attack Scenario
+          </div>
+          <div>
+            ${escapeHtml(f.ai_analysis.attack_scenario || 'Not available')}
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-title">
+            AI Mitigation Strategy
+          </div>
+          <div>
+            ${escapeHtml(f.ai_analysis.mitigation_strategy || 'Not available')}
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-title">
+            AI Risk Assessment
+          </div>
+          <div>
+            ${escapeHtml(f.ai_analysis.risk_assessment || 'Not available')}
+          </div>
+        </div>
+      ` : ''
+    }
 
       <div class="detail-title">
         Evidence
@@ -1234,6 +1284,27 @@ function escapeHtml(value) {
     .replaceAll('"', '&quot;');
 
 }
+
+// Initialize AI toggle button state
+function initAIToggle() {
+  const btn = document.getElementById('aiToggleBtn');
+  updateAIToggleButton(btn);
+}
+
+function updateAIToggleButton(btn) {
+  btn.textContent = aiMode ? 'AI Mode: ON' : 'AI Mode: OFF';
+  btn.className = aiMode ? 'scan-btn' : 'clear-btn';
+}
+
+function toggleAIMode() {
+  aiMode = !aiMode;
+  localStorage.setItem('aiMode', aiMode.toString());
+  const btn = document.getElementById('aiToggleBtn');
+  updateAIToggleButton(btn);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initAIToggle);
 
 </script>
 
