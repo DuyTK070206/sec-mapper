@@ -8,11 +8,7 @@ class AITriageEngine:
     def cluster_duplicates(self, findings: List[Dict]) -> List[Dict]:
         grouped = defaultdict(list)
         for finding in findings:
-            key = (
-                finding.get("package", "").lower(),
-                finding.get("vulnerability_id", finding.get("cve", "")),
-                finding.get("fixed_version", ""),
-            )
+            key = finding.get("package", "").lower()
             grouped[key].append(finding)
 
         deduped: List[Dict] = []
@@ -20,20 +16,32 @@ class AITriageEngine:
             if len(items) == 1:
                 deduped.append(items[0])
                 continue
+            # Sort by severity and risk_score
+            severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3, "unknown": 4}
+            items.sort(key=lambda f: (severity_order.get(f.get("severity", "unknown").lower(), 4), -f.get("risk_score", 0)))
             base = dict(items[0])
-            all_paths: List[List[str]] = []
+            # Collect all vulnerabilities
+            all_vulns = []
             sources = set(base.get("advisory_sources", []))
             evidences = list(base.get("evidence", []))
+            max_risk = 0
             for item in items:
-                if item.get("dependency_path"):
-                    all_paths.append(item["dependency_path"])
+                vuln_info = {
+                    "id": item.get("vulnerability_id", item.get("cve", "unknown")),
+                    "severity": item.get("severity", "unknown"),
+                    "fixed_version": item.get("fixed_version"),
+                    "description": item.get("root_cause", "")[:100] + "..." if len(item.get("root_cause", "")) > 100 else item.get("root_cause", ""),
+                }
+                all_vulns.append(vuln_info)
+                max_risk = max(max_risk, item.get("risk_score", 0))
                 for src in item.get("advisory_sources", []):
                     sources.add(src)
                 evidences.extend(item.get("evidence", []))
-            base["dependency_paths"] = all_paths or [base.get("dependency_path", [])]
+            base["vulnerabilities"] = all_vulns[:5]  # Limit to top 5
             base["advisory_sources"] = sorted(sources)
             base["evidence"] = sorted(set(evidences))
-            base["triage_summary"] = self._explain(base)
+            base["risk_score"] = max_risk  # Use highest risk
+            base["triage_summary"] = f"Grouped {len(items)} vulnerabilities for {base.get('package')}"
             deduped.append(base)
         return deduped
 

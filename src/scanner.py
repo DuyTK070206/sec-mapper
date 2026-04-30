@@ -48,6 +48,19 @@ class DependencyScanner:
                     if not self._matches(advisory.vulnerable_ranges, dep.version, dep.ecosystem):
                         continue
 
+                    # Skip if already fixed
+                    if advisory.fixed_version:
+                        try:
+                            if Version(advisory.fixed_version) <= Version(dep.version):
+                                continue
+                        except (InvalidVersion, TypeError):
+                            pass
+
+                    # Skip very old CVEs that are unlikely relevant
+                    vuln_id = advisory.advisory_id or (advisory.aliases[0] if advisory.aliases else "")
+                    if vuln_id.startswith("CVE-1999") or vuln_id.startswith("CVE-2000"):
+                        continue
+
                     confidence, score, evidence = self._confidence_for(dep, advisory, source_name)
                     vuln_id = advisory.advisory_id or (advisory.aliases[0] if advisory.aliases else "unknown")
                     vuln_type = self._infer_vuln_type(advisory)
@@ -84,6 +97,7 @@ class DependencyScanner:
                         references=[r for r in advisory.references if r],
                         advisory_sources=[source_name],
                         cwe=advisory.cwe,
+                        risk_score=self._calculate_finding_risk_score(advisory.severity, score, bool(advisory.fixed_version), dep.is_transitive),
                     ).to_dict()
                     if poc:
                         finding["poc"] = poc
@@ -360,6 +374,25 @@ class DependencyScanner:
             label = "uncertain match requiring review"
         return label, score, evidence
 
+    def _calculate_finding_risk_score(self, severity: str, confidence_score: float, patch_available: bool, is_transitive: bool) -> int:
+        """Calculate risk score for individual finding based on severity, confidence, patch status, and dependency type."""
+        severity_scores = {"critical": 100, "high": 80, "medium": 60, "low": 40, "unknown": 50}
+        base_score = severity_scores.get(severity.lower(), 50)
+        
+        # Adjust for confidence (0-1 scale)
+        confidence_multiplier = 0.5 + (confidence_score * 0.5)  # 0.5 to 1.0
+        score = base_score * confidence_multiplier
+        
+        # Reduce if patch available
+        if patch_available:
+            score *= 0.8
+        
+        # Reduce for transitive dependencies
+        if is_transitive:
+            score *= 0.9
+        
+        return int(min(100, max(0, score)))
+
     def _sort_findings(self, findings: List[Dict]) -> List[Dict]:
         severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3, "unknown": 4}
         confidence_order = {
@@ -409,16 +442,27 @@ class DependencyScanner:
             lines.extend(
                 [
                     f"{idx}. [{finding.get('severity', 'unknown').upper()}] {finding.get('package')} ({finding.get('ecosystem')})",
-                    f"   Vulnerability ID: {finding.get('vulnerability_id', finding.get('cve', 'unknown'))}",
                     f"   Current Version: {finding.get('version')}",
-                    f"   Fixed Version: {finding.get('fixed_version') or 'N/A'}",
-                    f"   Confidence: {finding.get('confidence')} ({finding.get('confidence_score', 0):.2f})",
+                    f"   Risk Score: {finding.get('risk_score', 0)}/100",
                     f"   Dependency Path: {' > '.join(finding.get('dependency_path', []))}",
                     f"   Status: {finding.get('status')}",
-                    f"   Recommendation: {finding.get('remediation_recommendation')}",
-                    "",
                 ]
             )
+            vulns = finding.get("vulnerabilities", [])
+            if vulns:
+                lines.append(f"   Vulnerabilities ({len(vulns)}):")
+                for vuln in vulns:
+                    lines.append(f"     - {vuln['id']} ({vuln['severity']}) - Fixed: {vuln['fixed_version'] or 'N/A'}")
+            else:
+                lines.extend([
+                    f"   Vulnerability ID: {finding.get('vulnerability_id', finding.get('cve', 'unknown'))}",
+                    f"   Fixed Version: {finding.get('fixed_version') or 'N/A'}",
+                    f"   Confidence: {finding.get('confidence')} ({finding.get('confidence_score', 0):.2f})",
+                ])
+            lines.extend([
+                f"   Recommendation: {finding.get('remediation_recommendation')}",
+                "",
+            ])
 
         post = scan_result.get("scan_health", {}).get("post_scan_system_state", {})
         if post:
@@ -452,10 +496,5 @@ class DependencyScanner:
     def _calculate_overall_risk_score(self, findings: List[Dict]) -> int:
         if not findings:
             return 0
-        score_map = {"critical": 95, "high": 75, "medium": 50, "low": 20, "unknown": 30}
-        weighted: List[float] = []
-        for finding in findings:
-            sev = score_map.get((finding.get("severity") or "unknown").lower(), 30)
-            conf = float(finding.get("confidence_score", 0.5))
-            weighted.append(sev * max(0.2, conf))
-        return int(sum(weighted) / len(weighted))
+        risk_scores = [f.get("risk_score", 50) for f in findings]
+        return int(sum(risk_scores) / len(risk_scores))

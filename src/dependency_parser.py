@@ -327,4 +327,6 @@ class ParserFactory:
         parser_cls = ParserFactory._registry.get(lower_name)
         if parser_cls is not None:
             return parser_cls()
+        if lower_name.endswith('.json'):
+            return NpmPackageJsonParser()
         raise ValueError(f'Unsupported manifest type: {manifest_filename}')

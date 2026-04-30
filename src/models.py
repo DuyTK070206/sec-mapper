@@ -59,6 +59,7 @@ class Finding:
     advisory_sources: List[str] = field(default_factory=list)
     cwe: List[str] = field(default_factory=list)
     triage_summary: str = ""
+    risk_score: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -92,6 +93,7 @@ class Finding:
             "reference": self.references[0] if self.references else "",
             "effort": "medium",
             "poc": "Safe reproduction steps only. Set lab mode explicitly for exploit PoC generation.",
+            "risk_score": self.risk_score,
         }
 
 

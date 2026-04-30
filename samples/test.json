@@ -1,0 +1,9 @@
+{
+  "name": "vulnerable-test-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "lodash": "4.17.20",
+    "axios": "0.1.0",
+    "minimist": "0.0.8"
+  }
+}
